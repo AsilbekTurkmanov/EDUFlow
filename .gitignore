@@ -1,0 +1,17 @@
+# .NET build artifacts
+bin/
+obj/
+*.user
+*.suo
+.vs/
+
+# Node & Frontend
+node_modules/
+dist/
+.vite/
+*.log
+
+# OS & Environment
+.DS_Store
+Thumbs.db
+*.env
