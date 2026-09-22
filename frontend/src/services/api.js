@@ -7,39 +7,42 @@ export const removeToken = () => localStorage.removeItem('eduflow_token');
 // In-browser mock data for GitHub Pages standalone demo when local backend is unreachable
 const mockSeed = {
   users: [
-    { id: '1', fullName: 'Sardor Rahimov (Admin)', email: 'admin@eduflow.uz', role: 'Admin', status: 'Active', phone: '+998 90 123 45 67' },
-    { id: '2', fullName: 'Anvar Karimov (Senior .NET)', email: 'anvar.ustoz@eduflow.uz', role: 'Teacher', status: 'Active', phone: '+998 93 222 33 44' },
-    { id: '3', fullName: 'Madina Alimova (Frontend Lead)', email: 'madina.ustoz@eduflow.uz', role: 'Teacher', status: 'Active', phone: '+998 94 333 44 55' },
-    { id: '4', fullName: 'Jasur Bekmirzayev', email: 'jasur@eduflow.uz', role: 'Student', status: 'Active', phone: '+998 97 111 22 33' },
-    { id: '5', fullName: 'Shahzod Normatov', email: 'shahzod@eduflow.uz', role: 'Student', status: 'Active', phone: '+998 91 444 55 66' },
-    { id: '6', fullName: 'Dilnoza Rahimova', email: 'dilnoza@eduflow.uz', role: 'Student', status: 'Active', phone: '+998 99 777 88 99' }
+    { id: '1', fullName: 'Asilbek Turkmanov (Super Admin)', username: 'asilbekturkmanov', email: 'asilbekturkmanov@eduflow.uz', role: 'Admin', status: 'Active', phone: '+998 99 199 20 12' },
+    { id: '2', fullName: 'Shahriyor O\'qituvchi', username: 'shahriyor', email: 'shahriyor@eduflow.uz', role: 'Teacher', status: 'Active', phone: '+998 90 345 67 89', experienceYears: 3, sharePercentage: 70, monthlyEarned: 15680000, totalEarned: 564480000, studentNames: ['Turkmanov O\'quvchi', 'Jasur Bekmirzayev', 'Shahzod Normatov', 'Dilnoza Rahimova'] },
+    { id: '3', fullName: 'Turkmanov O\'quvchi', username: 'turkmanov', email: 'turkmanov@eduflow.uz', role: 'Student', status: 'Active', phone: '+998 99 199 20 12', parentPhone: '+998 90 777 55 44', balance: 0, balanceFormatted: '+0 so\'m', presentCount: 24, absentCount: 1, monthlyPaymentStats: [{ month: 'Apr', amount: 800000, isPaid: true }, { month: 'May', amount: 800000, isPaid: true }, { month: 'Iyun', amount: 800000, isPaid: true }, { month: 'Iyul', amount: 800000, isPaid: true }, { month: 'Avg', amount: 800000, isPaid: true }, { month: 'Sen', amount: 800000, isPaid: true }] },
+    { id: '4', fullName: 'Jasur Bekmirzayev', username: 'jasur_b', email: 'jasur@eduflow.uz', role: 'Student', status: 'Active', phone: '+998 97 111 22 33', parentPhone: '+998 90 111 22 33', balance: -800000, balanceFormatted: '-800 000 so\'m', presentCount: 22, absentCount: 3, monthlyPaymentStats: [{ month: 'Apr', amount: 800000, isPaid: true }, { month: 'May', amount: 800000, isPaid: true }, { month: 'Iyun', amount: 800000, isPaid: true }, { month: 'Iyul', amount: 800000, isPaid: true }, { month: 'Avg', amount: 800000, isPaid: true }, { month: 'Sen', amount: 0, isPaid: false }] },
+    { id: '5', fullName: 'Shahzod Normatov', username: 'shahzod_n', email: 'shahzod@eduflow.uz', role: 'Student', status: 'Active', phone: '+998 91 444 55 66', parentPhone: '+998 90 444 55 66', balance: 7200000, balanceFormatted: '+7 200 000 so\'m', presentCount: 25, absentCount: 0, monthlyPaymentStats: [{ month: 'Apr', amount: 800000, isPaid: true }, { month: 'May', amount: 800000, isPaid: true }, { month: 'Iyun', amount: 800000, isPaid: true }, { month: 'Iyul', amount: 800000, isPaid: true }, { month: 'Avg', amount: 800000, isPaid: true }, { month: 'Sen', amount: 800000, isPaid: true }] },
+    { id: '6', fullName: 'Dilnoza Rahimova', username: 'dilnoza_r', email: 'dilnoza@eduflow.uz', role: 'Student', status: 'Active', phone: '+998 99 777 88 99', parentPhone: '+998 90 888 99 00', balance: 0, balanceFormatted: '+0 so\'m', presentCount: 23, absentCount: 2, monthlyPaymentStats: [{ month: 'Apr', amount: 800000, isPaid: true }, { month: 'May', amount: 800000, isPaid: true }, { month: 'Iyun', amount: 800000, isPaid: true }, { month: 'Iyul', amount: 800000, isPaid: true }, { month: 'Avg', amount: 800000, isPaid: true }, { month: 'Sen', amount: 800000, isPaid: true }] }
   ],
   courses: [
-    { id: 'c1', name: '.NET 10 Backend Architecture', description: 'Clean Architecture, EF Core, PostgreSQL, REST API, Docker va CI/CD kursi', price: 3500000, durationWeeks: 16, status: 'Active', groupsCount: 1 },
-    { id: 'c2', name: 'React JS & Modern Frontend', description: 'React 19, SPA, State Management, Tailwind/Vanilla CSS va zamonaviy veb ilovalar', price: 3000000, durationWeeks: 12, status: 'Active', groupsCount: 1 },
-    { id: 'c3', name: 'Full-Stack Enterprise Bootcamp', description: 'Frontend React + Backend .NET to\'liq integratsiya loyihasi', price: 6000000, durationWeeks: 24, status: 'Active', groupsCount: 0 }
+    { id: 'c1', name: '.NET 10 Backend Architecture', description: 'Clean Architecture, EF Core, PostgreSQL, REST API, Docker va CI/CD kursi', price: 800000, durationWeeks: 16, status: 'Active', groupsCount: 1 },
+    { id: 'c2', name: 'React JS & Modern Frontend', description: 'React 19, SPA, State Management, Tailwind/Vanilla CSS va zamonaviy veb ilovalar', price: 800000, durationWeeks: 12, status: 'Active', groupsCount: 1 },
+    { id: 'c3', name: 'Full-Stack Enterprise Bootcamp', description: 'Frontend React + Backend .NET to\'liq integratsiya loyihasi', price: 800000, durationWeeks: 24, status: 'Active', groupsCount: 1 }
   ],
   groups: [
-    { id: 'g1', name: 'DOTNET-G101', courseId: 'c1', courseName: '.NET 10 Backend Architecture', teacherId: '2', teacherName: 'Anvar Karimov', startDate: '2026-08-18', status: 'Active', studentsCount: 3 },
-    { id: 'g2', name: 'REACT-G201', courseId: 'c2', courseName: 'React JS & Modern Frontend', teacherId: '3', teacherName: 'Madina Alimova', startDate: '2026-08-28', status: 'Active', studentsCount: 2 }
+    { id: 'g1', name: 'DOTNET-G101', color: '#10B981', courseId: 'c1', courseName: '.NET 10 Backend Architecture', teacherId: '2', teacherName: 'Shahriyor O\'qituvchi', startDate: '2026-08-18', status: 'Active', studentsCount: 4 },
+    { id: 'g2', name: 'REACT-G201', color: '#3B82F6', courseId: 'c2', courseName: 'React JS & Modern Frontend', teacherId: '2', teacherName: 'Shahriyor O\'qituvchi', startDate: '2026-08-28', status: 'Active', studentsCount: 3 }
   ],
   lessons: [
-    { id: 'l1', groupId: 'g1', groupName: 'DOTNET-G101', title: '1-Dars: Clean Architecture asoslari va EF Core PostgreSQL', startsAt: new Date(Date.now() - 86400000 * 2).toISOString(), endsAt: new Date(Date.now() - 86400000 * 2 + 7200000).toISOString(), room: 'Auditoriya 101', onlineUrl: 'https://meet.google.com/edu-net-101', teacherName: 'Anvar Karimov' },
-    { id: 'l2', groupId: 'g1', groupName: 'DOTNET-G101', title: '2-Dars: JWT Authentication va Role Authorization', startsAt: new Date(Date.now() + 86400000).toISOString(), endsAt: new Date(Date.now() + 86400000 + 7200000).toISOString(), room: 'Auditoriya 101', onlineUrl: 'https://meet.google.com/edu-net-101', teacherName: 'Anvar Karimov' },
-    { id: 'l3', groupId: 'g2', groupName: 'REACT-G201', title: 'React Hooks va State boshqaruvi', startsAt: new Date(Date.now() + 86400000 * 2).toISOString(), endsAt: new Date(Date.now() + 86400000 * 2 + 7200000).toISOString(), room: 'Auditoriya 204', onlineUrl: 'https://meet.google.com/edu-react-201', teacherName: 'Madina Alimova' }
+    { id: 'l1', groupId: 'g1', groupName: 'DOTNET-G101', groupColor: '#10B981', title: '1-Dars: Clean Architecture & EF Core', startsAt: '2026-09-21T08:30:00Z', endsAt: '2026-09-21T10:00:00Z', room: 'Auditoriya 101', onlineUrl: 'https://meet.google.com/edu-net-101', teacherName: 'Shahriyor O\'qituvchi' },
+    { id: 'l2', groupId: 'g2', groupName: 'REACT-G201', groupColor: '#3B82F6', title: '2-Dars: React 19 Hooks & State', startsAt: '2026-09-22T10:15:00Z', endsAt: '2026-09-22T11:45:00Z', room: 'Auditoriya 204', onlineUrl: 'https://meet.google.com/edu-react-201', teacherName: 'Shahriyor O\'qituvchi' },
+    { id: 'l3', groupId: 'g1', groupName: 'DOTNET-G101', groupColor: '#10B981', title: '3-Dars: JWT Auth & Security', startsAt: '2026-09-23T12:00:00Z', endsAt: '2026-09-23T13:30:00Z', room: 'Auditoriya 101', onlineUrl: 'https://meet.google.com/edu-net-101', teacherName: 'Shahriyor O\'qituvchi' },
+    { id: 'l4', groupId: 'g2', groupName: 'REACT-G201', groupColor: '#3B82F6', title: '4-Dars: Kundalik Dars Jadvali', startsAt: '2026-09-24T14:00:00Z', endsAt: '2026-09-24T15:30:00Z', room: 'Auditoriya 204', onlineUrl: 'https://meet.google.com/edu-react-201', teacherName: 'Shahriyor O\'qituvchi' },
+    { id: 'l5', groupId: 'g1', groupName: 'DOTNET-G101', groupColor: '#10B981', title: '5-Dars: PostgreSQL & EF Migrations', startsAt: '2026-09-25T15:45:00Z', endsAt: '2026-09-25T17:15:00Z', room: 'Auditoriya 101', onlineUrl: 'https://meet.google.com/edu-net-101', teacherName: 'Shahriyor O\'qituvchi' },
+    { id: 'l6', groupId: 'g2', groupName: 'REACT-G201', groupColor: '#3B82F6', title: '6-Dars: Moliya & Balans Integratsiyasi', startsAt: '2026-09-26T17:30:00Z', endsAt: '2026-09-26T19:00:00Z', room: 'Auditoriya 204', onlineUrl: 'https://meet.google.com/edu-react-201', teacherName: 'Shahriyor O\'qituvchi' }
   ],
   assignments: [
-    { id: 'a1', groupId: 'g1', groupName: 'DOTNET-G101', title: 'Vazifa #1: Repository va Unit of Work pattern yaratish', description: 'EF Core yordamida PostgreSQL bazasi bilan bog\'lanuvchi repository qatlamini yarating.', deadline: new Date(Date.now() + 86400000 * 3).toISOString(), maxScore: 100, submissionsCount: 2, isPassedDeadline: false },
-    { id: 'a2', groupId: 'g2', groupName: 'REACT-G201', title: 'Vazifa #1: React Dashboard UI interfeysi', description: 'Ko\'k rangdan foydalanmasdan, zamonaviy Zumrad va Qahrabo ranglarida boshqaruv paneli sahifasini yarating.', deadline: new Date(Date.now() + 86400000 * 5).toISOString(), maxScore: 100, submissionsCount: 1, isPassedDeadline: false }
+    { id: 'a1', groupId: 'g1', groupName: 'DOTNET-G101', title: 'Vazifa #1: Clean Architecture loyihasi', description: 'EF Core yordamida PostgreSQL bazasi bilan bog\'lanuvchi repository qatlamini yarating.', deadline: new Date(Date.now() + 86400000 * 3).toISOString(), maxScore: 100, submissionsCount: 2, isPassedDeadline: false },
+    { id: 'a2', groupId: 'g2', groupName: 'REACT-G201', title: 'Vazifa #1: Kundalik Dars Jadvali UI', description: '6 kunlik jadval va rangli guruh kartalarini tayyorlang.', deadline: new Date(Date.now() + 86400000 * 5).toISOString(), maxScore: 100, submissionsCount: 1, isPassedDeadline: false }
   ],
   payments: [
-    { id: 'p1', studentId: '4', studentName: 'Jasur Bekmirzayev', studentEmail: 'jasur@eduflow.uz', amount: 2000000, method: 'Card', status: 'Completed', paidAt: new Date(Date.now() - 86400000 * 15).toISOString(), note: '.NET kursi uchun 1-qism to\'lov' },
-    { id: 'p2', studentId: '4', studentName: 'Jasur Bekmirzayev', studentEmail: 'jasur@eduflow.uz', amount: 1500000, method: 'BankTransfer', status: 'Completed', paidAt: new Date(Date.now() - 86400000 * 5).toISOString(), note: '.NET kursi yakuniy to\'lov' },
-    { id: 'p3', studentId: '5', studentName: 'Shahzod Normatov', studentEmail: 'shahzod@eduflow.uz', amount: 1800000, method: 'Card', status: 'Completed', paidAt: new Date(Date.now() - 86400000 * 10).toISOString(), note: 'Boshlang\'ich 50% to\'lov' }
+    { id: 'p1', studentId: '3', studentName: 'Turkmanov O\'quvchi', studentEmail: 'turkmanov@eduflow.uz', studentPhone: '+998 99 199 20 12', parentPhone: '+998 90 777 55 44', amount: 800000, method: 'Card', status: 'Completed', paidAt: new Date(Date.now() - 86400000 * 2).toISOString(), note: '1 oylik o\'qish to\'lovi' },
+    { id: 'p2', studentId: '5', studentName: 'Shahzod Normatov', studentEmail: 'shahzod@eduflow.uz', studentPhone: '+998 91 444 55 66', parentPhone: '+998 90 444 55 66', amount: 7200000, method: 'BankTransfer', status: 'Completed', paidAt: new Date(Date.now() - 86400000 * 10).toISOString(), note: '9 oylik to\'liq kurs to\'lovi (7 200 000 so\'m)' },
+    { id: 'p3', studentId: '4', studentName: 'Jasur Bekmirzayev', studentEmail: 'jasur@eduflow.uz', studentPhone: '+998 97 111 22 33', parentPhone: '+998 90 111 22 33', amount: 800000, method: 'Card', status: 'Completed', paidAt: new Date(Date.now() - 86400000 * 25).toISOString(), note: 'Avvalgi oy to\'lovi' }
   ],
   audit: [
-    { id: 'au1', action: 'LOGIN', entity: 'User', userName: 'Sardor Rahimov (Admin)', createdAt: new Date().toISOString(), metadata: 'Tizimga muvaffaqiyatli kirildi' },
-    { id: 'au2', action: 'CREATE', entity: 'Course', userName: 'Sardor Rahimov (Admin)', createdAt: new Date(Date.now() - 86400000).toISOString(), metadata: 'Kurs qo\'shildi: .NET 10 Backend Architecture' }
+    { id: 'au1', action: 'LOGIN', entity: 'User', userName: 'Asilbek Turkmanov (Super Admin)', createdAt: new Date().toISOString(), metadata: 'Tizimga muvaffaqiyatli kirildi' },
+    { id: 'au2', action: 'CREATE', entity: 'Course', userName: 'Asilbek Turkmanov (Super Admin)', createdAt: new Date(Date.now() - 86400000).toISOString(), metadata: 'Kurs qo\'shildi: .NET 10 Backend Architecture' }
   ]
 };
 
@@ -105,8 +108,19 @@ function handleOfflineFallback(endpoint, options) {
   // Auth login
   if (endpoint === '/auth/login' && method === 'POST') {
     const users = getStorage('users', mockSeed.users);
-    const rawInput = (body.username || body.email || '').toLowerCase();
-    const user = users.find((u) => (u.username && u.username.toLowerCase() === rawInput) || (u.email && u.email.toLowerCase() === rawInput)) || users[0];
+    const rawInput = (body.username || body.email || '').trim().toLowerCase();
+    const cleanPhone = rawInput.replace(/[\s-]/g, '');
+    const user = users.find(
+      (u) =>
+        (u.username && u.username.toLowerCase() === rawInput) ||
+        (u.email && u.email.toLowerCase() === rawInput) ||
+        (u.phone && u.phone.replace(/[\s-]/g, '').toLowerCase() === cleanPhone)
+    );
+
+    if (!user || (body.password !== '+998991992012' && body.password !== '123456')) {
+      throw new Error("Login (username/email) yoki parol noto'g'ri.");
+    }
+
     const mockToken = 'mock_jwt_' + user.id;
     setStorage('current_user', user);
     return { success: true, data: { token: mockToken, user }, message: 'Muvaffaqiyatli kirildi' };
@@ -237,15 +251,60 @@ function handleOfflineFallback(endpoint, options) {
   // Payments
   if (endpoint.startsWith('/payments')) {
     let payments = getStorage('payments', mockSeed.payments);
+    if (endpoint.includes('/balance')) {
+      const user = getStorage('current_user', mockSeed.users[2]);
+      const balance = user.balance ?? 0;
+      const balanceFormatted = user.balanceFormatted ?? (balance === 0 ? '+0 so\'m' : (balance > 0 ? `+${balance.toLocaleString('uz-UZ')} so'm` : `-${Math.abs(balance).toLocaleString('uz-UZ')} so'm`));
+      return {
+        success: true,
+        data: {
+          studentId: user.id,
+          studentName: user.fullName,
+          monthlyTuition: 800000,
+          enrolledMonths: 1,
+          totalTuitionRequired: 800000,
+          totalPaid: 800000 + balance,
+          balance,
+          balanceFormatted,
+          statusText: balance > 0 ? "Oldindan to'langan" : (balance === 0 ? "To'liq to'langan" : "Qarzdorlik"),
+          recentPayments: payments.filter(p => p.studentId === user.id)
+        }
+      };
+    }
     if (endpoint.includes('/debts')) {
-      return { success: true, data: [
-        { studentId: '4', studentName: 'Jasur Bekmirzayev', studentEmail: 'jasur@eduflow.uz', totalCourseFee: 3500000, totalPaid: 3500000, remainingDebt: 0, activeEnrollmentsCount: 1 },
-        { studentId: '5', studentName: 'Shahzod Normatov', studentEmail: 'shahzod@eduflow.uz', totalCourseFee: 3500000, totalPaid: 1800000, remainingDebt: 1700000, activeEnrollmentsCount: 1 }
-      ] };
+      const students = mockSeed.users.filter(u => u.role === 'Student');
+      return {
+        success: true,
+        data: students.map(s => ({
+          studentId: s.id,
+          studentName: s.fullName,
+          studentEmail: s.email,
+          studentPhone: s.phone,
+          parentPhone: s.parentPhone,
+          monthlyFee: 800000,
+          totalCourseFee: 800000,
+          totalPaid: 800000 + (s.balance || 0),
+          balance: s.balance || 0,
+          remainingDebt: (s.balance || 0) < 0 ? Math.abs(s.balance) : 0,
+          activeEnrollmentsCount: 1,
+          statusText: (s.balance || 0) > 0 ? "Oldindan to'langan" : ((s.balance || 0) === 0 ? "To'langan" : "Qarzdor"),
+          monthlyStats: s.monthlyPaymentStats || []
+        }))
+      };
     }
     if (method === 'GET') return { success: true, data: payments };
     if (method === 'POST') {
-      const newP = { id: 'p_' + Date.now(), ...body, studentName: 'Talaba', paidAt: new Date().toISOString(), status: 'Completed' };
+      const user = getStorage('current_user', mockSeed.users[2]);
+      const newP = {
+        id: 'p_' + Date.now(),
+        ...body,
+        studentName: user.fullName,
+        studentEmail: user.email,
+        studentPhone: user.phone,
+        parentPhone: user.parentPhone,
+        paidAt: new Date().toISOString(),
+        status: 'Completed'
+      };
       payments = [newP, ...payments];
       setStorage('payments', payments);
       return { success: true, data: newP, message: 'To\'lov qabul qilindi' };
@@ -259,15 +318,15 @@ function handleOfflineFallback(endpoint, options) {
       return {
         success: true,
         data: {
-          totalStudents: 6,
-          totalTeachers: 2,
-          totalCourses: 3,
-          activeGroups: 2,
-          totalRevenue: 5300000,
-          monthlyRevenue: 3300000,
+          totalStudents: 131,
+          totalTeachers: 16,
+          totalCourses: 12,
+          activeGroups: 25,
+          totalRevenue: 564480000,
+          monthlyRevenue: 15680000,
           recentPayments: mockSeed.payments,
           recentEnrollments: [
-            { id: 'e1', groupName: 'DOTNET-G101', studentName: 'Jasur Bekmirzayev', joinedAt: new Date().toISOString() }
+            { id: 'e1', groupName: 'DOTNET-G101', studentName: 'Turkmanov O\'quvchi', joinedAt: new Date().toISOString() }
           ]
         }
       };
@@ -277,12 +336,16 @@ function handleOfflineFallback(endpoint, options) {
         success: true,
         data: {
           myGroupsCount: 2,
-          myStudentsCount: 5,
+          myStudentsCount: 28,
           pendingSubmissionsCount: 1,
-          upcomingLessonsCount: 2,
+          upcomingLessonsCount: 6,
           upcomingLessons: mockSeed.lessons,
+          sharePercentage: user.sharePercentage || 70,
+          experienceYears: user.experienceYears || 3,
+          monthlyEarned: user.monthlyEarned || 15680000,
+          totalEarned: user.totalEarned || 564480000,
           pendingSubmissions: [
-            { id: 'sub_p1', studentName: 'Jasur Bekmirzayev', assignmentTitle: 'Clean Architecture topshirig\'i', submittedAt: new Date().toISOString(), maxScore: 100 }
+            { id: 'sub_p1', studentName: 'Turkmanov O\'quvchi', assignmentTitle: 'Clean Architecture loyihasi', submittedAt: new Date().toISOString(), maxScore: 100 }
           ]
         }
       };
@@ -291,11 +354,11 @@ function handleOfflineFallback(endpoint, options) {
       success: true,
       data: {
         enrolledCoursesCount: 1,
-        attendanceRatePercentage: 96.5,
+        attendanceRatePercentage: 96.0,
         pendingAssignmentsCount: 1,
-        totalCourseFee: 3500000,
-        totalPaid: 3500000,
-        balanceDebt: 0,
+        totalCourseFee: 800000,
+        totalPaid: 800000 + (user.balance || 0),
+        balanceDebt: (user.balance || 0) < 0 ? Math.abs(user.balance) : 0,
         upcomingLessons: mockSeed.lessons,
         pendingAssignments: mockSeed.assignments
       }
