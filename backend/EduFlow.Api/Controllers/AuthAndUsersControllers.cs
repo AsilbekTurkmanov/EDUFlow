@@ -66,7 +66,7 @@ public class UsersController : ControllerBase
         return Ok(result);
     }
 
-    [HttpGet("{id}")]
+    [HttpGet("{id:guid}")]
     public async Task<ActionResult<ApiResponse<UserDto>>> GetUserById(Guid id)
     {
         var result = await _userService.GetUserByIdAsync(id);

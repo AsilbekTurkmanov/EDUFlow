@@ -175,6 +175,7 @@ public class GroupService : IGroupService
                 StartDate = g.StartDate,
                 EndDate = g.EndDate,
                 Status = g.Status,
+                Color = g.Color,
                 StudentsCount = g.Enrollments.Count(e => e.Status == EnrollmentStatus.Active),
                 CreatedAt = g.CreatedAt
             })
@@ -205,6 +206,7 @@ public class GroupService : IGroupService
             StartDate = g.StartDate,
             EndDate = g.EndDate,
             Status = g.Status,
+            Color = g.Color,
             StudentsCount = g.Enrollments.Count(e => e.Status == EnrollmentStatus.Active),
             CreatedAt = g.CreatedAt
         });
@@ -228,6 +230,7 @@ public class GroupService : IGroupService
             StartDate = request.StartDate,
             EndDate = request.EndDate,
             Status = request.Status,
+            Color = string.IsNullOrWhiteSpace(request.Color) ? "#10b981" : request.Color,
             CreatedAt = DateTime.UtcNow
         };
 
@@ -247,6 +250,7 @@ public class GroupService : IGroupService
             StartDate = group.StartDate,
             EndDate = group.EndDate,
             Status = group.Status,
+            Color = group.Color,
             StudentsCount = 0,
             CreatedAt = group.CreatedAt
         }, "Guruh yaratildi.");
@@ -264,6 +268,8 @@ public class GroupService : IGroupService
         group.StartDate = request.StartDate;
         group.EndDate = request.EndDate;
         group.Status = request.Status;
+        if (!string.IsNullOrWhiteSpace(request.Color))
+            group.Color = request.Color;
 
         await _db.SaveChangesAsync();
         await _audit.LogAsync("UPDATE", "Group", group.Id.ToString(), $"Guruh tahrirlandi: {group.Name}");

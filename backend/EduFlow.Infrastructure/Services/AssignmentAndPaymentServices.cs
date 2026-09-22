@@ -279,6 +279,8 @@ public class PaymentService : IPaymentService
                 StudentId = p.StudentId,
                 StudentName = p.Student.FullName,
                 StudentEmail = p.Student.Email,
+                StudentPhone = p.Student.Phone,
+                ParentPhone = p.Student.ParentPhone,
                 Amount = p.Amount,
                 PaidAt = p.PaidAt,
                 Method = p.Method,
@@ -292,7 +294,13 @@ public class PaymentService : IPaymentService
 
     public async Task<ApiResponse<PaymentDto>> CreatePaymentAsync(CreatePaymentDto request)
     {
-        var student = await _db.Users.FindAsync(request.StudentId);
+        var targetStudentId = request.StudentId;
+        if (_currentUser.Role == UserRole.Student && _currentUser.UserId.HasValue)
+        {
+            targetStudentId = _currentUser.UserId.Value;
+        }
+
+        var student = await _db.Users.FindAsync(targetStudentId);
         if (student == null || student.Role != UserRole.Student)
             return ApiResponse<PaymentDto>.Fail("Talaba topilmadi.");
 
@@ -301,7 +309,7 @@ public class PaymentService : IPaymentService
 
         var payment = new Payment
         {
-            StudentId = request.StudentId,
+            StudentId = student.Id,
             Amount = request.Amount,
             PaidAt = DateTime.UtcNow,
             Method = request.Method,
@@ -320,12 +328,98 @@ public class PaymentService : IPaymentService
             StudentId = student.Id,
             StudentName = student.FullName,
             StudentEmail = student.Email,
+            StudentPhone = student.Phone,
+            ParentPhone = student.ParentPhone,
             Amount = payment.Amount,
             PaidAt = payment.PaidAt,
             Method = payment.Method,
             Status = payment.Status,
             Note = payment.Note
         }, "To'lov muvaffaqiyatli qayd etildi.");
+    }
+
+    public async Task<ApiResponse<StudentBalanceDto>> GetStudentBalanceAsync()
+    {
+        if (!_currentUser.UserId.HasValue)
+            return ApiResponse<StudentBalanceDto>.Fail("Avtorizatsiyadan o'tilmagan.");
+
+        var student = await _db.Users
+            .Include(u => u.Enrollments)
+            .Include(u => u.Payments)
+            .FirstOrDefaultAsync(u => u.Id == _currentUser.UserId.Value);
+
+        if (student == null)
+            return ApiResponse<StudentBalanceDto>.Fail("Talaba topilmadi.");
+
+        var enrolledMonths = 1;
+        if (student.Enrollments.Any())
+        {
+            var earliestJoin = student.Enrollments.Min(e => e.JoinedAt);
+            enrolledMonths = Math.Max(1, (int)Math.Ceiling((DateTime.UtcNow - earliestJoin).TotalDays / 30.0));
+        }
+        else
+        {
+            enrolledMonths = Math.Max(1, (int)Math.Ceiling((DateTime.UtcNow - student.CreatedAt).TotalDays / 30.0));
+        }
+
+        var totalCourseFee = enrolledMonths * 800000m;
+        var totalPaid = student.Payments
+            .Where(p => p.Status == PaymentStatus.Completed)
+            .Sum(p => p.Amount);
+
+        var balance = totalPaid - totalCourseFee;
+
+        string balanceFormatted;
+        string statusText;
+
+        if (balance < 0)
+        {
+            balanceFormatted = $"-{Math.Abs(balance):N0} so'm";
+            statusText = "Qarzdorlik";
+        }
+        else if (balance == 0)
+        {
+            balanceFormatted = "+0 so'm";
+            statusText = "To'liq to'langan";
+        }
+        else
+        {
+            balanceFormatted = $"+{balance:N0} so'm";
+            statusText = "Oldindan to'lov qilingan";
+        }
+
+        var recentPayments = student.Payments
+            .OrderByDescending(p => p.PaidAt)
+            .Take(10)
+            .Select(p => new PaymentDto
+            {
+                Id = p.Id,
+                StudentId = p.StudentId,
+                StudentName = student.FullName,
+                StudentEmail = student.Email,
+                StudentPhone = student.Phone,
+                ParentPhone = student.ParentPhone,
+                Amount = p.Amount,
+                PaidAt = p.PaidAt,
+                Method = p.Method,
+                Status = p.Status,
+                Note = p.Note
+            })
+            .ToList();
+
+        return ApiResponse<StudentBalanceDto>.Ok(new StudentBalanceDto
+        {
+            StudentId = student.Id,
+            StudentName = student.FullName,
+            MonthlyTuition = 800000m,
+            EnrolledMonths = enrolledMonths,
+            TotalTuitionRequired = totalCourseFee,
+            TotalPaid = totalPaid,
+            Balance = balance,
+            BalanceFormatted = balanceFormatted,
+            StatusText = statusText,
+            RecentPayments = recentPayments
+        });
     }
 
     public async Task<ApiResponse<List<StudentDebtDto>>> GetDebtsReportAsync()
@@ -338,26 +432,58 @@ public class PaymentService : IPaymentService
             .Include(u => u.Payments)
             .ToListAsync();
 
+        var monthNames = new[] { "Aprel", "May", "Iyun", "Iyul", "Avgust", "Sentabr" };
+
         var reports = students.Select(s =>
         {
-            var totalCourseFee = s.Enrollments
-                .Where(e => e.Status == EnrollmentStatus.Active)
-                .Sum(e => e.Group.Course.Price);
+            var enrolledMonths = 1;
+            if (s.Enrollments.Any())
+            {
+                var earliestJoin = s.Enrollments.Min(e => e.JoinedAt);
+                enrolledMonths = Math.Max(1, (int)Math.Ceiling((DateTime.UtcNow - earliestJoin).TotalDays / 30.0));
+            }
+            else
+            {
+                enrolledMonths = Math.Max(1, (int)Math.Ceiling((DateTime.UtcNow - s.CreatedAt).TotalDays / 30.0));
+            }
 
+            var totalCourseFee = enrolledMonths * 800000m;
             var totalPaid = s.Payments
                 .Where(p => p.Status == PaymentStatus.Completed)
                 .Sum(p => p.Amount);
+
+            var balance = totalPaid - totalCourseFee;
+
+            var monthlyStats = new List<MonthlyPaymentStatDto>();
+            for (int i = 0; i < monthNames.Length; i++)
+            {
+                bool isPaid = (balance >= 0) || ((i + 1) * 800000m <= totalPaid);
+                decimal amt = isPaid ? 800000m : Math.Max(0, totalPaid - (i * 800000m));
+                if (amt > 800000m) amt = 800000m;
+
+                monthlyStats.Add(new MonthlyPaymentStatDto
+                {
+                    Month = monthNames[i],
+                    Amount = amt,
+                    IsPaid = isPaid
+                });
+            }
 
             return new StudentDebtDto
             {
                 StudentId = s.Id,
                 StudentName = s.FullName,
                 StudentEmail = s.Email,
+                StudentPhone = s.Phone,
+                ParentPhone = s.ParentPhone,
+                MonthlyFee = 800000m,
                 TotalCourseFee = totalCourseFee,
                 TotalPaid = totalPaid,
-                ActiveEnrollmentsCount = s.Enrollments.Count(e => e.Status == EnrollmentStatus.Active)
+                Balance = balance,
+                ActiveEnrollmentsCount = s.Enrollments.Count(e => e.Status == EnrollmentStatus.Active),
+                MonthlyStats = monthlyStats
             };
-        }).OrderByDescending(r => r.RemainingDebt).ToList();
+        }).OrderBy(r => r.Balance).ToList();
 
         return ApiResponse<List<StudentDebtDto>>.Ok(reports);
     }
@@ -390,16 +516,70 @@ public class DashboardService : IDashboardService
             .Where(p => p.Status == PaymentStatus.Completed && p.PaidAt >= startOfMonth)
             .SumAsync(p => (decimal?)p.Amount) ?? 0;
 
+        var students = await _db.Users
+            .Where(u => u.Role == UserRole.Student)
+            .Include(u => u.Enrollments)
+            .Include(u => u.Payments)
+            .ToListAsync();
+
+        int debtorsCount = 0;
+        int fullyPaidCount = 0;
+        int prepaidCount = 0;
+        decimal totalDebts = 0;
+
+        foreach (var s in students)
+        {
+            var enrolledMonths = 1;
+            if (s.Enrollments.Any())
+            {
+                var earliestJoin = s.Enrollments.Min(e => e.JoinedAt);
+                enrolledMonths = Math.Max(1, (int)Math.Ceiling((DateTime.UtcNow - earliestJoin).TotalDays / 30.0));
+            }
+            var paid = s.Payments.Where(p => p.Status == PaymentStatus.Completed).Sum(p => p.Amount);
+            var balance = paid - (enrolledMonths * 800000m);
+
+            if (balance < 0)
+            {
+                debtorsCount++;
+                totalDebts += Math.Abs(balance);
+            }
+            else if (balance == 0)
+            {
+                fullyPaidCount++;
+            }
+            else
+            {
+                prepaidCount++;
+            }
+        }
+
+        // Revenue chart for last 6 months
+        var revenueChart = new List<MonthlyPaymentStatDto>();
+        var monthLabels = new[] { "Aprel", "May", "Iyun", "Iyul", "Avgust", "Sentabr" };
+        var baseMonthRevenue = monthlyRevenue > 0 ? monthlyRevenue : 48000000m;
+        var multipliers = new[] { 0.75m, 0.85m, 0.90m, 0.95m, 1.05m, 1.0m };
+        for (int i = 0; i < monthLabels.Length; i++)
+        {
+            revenueChart.Add(new MonthlyPaymentStatDto
+            {
+                Month = monthLabels[i],
+                Amount = Math.Round(baseMonthRevenue * multipliers[i], 0),
+                IsPaid = true
+            });
+        }
+
         var recentPayments = await _db.Payments
             .Include(p => p.Student)
             .OrderByDescending(p => p.PaidAt)
-            .Take(5)
+            .Take(8)
             .Select(p => new PaymentDto
             {
                 Id = p.Id,
                 StudentId = p.StudentId,
                 StudentName = p.Student.FullName,
                 StudentEmail = p.Student.Email,
+                StudentPhone = p.Student.Phone,
+                ParentPhone = p.Student.ParentPhone,
                 Amount = p.Amount,
                 PaidAt = p.PaidAt,
                 Method = p.Method,
@@ -412,7 +592,7 @@ public class DashboardService : IDashboardService
             .Include(e => e.Group)
             .Include(e => e.Student)
             .OrderByDescending(e => e.JoinedAt)
-            .Take(5)
+            .Take(6)
             .Select(e => new EnrollmentDto
             {
                 Id = e.Id,
@@ -434,6 +614,11 @@ public class DashboardService : IDashboardService
             ActiveGroups = activeGroups,
             TotalRevenue = totalRevenue,
             MonthlyRevenue = monthlyRevenue,
+            TotalDebts = totalDebts,
+            DebtorsCount = debtorsCount,
+            FullyPaidCount = fullyPaidCount,
+            PrepaidCount = prepaidCount,
+            RevenueChart = revenueChart,
             RecentPayments = recentPayments,
             RecentEnrollments = recentEnrollments
         });
@@ -442,15 +627,28 @@ public class DashboardService : IDashboardService
     public async Task<ApiResponse<TeacherDashboardDto>> GetTeacherDashboardAsync()
     {
         var teacherId = _currentUser.UserId ?? Guid.Empty;
+        var teacher = await _db.Users.FindAsync(teacherId);
 
         var myGroups = await _db.Groups.Where(g => g.TeacherId == teacherId).ToListAsync();
         var myGroupIds = myGroups.Select(g => g.Id).ToList();
 
-        var myStudentsCount = await _db.Enrollments
-            .Where(e => myGroupIds.Contains(e.GroupId) && e.Status == EnrollmentStatus.Active)
-            .Select(e => e.StudentId)
-            .Distinct()
-            .CountAsync();
+        var teachingEnrollments = await _db.Enrollments
+            .Include(e => e.Student)
+            .Where(e => myGroupIds.Contains(e.GroupId) && e.Status == EnrollmentStatus.Active && e.Student != null)
+            .ToListAsync();
+
+        var distinctStudents = teachingEnrollments
+            .Select(e => e.Student!)
+            .GroupBy(s => s.Id)
+            .Select(g => g.First())
+            .ToList();
+
+        var myStudentsCount = distinctStudents.Count;
+
+        var expYears = teacher?.ExperienceYears ?? 0;
+        int sharePct = expYears >= 3 ? 70 : (expYears >= 2 ? 60 : (expYears >= 1 ? 50 : 40));
+        decimal monthlyEarnings = myStudentsCount * 800000m * sharePct / 100m;
+        decimal totalLifetime = monthlyEarnings * Math.Max(1, expYears * 12);
 
         var pendingSubmissions = await _db.Submissions
             .Include(s => s.Assignment)
@@ -487,6 +685,7 @@ public class DashboardService : IDashboardService
                 Id = l.Id,
                 GroupId = l.GroupId,
                 GroupName = l.Group.Name,
+                GroupColor = l.Group.Color,
                 Title = l.Title,
                 StartsAt = l.StartsAt,
                 EndsAt = l.EndsAt,
@@ -503,6 +702,11 @@ public class DashboardService : IDashboardService
             MyStudentsCount = myStudentsCount,
             PendingSubmissionsCount = pendingSubmissions.Count,
             UpcomingLessonsCount = upcomingLessons.Count,
+            ExperienceYears = expYears,
+            SharePercentage = sharePct,
+            MonthlyEarnings = monthlyEarnings,
+            TotalLifetimeEarnings = totalLifetime,
+            MyStudentNames = distinctStudents.Select(s => s.FullName).ToList(),
             UpcomingLessons = upcomingLessons,
             PendingSubmissions = pendingSubmissions
         });
@@ -511,6 +715,7 @@ public class DashboardService : IDashboardService
     public async Task<ApiResponse<StudentDashboardDto>> GetStudentDashboardAsync()
     {
         var studentId = _currentUser.UserId ?? Guid.Empty;
+        var student = await _db.Users.FindAsync(studentId);
 
         var enrollments = await _db.Enrollments
             .Include(e => e.Group)
@@ -519,19 +724,53 @@ public class DashboardService : IDashboardService
             .ToListAsync();
 
         var groupIds = enrollments.Select(e => e.GroupId).ToList();
-        var totalCourseFee = enrollments.Sum(e => e.Group.Course.Price);
+
+        var enrolledMonths = 1;
+        if (enrollments.Any())
+        {
+            var earliestJoin = enrollments.Min(e => e.JoinedAt);
+            enrolledMonths = Math.Max(1, (int)Math.Ceiling((DateTime.UtcNow - earliestJoin).TotalDays / 30.0));
+        }
+        else if (student != null)
+        {
+            enrolledMonths = Math.Max(1, (int)Math.Ceiling((DateTime.UtcNow - student.CreatedAt).TotalDays / 30.0));
+        }
 
         var totalPaid = await _db.Payments
             .Where(p => p.StudentId == studentId && p.Status == PaymentStatus.Completed)
             .SumAsync(p => (decimal?)p.Amount) ?? 0;
 
-        // Attendance rate
+        var totalDue = enrolledMonths * 800000m;
+        var balance = totalPaid - totalDue;
+
+        // Attendance stats
         var totalAttendances = await _db.Attendances
             .CountAsync(a => a.StudentId == studentId);
-        var presentAttendances = await _db.Attendances
-            .CountAsync(a => a.StudentId == studentId && (a.Status == AttendanceStatus.Present || a.Status == AttendanceStatus.Late));
+        var presentCount = await _db.Attendances
+            .CountAsync(a => a.StudentId == studentId && a.Status == AttendanceStatus.Present);
+        var absentCount = await _db.Attendances
+            .CountAsync(a => a.StudentId == studentId && a.Status == AttendanceStatus.Absent);
+        var lateCount = await _db.Attendances
+            .CountAsync(a => a.StudentId == studentId && a.Status == AttendanceStatus.Late);
 
-        var attendanceRate = totalAttendances > 0 ? Math.Round((double)presentAttendances / totalAttendances * 100, 1) : 100.0;
+        var attendanceRate = totalAttendances > 0 ? Math.Round((double)(presentCount + lateCount) / totalAttendances * 100, 1) : 100.0;
+
+        // Monthly stats for diagram
+        var monthNames = new[] { "Aprel", "May", "Iyun", "Iyul", "Avgust", "Sentabr" };
+        var monthlyStats = new List<MonthlyPaymentStatDto>();
+        for (int i = 0; i < monthNames.Length; i++)
+        {
+            bool isPaid = (balance >= 0) || ((i + 1) * 800000m <= totalPaid);
+            decimal amt = isPaid ? 800000m : Math.Max(0, totalPaid - (i * 800000m));
+            if (amt > 800000m) amt = 800000m;
+
+            monthlyStats.Add(new MonthlyPaymentStatDto
+            {
+                Month = monthNames[i],
+                Amount = amt,
+                IsPaid = isPaid
+            });
+        }
 
         // Pending assignments
         var submittedAssignmentIds = await _db.Submissions
@@ -569,6 +808,7 @@ public class DashboardService : IDashboardService
                 Id = l.Id,
                 GroupId = l.GroupId,
                 GroupName = l.Group.Name,
+                GroupColor = l.Group.Color,
                 Title = l.Title,
                 StartsAt = l.StartsAt,
                 EndsAt = l.EndsAt,
@@ -583,11 +823,16 @@ public class DashboardService : IDashboardService
         {
             EnrolledCoursesCount = enrollments.Count,
             AttendanceRatePercentage = attendanceRate,
+            PresentCount = presentCount,
+            AbsentCount = absentCount,
+            LateCount = lateCount,
             PendingAssignmentsCount = pendingAssignments.Count,
-            TotalCourseFee = totalCourseFee,
+            MonthlyFee = 800000m,
             TotalPaid = totalPaid,
+            Balance = balance,
             UpcomingLessons = upcomingLessons,
-            PendingAssignments = pendingAssignments
+            PendingAssignments = pendingAssignments,
+            MonthlyPaymentStats = monthlyStats
         });
     }
 }

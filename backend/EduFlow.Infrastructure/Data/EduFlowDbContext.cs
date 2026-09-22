@@ -31,6 +31,8 @@ public class EduFlowDbContext : DbContext
             entity.HasIndex(e => e.Email).IsUnique();
             entity.Property(e => e.FullName).HasMaxLength(150).IsRequired();
             entity.Property(e => e.Email).HasMaxLength(150).IsRequired();
+            entity.Property(e => e.Username).HasMaxLength(100);
+            entity.Property(e => e.ParentPhone).HasMaxLength(50);
             entity.Property(e => e.Role).HasConversion<string>();
             entity.Property(e => e.Status).HasConversion<string>();
         });
@@ -49,6 +51,7 @@ public class EduFlowDbContext : DbContext
         {
             entity.HasKey(e => e.Id);
             entity.Property(e => e.Name).HasMaxLength(100).IsRequired();
+            entity.Property(e => e.Color).HasMaxLength(30);
             entity.Property(e => e.Status).HasConversion<string>();
 
             entity.HasOne(e => e.Course)

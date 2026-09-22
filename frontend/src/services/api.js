@@ -67,7 +67,7 @@ export async function request(endpoint, options = {}) {
 
   try {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 2000);
+    const timeoutId = setTimeout(() => controller.abort(), 15000);
 
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
       ...options,
@@ -79,6 +79,7 @@ export async function request(endpoint, options = {}) {
     if (response.status === 401) {
       if (!endpoint.includes('/auth/login')) {
         removeToken();
+        localStorage.removeItem('eduflow_current_user');
         window.dispatchEvent(new Event('eduflow_unauthorized'));
       }
     }
@@ -104,7 +105,8 @@ function handleOfflineFallback(endpoint, options) {
   // Auth login
   if (endpoint === '/auth/login' && method === 'POST') {
     const users = getStorage('users', mockSeed.users);
-    const user = users.find((u) => u.email.toLowerCase() === body.email.toLowerCase()) || users[0];
+    const rawInput = (body.username || body.email || '').toLowerCase();
+    const user = users.find((u) => (u.username && u.username.toLowerCase() === rawInput) || (u.email && u.email.toLowerCase() === rawInput)) || users[0];
     const mockToken = 'mock_jwt_' + user.id;
     setStorage('current_user', user);
     return { success: true, data: { token: mockToken, user }, message: 'Muvaffaqiyatli kirildi' };
@@ -112,8 +114,12 @@ function handleOfflineFallback(endpoint, options) {
 
   // Auth me
   if (endpoint === '/auth/me') {
-    const user = getStorage('current_user', mockSeed.users[0]);
-    return { success: true, data: user };
+    const token = getToken();
+    const user = getStorage('current_user', null);
+    if (token && user) {
+      return { success: true, data: user };
+    }
+    return { success: false, data: null };
   }
 
   // Users

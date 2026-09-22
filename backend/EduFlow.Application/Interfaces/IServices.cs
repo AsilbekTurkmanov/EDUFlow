@@ -77,6 +77,7 @@ public interface IPaymentService
     Task<ApiResponse<List<PaymentDto>>> GetPaymentsAsync(Guid? studentId = null);
     Task<ApiResponse<PaymentDto>> CreatePaymentAsync(CreatePaymentDto request);
     Task<ApiResponse<List<StudentDebtDto>>> GetDebtsReportAsync();
+    Task<ApiResponse<StudentBalanceDto>> GetStudentBalanceAsync();
 }
 
 public interface IDashboardService

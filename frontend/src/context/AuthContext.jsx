@@ -66,15 +66,15 @@ export const AuthProvider = ({ children }) => {
   };
 
   const quickLogin = async (targetRole) => {
-    let email = 'admin@eduflow.uz';
-    let password = 'Admin123!';
+    let email = 'asilbekturkmanov';
+    let password = '+998991992012';
 
     if (targetRole === 'Teacher') {
-      email = 'anvar.ustoz@eduflow.uz';
-      password = 'Teacher123!';
+      email = 'shahriyor';
+      password = '+998991992012';
     } else if (targetRole === 'Student') {
-      email = 'jasur@eduflow.uz';
-      password = 'Student123!';
+      email = 'turkmanov';
+      password = '+998991992012';
     }
 
     return await login(email, password);
@@ -82,6 +82,9 @@ export const AuthProvider = ({ children }) => {
 
   const logout = () => {
     removeToken();
+    try {
+      localStorage.removeItem('eduflow_current_user');
+    } catch {}
     setUser(null);
     showToast('Tizimdan chiqildi.', 'info');
   };
@@ -112,4 +115,4 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
-export const useAuth = () => useContext(AuthContext);
+export const useAuth = () => useContext(AuthContext) || {};

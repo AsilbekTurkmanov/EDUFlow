@@ -56,6 +56,7 @@ public class LessonService : ILessonService
                 Id = l.Id,
                 GroupId = l.GroupId,
                 GroupName = l.Group.Name,
+                GroupColor = l.Group.Color,
                 Title = l.Title,
                 StartsAt = l.StartsAt,
                 EndsAt = l.EndsAt,
@@ -84,6 +85,7 @@ public class LessonService : ILessonService
             Id = l.Id,
             GroupId = l.GroupId,
             GroupName = l.Group.Name,
+            GroupColor = l.Group.Color,
             Title = l.Title,
             StartsAt = l.StartsAt,
             EndsAt = l.EndsAt,
@@ -113,11 +115,11 @@ public class LessonService : ILessonService
 
             if (roomConflict)
             {
-                return ApiResponse<LessonDto>.Fail($"Kesishuv aniqlandi: '{request.Room}' xonasi belgilangan vaqtda boshqa dars bilan band.");
+                return ApiResponse<LessonDto>.Fail($"'{request.Room}' xonasi tanlangan vaqt oralig'ida band.");
             }
         }
 
-        // Validation 2: Teacher schedule conflict
+        // Validation 2: Teacher conflict
         var teacherConflict = await _db.Lessons
             .Include(l => l.Group)
             .AnyAsync(l => l.Group.TeacherId == group.TeacherId &&
@@ -126,7 +128,7 @@ public class LessonService : ILessonService
 
         if (teacherConflict)
         {
-            return ApiResponse<LessonDto>.Fail($"Kesishuv aniqlandi: O'qituvchi ({group.Teacher.FullName}) belgilangan vaqtda boshqa darsga ega.");
+            return ApiResponse<LessonDto>.Fail($"O'qituvchi ({group.Teacher.FullName}) ushbu vaqt oralig'ida boshqa darsga ega.");
         }
 
         var lesson = new Lesson
@@ -149,6 +151,7 @@ public class LessonService : ILessonService
             Id = lesson.Id,
             GroupId = lesson.GroupId,
             GroupName = group.Name,
+            GroupColor = group.Color,
             Title = lesson.Title,
             StartsAt = lesson.StartsAt,
             EndsAt = lesson.EndsAt,

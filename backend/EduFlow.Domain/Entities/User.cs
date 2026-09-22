@@ -10,7 +10,10 @@ public class User
     public string PasswordHash { get; set; } = string.Empty;
     public UserRole Role { get; set; }
     public UserStatus Status { get; set; } = UserStatus.Active;
+    public string? Username { get; set; }
     public string? Phone { get; set; }
+    public string? ParentPhone { get; set; }
+    public int ExperienceYears { get; set; } = 0;
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     // Navigation properties

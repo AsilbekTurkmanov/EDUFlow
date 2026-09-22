@@ -15,6 +15,7 @@ public class Group
     public DateTime StartDate { get; set; }
     public DateTime? EndDate { get; set; }
     public GroupStatus Status { get; set; } = GroupStatus.Active;
+    public string? Color { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     // Navigations

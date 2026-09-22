@@ -34,6 +34,7 @@ public class GroupDto
     public DateTime StartDate { get; set; }
     public DateTime? EndDate { get; set; }
     public GroupStatus Status { get; set; }
+    public string? Color { get; set; }
     public int StudentsCount { get; set; }
     public DateTime CreatedAt { get; set; }
 }
@@ -46,6 +47,7 @@ public class CreateGroupDto
     public DateTime StartDate { get; set; }
     public DateTime? EndDate { get; set; }
     public GroupStatus Status { get; set; } = GroupStatus.Active;
+    public string? Color { get; set; }
 }
 
 public class EnrollmentDto

@@ -33,10 +33,25 @@ public class AuthService : IAuthService
 
     public async Task<ApiResponse<LoginResponseDto>> LoginAsync(LoginRequestDto request)
     {
-        var user = await _db.Users.FirstOrDefaultAsync(u => u.Email.ToLower() == request.Email.ToLower());
+        var rawInput = !string.IsNullOrWhiteSpace(request.Username) ? request.Username : request.Email;
+        var input = (rawInput ?? "").Trim().ToLower();
+        var cleanInputPhone = input.Replace(" ", "").Replace("-", "");
+
+        var user = await _db.Users
+            .Include(u => u.Enrollments).ThenInclude(e => e.Group)
+            .Include(u => u.TeachingGroups).ThenInclude(g => g.Enrollments).ThenInclude(e => e.Student)
+            .Include(u => u.Payments)
+            .Include(u => u.Attendances)
+            .FirstOrDefaultAsync(u =>
+                u.Email.ToLower() == input ||
+                (u.Username != null && u.Username.ToLower() == input) ||
+                (!input.Contains("@") && u.Email.ToLower().StartsWith(input + "@")) ||
+                (u.Phone != null && u.Phone.Replace(" ", "").Replace("-", "").ToLower() == cleanInputPhone)
+            );
+
         if (user == null || !_passwordHasher.Verify(request.Password, user.PasswordHash))
         {
-            return ApiResponse<LoginResponseDto>.Fail("Email yoki parol noto'g'ri.");
+            return ApiResponse<LoginResponseDto>.Fail("Login (email/username) yoki parol noto'g'ri.");
         }
 
         if (user.Status == UserStatus.Inactive)
@@ -45,18 +60,9 @@ public class AuthService : IAuthService
         }
 
         var token = _jwtGenerator.GenerateToken(user);
-        await _audit.LogAsync("LOGIN", "User", user.Id.ToString(), $"Foydalanuvchi tizimga kirdi: {user.Email}");
+        await _audit.LogAsync("LOGIN", "User", user.Id.ToString(), $"Foydalanuvchi tizimga kirdi: {user.Email} ({user.Role})");
 
-        var userDto = new UserDto
-        {
-            Id = user.Id,
-            FullName = user.FullName,
-            Email = user.Email,
-            Role = user.Role,
-            Status = user.Status,
-            Phone = user.Phone,
-            CreatedAt = user.CreatedAt
-        };
+        var userDto = MapUserToDto(user);
 
         return ApiResponse<LoginResponseDto>.Ok(new LoginResponseDto
         {
@@ -70,20 +76,100 @@ public class AuthService : IAuthService
         if (!_currentUser.UserId.HasValue)
             return ApiResponse<UserDto>.Fail("Avtorizatsiyadan o'tilmagan.");
 
-        var user = await _db.Users.FindAsync(_currentUser.UserId.Value);
+        var user = await _db.Users
+            .Include(u => u.Enrollments).ThenInclude(e => e.Group)
+            .Include(u => u.TeachingGroups).ThenInclude(g => g.Enrollments).ThenInclude(e => e.Student)
+            .Include(u => u.Payments)
+            .Include(u => u.Attendances)
+            .FirstOrDefaultAsync(u => u.Id == _currentUser.UserId.Value);
+
         if (user == null)
             return ApiResponse<UserDto>.Fail("Foydalanuvchi topilmadi.");
 
-        return ApiResponse<UserDto>.Ok(new UserDto
+        return ApiResponse<UserDto>.Ok(MapUserToDto(user));
+    }
+
+    public static UserDto MapUserToDto(User u)
+    {
+        var dto = new UserDto
         {
-            Id = user.Id,
-            FullName = user.FullName,
-            Email = user.Email,
-            Role = user.Role,
-            Status = user.Status,
-            Phone = user.Phone,
-            CreatedAt = user.CreatedAt
-        });
+            Id = u.Id,
+            FullName = u.FullName,
+            Email = u.Email,
+            Username = u.Username,
+            Role = u.Role,
+            Status = u.Status,
+            Phone = u.Phone,
+            ParentPhone = u.ParentPhone,
+            ExperienceYears = u.ExperienceYears,
+            CreatedAt = u.CreatedAt
+        };
+
+        if (u.Role == UserRole.Teacher)
+        {
+            int sharePct = u.ExperienceYears >= 3 ? 70 : (u.ExperienceYears >= 2 ? 60 : (u.ExperienceYears >= 1 ? 50 : 40));
+            dto.SharePercentage = sharePct;
+
+            var teachingStudents = u.TeachingGroups
+                .SelectMany(g => g.Enrollments)
+                .Where(e => e.Status == EnrollmentStatus.Active && e.Student != null)
+                .Select(e => e.Student!)
+                .GroupBy(s => s.Id)
+                .Select(g => g.First())
+                .ToList();
+
+            dto.StudentsCount = teachingStudents.Count;
+            dto.StudentNames = teachingStudents.Select(s => s.FullName).ToList();
+            dto.MonthlyEarned = teachingStudents.Count * 800000m * sharePct / 100m;
+            dto.TotalEarned = dto.MonthlyEarned * Math.Max(1, u.ExperienceYears * 12);
+        }
+        else if (u.Role == UserRole.Student)
+        {
+            dto.MonthlyFee = 800000m;
+            var totalPaid = u.Payments.Where(p => p.Status == PaymentStatus.Completed).Sum(p => p.Amount);
+            dto.TotalPaid = totalPaid;
+
+            var enrolledMonths = 1;
+            if (u.Enrollments.Any())
+            {
+                var earliestJoin = u.Enrollments.Min(e => e.JoinedAt);
+                enrolledMonths = Math.Max(1, (int)Math.Ceiling((DateTime.UtcNow - earliestJoin).TotalDays / 30.0));
+            }
+            else
+            {
+                enrolledMonths = Math.Max(1, (int)Math.Ceiling((DateTime.UtcNow - u.CreatedAt).TotalDays / 30.0));
+            }
+
+            var totalDue = enrolledMonths * 800000m;
+            dto.Balance = totalPaid - totalDue;
+            dto.GroupNames = u.Enrollments.Where(e => e.Group != null).Select(e => e.Group.Name).ToList();
+
+            var totalAtt = u.Attendances.Count;
+            dto.PresentCount = u.Attendances.Count(a => a.Status == AttendanceStatus.Present);
+            dto.AbsentCount = u.Attendances.Count(a => a.Status == AttendanceStatus.Absent);
+            dto.LateCount = u.Attendances.Count(a => a.Status == AttendanceStatus.Late);
+            dto.AttendanceRate = totalAtt > 0 ? Math.Round((double)dto.PresentCount / totalAtt * 100, 1) : 100.0;
+
+            // Monthly breakdown stats for diagram
+            var monthNames = new[] { "Aprel", "May", "Iyun", "Iyul", "Avgust", "Sentabr" };
+            var list = new List<MonthlyPaymentStatDto>();
+            for (int i = 0; i < monthNames.Length; i++)
+            {
+                bool isPaid = (dto.Balance >= 0) || ((i + 1) * 800000m <= totalPaid);
+                decimal amt = isPaid ? 800000m : Math.Max(0, totalPaid - (i * 800000m));
+                if (amt > 800000m) amt = 800000m;
+
+                list.Add(new MonthlyPaymentStatDto
+                {
+                    Month = monthNames[i],
+                    Amount = amt,
+                    IsPaid = isPaid
+                });
+            }
+            dto.MonthlyPaymentStats = list;
+        }
+
+        return dto;
     }
 }
 
@@ -102,7 +188,12 @@ public class UserService : IUserService
 
     public async Task<ApiResponse<PagedResult<UserDto>>> GetUsersAsync(int page = 1, int pageSize = 20, UserRole? role = null, UserStatus? status = null, string? search = null)
     {
-        var query = _db.Users.AsQueryable();
+        var query = _db.Users
+            .Include(u => u.Enrollments).ThenInclude(e => e.Group)
+            .Include(u => u.TeachingGroups).ThenInclude(g => g.Enrollments).ThenInclude(e => e.Student)
+            .Include(u => u.Payments)
+            .Include(u => u.Attendances)
+            .AsQueryable();
 
         if (role.HasValue)
             query = query.Where(u => u.Role == role.Value);
@@ -113,25 +204,22 @@ public class UserService : IUserService
         if (!string.IsNullOrWhiteSpace(search))
         {
             var s = search.Trim().ToLower();
-            query = query.Where(u => u.FullName.ToLower().Contains(s) || u.Email.ToLower().Contains(s));
+            query = query.Where(u =>
+                u.FullName.ToLower().Contains(s) ||
+                u.Email.ToLower().Contains(s) ||
+                (u.Username != null && u.Username.ToLower().Contains(s)) ||
+                (u.ParentPhone != null && u.ParentPhone.Contains(s)) ||
+                (u.Phone != null && u.Phone.Contains(s)));
         }
 
         var totalCount = await query.CountAsync();
-        var items = await query
+        var rawUsers = await query
             .OrderByDescending(u => u.CreatedAt)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
-            .Select(u => new UserDto
-            {
-                Id = u.Id,
-                FullName = u.FullName,
-                Email = u.Email,
-                Role = u.Role,
-                Status = u.Status,
-                Phone = u.Phone,
-                CreatedAt = u.CreatedAt
-            })
             .ToListAsync();
+
+        var items = rawUsers.Select(AuthService.MapUserToDto).ToList();
 
         return ApiResponse<PagedResult<UserDto>>.Ok(new PagedResult<UserDto>
         {
@@ -144,70 +232,73 @@ public class UserService : IUserService
 
     public async Task<ApiResponse<UserDto>> GetUserByIdAsync(Guid id)
     {
-        var user = await _db.Users.FindAsync(id);
+        var user = await _db.Users
+            .Include(u => u.Enrollments).ThenInclude(e => e.Group)
+            .Include(u => u.TeachingGroups).ThenInclude(g => g.Enrollments).ThenInclude(e => e.Student)
+            .Include(u => u.Payments)
+            .Include(u => u.Attendances)
+            .FirstOrDefaultAsync(u => u.Id == id);
+
         if (user == null)
             return ApiResponse<UserDto>.Fail("Foydalanuvchi topilmadi.");
 
-        return ApiResponse<UserDto>.Ok(new UserDto
-        {
-            Id = user.Id,
-            FullName = user.FullName,
-            Email = user.Email,
-            Role = user.Role,
-            Status = user.Status,
-            Phone = user.Phone,
-            CreatedAt = user.CreatedAt
-        });
+        return ApiResponse<UserDto>.Ok(AuthService.MapUserToDto(user));
     }
 
     public async Task<ApiResponse<UserDto>> CreateUserAsync(CreateUserDto request)
     {
-        if (await _db.Users.AnyAsync(u => u.Email.ToLower() == request.Email.ToLower()))
+        var emailLower = request.Email.ToLower().Trim();
+        if (await _db.Users.AnyAsync(u => u.Email.ToLower() == emailLower))
             return ApiResponse<UserDto>.Fail("Ushbu email bilan foydalanuvchi allaqachon mavjud.");
 
         var user = new User
         {
-            FullName = request.FullName,
-            Email = request.Email.ToLower().Trim(),
+            FullName = request.FullName.Trim(),
+            Email = emailLower,
+            Username = string.IsNullOrWhiteSpace(request.Username) ? request.Email.Split('@')[0].ToLower() : request.Username.Trim().ToLower(),
             PasswordHash = _passwordHasher.Hash(request.Password),
             Role = request.Role,
             Status = UserStatus.Active,
             Phone = request.Phone,
+            ParentPhone = request.ParentPhone,
+            ExperienceYears = request.ExperienceYears,
             CreatedAt = DateTime.UtcNow
         };
 
         _db.Users.Add(user);
         await _db.SaveChangesAsync();
 
-        await _audit.LogAsync("CREATE", "User", user.Id.ToString(), $"Yangi foydalanuvchi yaratildi: {user.Email} ({user.Role})");
+        await _audit.LogAsync("CREATE", "User", user.Id.ToString(), $"Yangi foydalanuvchi yaratildi: {user.FullName} ({user.Role})");
 
-        return ApiResponse<UserDto>.Ok(new UserDto
-        {
-            Id = user.Id,
-            FullName = user.FullName,
-            Email = user.Email,
-            Role = user.Role,
-            Status = user.Status,
-            Phone = user.Phone,
-            CreatedAt = user.CreatedAt
-        }, "Foydalanuvchi muvaffaqiyatli yaratildi.");
+        return ApiResponse<UserDto>.Ok(AuthService.MapUserToDto(user), "Foydalanuvchi muvaffaqiyatli yaratildi.");
     }
 
     public async Task<ApiResponse<UserDto>> UpdateUserAsync(Guid id, UpdateUserDto request)
     {
-        var user = await _db.Users.FindAsync(id);
+        var user = await _db.Users
+            .Include(u => u.Enrollments).ThenInclude(e => e.Group)
+            .Include(u => u.TeachingGroups).ThenInclude(g => g.Enrollments).ThenInclude(e => e.Student)
+            .Include(u => u.Payments)
+            .Include(u => u.Attendances)
+            .FirstOrDefaultAsync(u => u.Id == id);
+
         if (user == null)
             return ApiResponse<UserDto>.Fail("Foydalanuvchi topilmadi.");
 
-        var existingEmail = await _db.Users.AnyAsync(u => u.Email.ToLower() == request.Email.ToLower() && u.Id != id);
+        var emailLower = request.Email.ToLower().Trim();
+        var existingEmail = await _db.Users.AnyAsync(u => u.Email.ToLower() == emailLower && u.Id != id);
         if (existingEmail)
             return ApiResponse<UserDto>.Fail("Ushbu email boshqa foydalanuvchi tomonidan band qilingan.");
 
-        user.FullName = request.FullName;
-        user.Email = request.Email.ToLower().Trim();
+        user.FullName = request.FullName.Trim();
+        user.Email = emailLower;
+        if (!string.IsNullOrWhiteSpace(request.Username))
+            user.Username = request.Username.Trim().ToLower();
         user.Role = request.Role;
         user.Status = request.Status;
         user.Phone = request.Phone;
+        user.ParentPhone = request.ParentPhone;
+        user.ExperienceYears = request.ExperienceYears;
 
         if (!string.IsNullOrWhiteSpace(request.NewPassword))
         {
@@ -217,16 +308,7 @@ public class UserService : IUserService
         await _db.SaveChangesAsync();
         await _audit.LogAsync("UPDATE", "User", user.Id.ToString(), $"Foydalanuvchi ma'lumotlari tahrirlandi: {user.Email}");
 
-        return ApiResponse<UserDto>.Ok(new UserDto
-        {
-            Id = user.Id,
-            FullName = user.FullName,
-            Email = user.Email,
-            Role = user.Role,
-            Status = user.Status,
-            Phone = user.Phone,
-            CreatedAt = user.CreatedAt
-        }, "Foydalanuvchi muvaffaqiyatli yangilandi.");
+        return ApiResponse<UserDto>.Ok(AuthService.MapUserToDto(user), "Foydalanuvchi muvaffaqiyatli yangilandi.");
     }
 
     public async Task<ApiResponse<bool>> DeleteUserAsync(Guid id)
@@ -235,14 +317,12 @@ public class UserService : IUserService
         if (user == null)
             return ApiResponse<bool>.Fail("Foydalanuvchi topilmadi.");
 
-        // Check if teacher is assigned to groups
         var isTeaching = await _db.Groups.AnyAsync(g => g.TeacherId == id);
         if (isTeaching)
         {
             return ApiResponse<bool>.Fail("Ushbu o'qituvchiga biriktirilgan guruhlar mavjud. Avval guruhlarga boshqa o'qituvchi biriktiring yoki guruhni o'chiring.");
         }
 
-        // Cascade clean dependent records to satisfy PostgreSQL foreign keys
         var enrollments = await _db.Enrollments.Where(e => e.StudentId == id).ToListAsync();
         if (enrollments.Any()) _db.Enrollments.RemoveRange(enrollments);
 

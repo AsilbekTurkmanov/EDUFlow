@@ -101,8 +101,17 @@ public class PaymentsController : ControllerBase
         return Ok(result);
     }
 
+    [HttpGet("balance")]
+    [Authorize(Roles = "Student")]
+    public async Task<ActionResult<ApiResponse<StudentBalanceDto>>> GetStudentBalance()
+    {
+        var result = await _paymentService.GetStudentBalanceAsync();
+        return Ok(result);
+    }
+
     [HttpPost]
-    [Authorize(Roles = "Admin")]
+    [HttpPost("pay")]
+    [Authorize(Roles = "Admin,Student")]
     public async Task<ActionResult<ApiResponse<PaymentDto>>> CreatePayment([FromBody] CreatePaymentDto request)
     {
         var result = await _paymentService.CreatePaymentAsync(request);

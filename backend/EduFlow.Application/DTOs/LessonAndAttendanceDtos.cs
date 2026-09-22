@@ -7,6 +7,7 @@ public class LessonDto
     public Guid Id { get; set; }
     public Guid GroupId { get; set; }
     public string GroupName { get; set; } = string.Empty;
+    public string? GroupColor { get; set; }
     public string Title { get; set; } = string.Empty;
     public DateTime StartsAt { get; set; }
     public DateTime EndsAt { get; set; }
