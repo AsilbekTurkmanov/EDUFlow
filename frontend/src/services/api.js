@@ -367,16 +367,20 @@ export async function request(endpoint, options = {}) {
     headers['Authorization'] = `Bearer ${token}`;
   }
 
+  let response;
   try {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 15000);
+    const timeoutId = setTimeout(() => controller.abort(), 12000);
 
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-      ...options,
-      headers,
-      signal: controller.signal
-    });
-    clearTimeout(timeoutId);
+    try {
+      response = await fetch(`${API_BASE_URL}${endpoint}`, {
+        ...options,
+        headers,
+        signal: controller.signal
+      });
+    } finally {
+      clearTimeout(timeoutId);
+    }
 
     if (response.status === 401) {
       if (!endpoint.includes('/auth/login')) {
@@ -390,16 +394,20 @@ export async function request(endpoint, options = {}) {
 
     if (!response.ok) {
       const errorMsg = data?.message || (data?.errors && data.errors.join(', ')) || `Xatolik yuz berdi (${response.status})`;
-      throw new Error(errorMsg);
+      const apiErr = new Error(errorMsg);
+      apiErr.isApiError = true;
+      apiErr.status = response.status;
+      throw apiErr;
     }
 
     return data;
   } catch (err) {
-    // If server unreachable or offline (e.g. GitHub Pages), use offline fallback
-    if (err.message && !err.message.includes('Failed to fetch') && !err.message.includes('aborted') && !err.message.includes('NetworkError')) {
-      // Re-throw genuine business/API errors (like Quota Exceeded 400 Bad Request)
+    // If it's a real API response error (e.g. 400 Bad Request, Quota Exceeded), re-throw
+    if (err.isApiError) {
       throw err;
     }
+    // Network failure (server down, ERR_CONNECTION_REFUSED, offline, GitHub Pages, etc.)
+    console.warn(`[EduFlow] Server aloqasi yo'q (${endpoint}). Oflayn rejim faollashtirildi.`);
     return handleOfflineFallback(endpoint, options);
   }
 }
@@ -414,10 +422,11 @@ function handleOfflineFallback(endpoint, options) {
   // Auth login
   if (endpoint === '/auth/login') {
     const users = getStorage('users', mockSeed.users);
-    const identifier = (body.username || '').trim().toLowerCase();
+    const identifier = (body.username || body.email || '').trim().toLowerCase();
     const user = users.find(u => 
       (u.username && u.username.toLowerCase() === identifier) || 
-      (u.email && u.email.toLowerCase() === identifier)
+      (u.email && u.email.toLowerCase() === identifier) ||
+      (u.email && u.email.toLowerCase().startsWith(identifier + '@'))
     );
 
     if (!user || (body.password !== '+998991992012' && body.password !== '123456')) {

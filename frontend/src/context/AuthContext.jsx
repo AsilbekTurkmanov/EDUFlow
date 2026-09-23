@@ -52,7 +52,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
-      const res = await api.auth.login({ email, password });
+      const res = await api.auth.login({ email, username: email, password });
       if (res?.data?.token) {
         setToken(res.data.token);
         setUser(res.data.user);
