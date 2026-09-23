@@ -123,7 +123,9 @@ const mockSeed = {
     { id: 'u_najot_admin', fullName: 'Najot Nur IT Admin', username: 'najot_admin', email: 'admin@najotnur.uz', role: 'Admin', status: 'Active', phone: '+998 78 888 99 01', centerId: '1571bbef-ab69-4efc-88c1-e68547e47740', centerName: 'Najot Nur IT Academy (Chilonzor)' },
     { id: 'u_reg_admin', fullName: 'Registon Smart Admin', username: 'registon_admin', email: 'admin@registon.uz', role: 'Admin', status: 'Active', phone: '+998 71 202 33 45', centerId: '1491683e-a729-4ca9-85c1-630c101195da', centerName: 'Registon Smart School (Yunusobod)' },
     { id: 'u_pdp_admin', fullName: 'PDP Campus Admin', username: 'pdp_admin', email: 'admin@pdp.uz', role: 'Admin', status: 'Active', phone: '+998 78 777 47 48', centerId: 'ac38ad5b-aefa-4a0f-9039-d32dc2e03d70', centerName: 'PDP Enterprise Campus (Beruniy)' },
-    { id: '2', fullName: 'Shahriyor O\'qituvchi', username: 'shahriyor', email: 'shahriyor@eduflow.uz', role: 'Teacher', status: 'Active', phone: '+998 90 345 67 89', centerId: 'a0d3c5b0-9643-4f7c-9364-d72591a75ddc', centerName: 'EduFlow Bosh Markaz (Toshkent)', experienceYears: 3, sharePercentage: 70, monthlyEarned: 15680000, totalEarned: 564480000, studentNames: ['Turkmanov O\'quvchi', 'Jasur Bekmirzayev', 'Shahzod Normatov', 'Dilnoza Rahimova'] },
+    { id: '2', fullName: 'Shahriyor O\'qituvchi', username: 'shahriyor', email: 'shahriyor@eduflow.uz', role: 'Teacher', status: 'Active', phone: '+998 90 345 67 89', centerId: 'a0d3c5b0-9643-4f7c-9364-d72591a75ddc', centerName: 'EduFlow Bosh Markaz (Toshkent)', experienceYears: 3, sharePercentage: 70, compensationType: 'Percentage', compensationTypeName: 'Ulush (70%)', customSharePercentage: 70, fixedAmount: null, studentsCount: 4, monthlyRevenueGenerated: 3200000, monthlyEarned: 2240000, centerNetProfit: 960000, totalEarned: 80640000, studentNames: ['Turkmanov O\'quvchi', 'Jasur Bekmirzayev', 'Shahzod Normatov', 'Dilnoza Rahimova'] },
+    { id: 't_anvar', fullName: 'Anvar Karimov (Senior .NET)', username: 'anvar_k', email: 'anvar.karimov@eduflow.uz', role: 'Teacher', status: 'Active', phone: '+998 93 111 22 33', centerId: 'a0d3c5b0-9643-4f7c-9364-d72591a75ddc', centerName: 'EduFlow Bosh Markaz (Toshkent)', experienceYears: 4, sharePercentage: 70, compensationType: 'FixedPerStudent', compensationTypeName: 'Har bir o\'quvchiga (450 000 so\'m)', customSharePercentage: null, fixedAmount: 450000, studentsCount: 15, monthlyRevenueGenerated: 12000000, monthlyEarned: 6750000, centerNetProfit: 5250000, totalEarned: 324000000, studentNames: ['Jasur Bekmirzayev', 'Shahzod Normatov'] },
+    { id: 't_bobur', fullName: 'Bobur Mirzayev (Mobile Lead)', username: 'bobur_m', email: 'bobur.mirzayev@eduflow.uz', role: 'Teacher', status: 'Active', phone: '+998 91 333 44 55', centerId: 'a0d3c5b0-9643-4f7c-9364-d72591a75ddc', centerName: 'EduFlow Bosh Markaz (Toshkent)', experienceYears: 3, sharePercentage: 70, compensationType: 'FixedMonthly', compensationTypeName: 'Oylik qat\'iy maosh (9 000 000 so\'m)', customSharePercentage: null, fixedAmount: 9000000, studentsCount: 20, monthlyRevenueGenerated: 16000000, monthlyEarned: 9000000, centerNetProfit: 7000000, totalEarned: 324000000, studentNames: ['Dilnoza Rahimova'] },
     { id: '3', fullName: 'Turkmanov O\'quvchi', username: 'turkmanov', email: 'turkmanov@eduflow.uz', role: 'Student', status: 'Active', phone: '+998 99 199 20 12', parentPhone: '+998 90 777 55 44', centerId: 'a0d3c5b0-9643-4f7c-9364-d72591a75ddc', centerName: 'EduFlow Bosh Markaz (Toshkent)', balance: 0, balanceFormatted: '+0 so\'m', presentCount: 24, absentCount: 1, monthlyPaymentStats: [{ month: 'Apr', amount: 800000, isPaid: true }, { month: 'May', amount: 800000, isPaid: true }, { month: 'Iyun', amount: 800000, isPaid: true }, { month: 'Iyul', amount: 800000, isPaid: true }, { month: 'Avg', amount: 800000, isPaid: true }, { month: 'Sen', amount: 800000, isPaid: true }] },
     { id: '4', fullName: 'Jasur Bekmirzayev', username: 'jasur_b', email: 'jasur@eduflow.uz', role: 'Student', status: 'Active', phone: '+998 97 111 22 33', parentPhone: '+998 90 111 22 33', centerId: 'a0d3c5b0-9643-4f7c-9364-d72591a75ddc', centerName: 'EduFlow Bosh Markaz (Toshkent)', balance: -800000, balanceFormatted: '-800 000 so\'m', presentCount: 22, absentCount: 3, monthlyPaymentStats: [{ month: 'Apr', amount: 800000, isPaid: true }, { month: 'May', amount: 800000, isPaid: true }, { month: 'Iyun', amount: 800000, isPaid: true }, { month: 'Iyul', amount: 800000, isPaid: true }, { month: 'Avg', amount: 800000, isPaid: true }, { month: 'Sen', amount: 0, isPaid: false }] },
     { id: '5', fullName: 'Shahzod Normatov', username: 'shahzod_n', email: 'shahzod@eduflow.uz', role: 'Student', status: 'Active', phone: '+998 91 444 55 66', parentPhone: '+998 90 444 55 66', centerId: 'a0d3c5b0-9643-4f7c-9364-d72591a75ddc', centerName: 'EduFlow Bosh Markaz (Toshkent)', balance: 7200000, balanceFormatted: '+7 200 000 so\'m', presentCount: 25, absentCount: 0, monthlyPaymentStats: [{ month: 'Apr', amount: 800000, isPaid: true }, { month: 'May', amount: 800000, isPaid: true }, { month: 'Iyun', amount: 800000, isPaid: true }, { month: 'Iyul', amount: 800000, isPaid: true }, { month: 'Avg', amount: 800000, isPaid: true }, { month: 'Sen', amount: 800000, isPaid: true }] },
@@ -158,6 +160,188 @@ const mockSeed = {
   audit: [
     { id: 'au1', action: 'LOGIN', entity: 'User', userName: 'Asilbek Turkmanov (Super Admin)', createdAt: new Date().toISOString(), metadata: 'Tizimga muvaffaqiyatli kirildi' },
     { id: 'au2', action: 'INIT', entity: 'SaaS Platform', userName: 'Asilbek Turkmanov (Super Admin)', createdAt: new Date(Date.now() - 86400000 * 10).toISOString(), metadata: 'Multi-Tenant o\'quv markazlari va kvota avtomatik bloklash tizimi yoqildi' }
+  ],
+  leads: [
+    {
+      id: 'lead-1',
+      fullName: 'Oybek Mahmudov',
+      phone: '+998 90 112 34 56',
+      email: 'oybek.m@gmail.com',
+      source: 'Instagram',
+      sourceName: 'Instagram Direct',
+      status: 'Interested',
+      statusName: 'Qiziqish bildirganlar',
+      courseOfInterest: '.NET FullStack Dasturlash',
+      notes: 'Instagram Direct orqali kurs dasturini va narxlarini so\'radi.',
+      meetingDate: null,
+      demoLessonDate: null,
+      estimatedBudget: 800000,
+      centerId: 'a0d3c5b0-9643-4f7c-9364-d72591a75ddc',
+      centerName: 'EduFlow Bosh Markaz (Toshkent)',
+      createdAt: new Date(Date.now() - 86400000 * 2).toISOString()
+    },
+    {
+      id: 'lead-2',
+      fullName: 'Gulasal Yo\'ldosheva',
+      phone: '+998 91 223 45 67',
+      email: 'gulasal.y@mail.ru',
+      source: 'Instagram',
+      sourceName: 'Instagram Direct',
+      status: 'Interested',
+      statusName: 'Qiziqish bildirganlar',
+      courseOfInterest: 'Frontend React & Next.js',
+      notes: 'Insta Stories dagi reklama orqali yozdi. Kompyuteri bor, noldan boshlamoqchi.',
+      meetingDate: null,
+      demoLessonDate: null,
+      estimatedBudget: 800000,
+      centerId: 'a0d3c5b0-9643-4f7c-9364-d72591a75ddc',
+      centerName: 'EduFlow Bosh Markaz (Toshkent)',
+      createdAt: new Date(Date.now() - 86400000 * 3).toISOString()
+    },
+    {
+      id: 'lead-3',
+      fullName: 'Mirjalol Vohidov',
+      phone: '+998 93 990 12 34',
+      email: 'mirjalol.v@gmail.com',
+      source: 'Instagram',
+      sourceName: 'Instagram Direct',
+      status: 'Contacted',
+      statusName: 'Gaplashilganlar',
+      courseOfInterest: '.NET FullStack Dasturlash',
+      notes: 'Telefon orqali bog\'lanildi. Kurs formati tushuntirildi.',
+      meetingDate: null,
+      demoLessonDate: null,
+      estimatedBudget: 800000,
+      centerId: 'a0d3c5b0-9643-4f7c-9364-d72591a75ddc',
+      centerName: 'EduFlow Bosh Markaz (Toshkent)',
+      createdAt: new Date(Date.now() - 86400000 * 5).toISOString()
+    },
+    {
+      id: 'lead-4',
+      fullName: 'Dildora Sobirova',
+      phone: '+998 94 001 23 45',
+      email: 'dildora.s@mail.ru',
+      source: 'Telegram',
+      sourceName: 'Telegram Kanal / Bot',
+      status: 'Contacted',
+      statusName: 'Gaplashilganlar',
+      courseOfInterest: 'Frontend React & Next.js',
+      notes: 'Dars jadvali ma\'qul keldi, o\'quv dasturi pdf fayli yuborildi.',
+      meetingDate: null,
+      demoLessonDate: null,
+      estimatedBudget: 800000,
+      centerId: 'a0d3c5b0-9643-4f7c-9364-d72591a75ddc',
+      centerName: 'EduFlow Bosh Markaz (Toshkent)',
+      createdAt: new Date(Date.now() - 86400000 * 4).toISOString()
+    },
+    {
+      id: 'lead-5',
+      fullName: 'Humoyun G\'aniyev',
+      phone: '+998 94 667 89 01',
+      email: 'humoyun.g@gmail.com',
+      source: 'Instagram',
+      sourceName: 'Instagram Direct',
+      status: 'MeetingScheduled',
+      statusName: 'Uchrashuv belgilanganlar',
+      courseOfInterest: '.NET FullStack Dasturlash',
+      notes: 'Markazimizga kelib o\'qituvchi bilan suhbatlashishga rozi bo\'ldi.',
+      meetingDate: new Date(Date.now() + 86400000 * 1).toISOString(),
+      demoLessonDate: null,
+      estimatedBudget: 800000,
+      centerId: 'a0d3c5b0-9643-4f7c-9364-d72591a75ddc',
+      centerName: 'EduFlow Bosh Markaz (Toshkent)',
+      createdAt: new Date(Date.now() - 86400000 * 6).toISOString()
+    },
+    {
+      id: 'lead-6',
+      fullName: 'Nodiraxon Karimova',
+      phone: '+998 97 778 90 12',
+      email: 'nodira.k@mail.ru',
+      source: 'Telegram',
+      sourceName: 'Telegram Kanal / Bot',
+      status: 'MeetingScheduled',
+      statusName: 'Uchrashuv belgilanganlar',
+      courseOfInterest: 'Frontend React & Next.js',
+      notes: 'Ertaga soat 15:00 da filialga ota-onasi bilan keladi.',
+      meetingDate: new Date(Date.now() + 86400000 * 1).toISOString(),
+      demoLessonDate: null,
+      estimatedBudget: 800000,
+      centerId: 'a0d3c5b0-9643-4f7c-9364-d72591a75ddc',
+      centerName: 'EduFlow Bosh Markaz (Toshkent)',
+      createdAt: new Date(Date.now() - 86400000 * 7).toISOString()
+    },
+    {
+      id: 'lead-7',
+      fullName: 'Javohirbek Islomov',
+      phone: '+998 97 334 56 78',
+      email: 'javohir.i@gmail.com',
+      source: 'Instagram',
+      sourceName: 'Instagram Direct',
+      status: 'DemoAttended',
+      statusName: 'Demo darsga kelganlar',
+      courseOfInterest: '.NET FullStack Dasturlash',
+      notes: 'Demo ochiq darsda faol qatnashdi, o\'qituvchi juda ma\'qul keldi.',
+      meetingDate: new Date(Date.now() - 86400000 * 2).toISOString(),
+      demoLessonDate: new Date(Date.now() - 86400000 * 1).toISOString(),
+      estimatedBudget: 800000,
+      centerId: 'a0d3c5b0-9643-4f7c-9364-d72591a75ddc',
+      centerName: 'EduFlow Bosh Markaz (Toshkent)',
+      createdAt: new Date(Date.now() - 86400000 * 8).toISOString()
+    },
+    {
+      id: 'lead-8',
+      fullName: 'Shahrizoda Ergasheva',
+      phone: '+998 99 445 67 89',
+      email: 'shahrizoda.e@mail.ru',
+      source: 'Telegram',
+      sourceName: 'Telegram Kanal / Bot',
+      status: 'DemoAttended',
+      statusName: 'Demo darsga kelganlar',
+      courseOfInterest: 'Frontend React & Next.js',
+      notes: 'Frontend bo\'yicha amaliy demo darsda qatnashdi. Guruhga qo\'shilmoqchi.',
+      meetingDate: new Date(Date.now() - 86400000 * 3).toISOString(),
+      demoLessonDate: new Date(Date.now() - 86400000 * 1).toISOString(),
+      estimatedBudget: 800000,
+      centerId: 'a0d3c5b0-9643-4f7c-9364-d72591a75ddc',
+      centerName: 'EduFlow Bosh Markaz (Toshkent)',
+      createdAt: new Date(Date.now() - 86400000 * 9).toISOString()
+    },
+    {
+      id: 'lead-9',
+      fullName: 'Murodjon Jo\'rayev',
+      phone: '+998 99 001 23 45',
+      email: 'murodjon.j@gmail.com',
+      source: 'Instagram',
+      sourceName: 'Instagram Direct',
+      status: 'Converted',
+      statusName: 'To\'lov qilganlar',
+      courseOfInterest: '.NET FullStack Dasturlash',
+      notes: '800 000 so\'m to\'lov qabul qilindi! Click orqali to\'landi.',
+      meetingDate: new Date(Date.now() - 86400000 * 4).toISOString(),
+      demoLessonDate: new Date(Date.now() - 86400000 * 2).toISOString(),
+      estimatedBudget: 800000,
+      centerId: 'a0d3c5b0-9643-4f7c-9364-d72591a75ddc',
+      centerName: 'EduFlow Bosh Markaz (Toshkent)',
+      createdAt: new Date(Date.now() - 86400000 * 10).toISOString()
+    },
+    {
+      id: 'lead-10',
+      fullName: 'Durdona Xoliqova',
+      phone: '+998 90 112 34 56',
+      email: 'durdona.x@mail.ru',
+      source: 'Telegram',
+      sourceName: 'Telegram Kanal / Bot',
+      status: 'Converted',
+      statusName: 'To\'lov qilganlar',
+      courseOfInterest: 'Frontend React & Next.js',
+      notes: 'Kassaga 800 000 so\'m naqd pul to\'ladi. Kvitansiya berildi.',
+      meetingDate: new Date(Date.now() - 86400000 * 5).toISOString(),
+      demoLessonDate: new Date(Date.now() - 86400000 * 2).toISOString(),
+      estimatedBudget: 800000,
+      centerId: 'a0d3c5b0-9643-4f7c-9364-d72591a75ddc',
+      centerName: 'EduFlow Bosh Markaz (Toshkent)',
+      createdAt: new Date(Date.now() - 86400000 * 11).toISOString()
+    }
   ]
 };
 
@@ -415,6 +599,47 @@ function handleOfflineFallback(endpoint, options) {
 
     if (method === 'PUT') {
       const id = endpoint.split('/')[2];
+      if (endpoint.includes('/compensation')) {
+        const teacherId = endpoint.split('/')[2];
+        users = users.map((u) => {
+          if (u.id === teacherId) {
+            const compType = body.compensationType || 'Percentage';
+            const effPct = body.customSharePercentage || (u.experienceYears >= 3 ? 70 : (u.experienceYears >= 2 ? 60 : (u.experienceYears >= 1 ? 50 : 40)));
+            const sCount = u.studentsCount || 4;
+            const rev = sCount * 800000;
+            let earned = 0;
+            let typeName = `Ulush (${effPct}%)`;
+            if (compType === 'Percentage') {
+              earned = rev * effPct / 100;
+              typeName = `Ulush (${effPct}%)`;
+            } else if (compType === 'FixedPerStudent') {
+              const perS = body.fixedAmount || 400000;
+              earned = sCount * perS;
+              typeName = `Har bir o'quvchiga (${perS.toLocaleString('uz-UZ')} so'm)`;
+            } else if (compType === 'FixedMonthly') {
+              const fMonthly = body.fixedAmount || 8000000;
+              earned = fMonthly;
+              typeName = `Oylik qat'iy maosh (${fMonthly.toLocaleString('uz-UZ')} so'm)`;
+            }
+            return {
+              ...u,
+              compensationType: compType,
+              compensationTypeName: typeName,
+              customSharePercentage: body.customSharePercentage,
+              fixedAmount: body.fixedAmount,
+              sharePercentage: effPct,
+              monthlyRevenueGenerated: rev,
+              monthlyEarned: earned,
+              centerNetProfit: Math.max(0, rev - earned)
+            };
+          }
+          return u;
+        });
+        setStorage('users', users);
+        const updatedT = users.find(u => u.id === teacherId);
+        return { success: true, data: updatedT, message: "O'qituvchi ulush/maosh parametrlari muvaffaqiyatli saqlandi!" };
+      }
+
       users = users.map((u) => (u.id === id ? { ...u, ...body } : u));
       setStorage('users', users);
       return { success: true, data: body, message: 'Foydalanuvchi yangilandi' };
@@ -633,6 +858,168 @@ function handleOfflineFallback(endpoint, options) {
     };
   }
 
+  // Leads CRM Pipeline
+  if (endpoint.startsWith('/leads')) {
+    let leads = getStorage('leads', mockSeed.leads);
+
+    if (endpoint.includes('/stats')) {
+      const total = leads.length;
+      const converted = leads.filter(l => l.status === 'Converted').length;
+      return {
+        success: true,
+        data: {
+          totalLeads: total,
+          interestedCount: leads.filter(l => l.status === 'Interested').length,
+          contactedCount: leads.filter(l => l.status === 'Contacted').length,
+          meetingScheduledCount: leads.filter(l => l.status === 'MeetingScheduled').length,
+          demoAttendedCount: leads.filter(l => l.status === 'DemoAttended').length,
+          convertedCount: converted,
+          lostCount: leads.filter(l => l.status === 'Lost').length,
+          conversionRatePercentage: total > 0 ? Math.round((converted / total) * 1000) / 10 : 0,
+          estimatedTotalPipelineValue: leads.reduce((sum, l) => sum + (l.estimatedBudget || 800000), 0)
+        }
+      };
+    }
+
+    if (endpoint.includes('/convert')) {
+      const leadId = endpoint.split('/')[2];
+      const lead = leads.find(l => l.id === leadId);
+      if (!lead) return { success: false, message: 'Lid topilmadi' };
+
+      // Quota check
+      let centers = getStorage('centers', mockSeed.centers);
+      const targetCenterId = lead.centerId || 'a0d3c5b0-9643-4f7c-9364-d72591a75ddc';
+      const center = centers.find(c => c.id === targetCenterId);
+      if (center && center.activeStudentsCount >= center.maxStudentsQuota) {
+        throw new Error(`❌ DIQQAT: "${center.name}" markazining o'quvchi kvotasi (${center.activeStudentsCount} / ${center.maxStudentsQuota}) to'lgan! Yangi o'quvchi qo'shish avtomatik ravishda bloklangan. Davom etish uchun markaz tarifini oshiring.`);
+      }
+
+      if (center) {
+        center.activeStudentsCount += 1;
+        center.remainingQuota = Math.max(0, center.maxStudentsQuota - center.activeStudentsCount);
+        center.quotaUsagePercentage = Math.round((center.activeStudentsCount / center.maxStudentsQuota) * 1000) / 10;
+        if (center.activeStudentsCount >= center.maxStudentsQuota) {
+          center.isQuotaExceeded = true;
+          center.isBlocked = true;
+          center.status = 'QuotaExceeded';
+          center.statusText = "Limit to'lgan (Bloklangan)";
+        }
+        setStorage('centers', centers);
+      }
+
+      let users = getStorage('users', mockSeed.users);
+      const newStudent = {
+        id: 's_' + Date.now(),
+        fullName: lead.fullName,
+        email: lead.email || `${lead.fullName.toLowerCase().replace(/\s+/g, '_')}@eduflow.uz`,
+        phone: lead.phone,
+        parentPhone: body.parentPhone || lead.phone,
+        role: 'Student',
+        status: 'Active',
+        centerId: targetCenterId,
+        centerName: center ? center.name : 'EduFlow Bosh Markaz',
+        balance: 0,
+        balanceFormatted: '+0 so\'m',
+        monthlyFee: 800000,
+        createdAt: new Date().toISOString()
+      };
+      users = [newStudent, ...users];
+      setStorage('users', users);
+
+      if (body.initialPaymentAmount > 0) {
+        let payments = getStorage('payments', mockSeed.payments);
+        payments = [{
+          id: 'p_' + Date.now(),
+          studentId: newStudent.id,
+          studentName: newStudent.fullName,
+          amount: body.initialPaymentAmount,
+          method: body.paymentMethod || 'Card',
+          status: 'Completed',
+          paidAt: new Date().toISOString(),
+          note: 'Lid konversiyasi to\'lovi'
+        }, ...payments];
+        setStorage('payments', payments);
+      }
+
+      leads = leads.map(l => l.id === leadId ? { ...l, status: 'Converted', statusName: "To'lov qilganlar", convertedStudentId: newStudent.id } : l);
+      setStorage('leads', leads);
+
+      return { success: true, data: newStudent, message: "Lid muvaffaqiyatli o'quvchiga aylantirildi va to'lovi qabul qilindi!" };
+    }
+
+    if (endpoint.includes('/status')) {
+      const leadId = endpoint.split('/')[2];
+      const statusNames = {
+        Interested: "Qiziqish bildirganlar",
+        Contacted: "Gaplashilganlar",
+        MeetingScheduled: "Uchrashuv belgilanganlar",
+        DemoAttended: "Demo darsga kelganlar",
+        Converted: "To'lov qilganlar",
+        Lost: "Rad etganlar / Arxiv"
+      };
+      leads = leads.map(l => {
+        if (l.id === leadId) {
+          return {
+            ...l,
+            status: body.status,
+            statusName: statusNames[body.status] || body.status,
+            notes: body.notes ? `${l.notes || ''}\n${body.notes}` : l.notes
+          };
+        }
+        return l;
+      });
+      setStorage('leads', leads);
+      const updatedL = leads.find(l => l.id === leadId);
+      return { success: true, data: updatedL, message: "Lid bosqichi yangilandi" };
+    }
+
+    if (method === 'GET') {
+      const id = endpoint.split('/')[2];
+      if (id && !id.includes('?')) {
+        const found = leads.find(l => l.id === id);
+        return found ? { success: true, data: found } : { success: false, message: 'Lid topilmadi' };
+      }
+      return { success: true, data: leads };
+    }
+
+    if (method === 'POST') {
+      const sourceNames = {
+        Instagram: "Instagram Direct",
+        Telegram: "Telegram Kanal / Bot",
+        Facebook: "Facebook Ad",
+        Recommendation: "Tavsiya / Do'sti",
+        Banner: "Tashqi Banner",
+        Website: "Rasmiy Veb-sayt",
+        WalkIn: "O'zi Kelgan (Walk-In)"
+      };
+      const newLead = {
+        id: 'lead-' + Date.now(),
+        ...body,
+        sourceName: sourceNames[body.source] || 'Instagram Direct',
+        status: body.status || 'Interested',
+        statusName: 'Qiziqish bildirganlar',
+        createdAt: new Date().toISOString()
+      };
+      leads = [newLead, ...leads];
+      setStorage('leads', leads);
+      return { success: true, data: newLead, message: "Yangi lid qo'shildi" };
+    }
+
+    if (method === 'PUT') {
+      const id = endpoint.split('/')[2];
+      leads = leads.map(l => l.id === id ? { ...l, ...body } : l);
+      setStorage('leads', leads);
+      return { success: true, data: body, message: "Lid yangilandi" };
+    }
+
+    if (method === 'DELETE') {
+      const id = endpoint.split('/')[2];
+      leads = leads.filter(l => l.id !== id);
+      setStorage('leads', leads);
+      return { success: true, data: true, message: "Lid o'chirildi" };
+    }
+  }
+
   // Audit
   if (endpoint.startsWith('/auditlogs')) {
     return { success: true, data: mockSeed.audit };
@@ -664,7 +1051,21 @@ export const api = {
     getById: (id) => request(`/users/${id}`),
     create: (data) => request('/users', { method: 'POST', body: JSON.stringify(data) }),
     update: (id, data) => request(`/users/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+    updateCompensation: (id, data) => request(`/users/${id}/compensation`, { method: 'PUT', body: JSON.stringify(data) }),
     delete: (id) => request(`/users/${id}`, { method: 'DELETE' })
+  },
+  leads: {
+    getAll: (params = {}) => {
+      const q = new URLSearchParams(params).toString();
+      return request(`/leads${q ? `?${q}` : ''}`);
+    },
+    getById: (id) => request(`/leads/${id}`),
+    getStats: (centerId) => request(`/leads/stats${centerId ? `?centerId=${centerId}` : ''}`),
+    create: (data) => request('/leads', { method: 'POST', body: JSON.stringify(data) }),
+    update: (id, data) => request(`/leads/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+    updateStatus: (id, data) => request(`/leads/${id}/status`, { method: 'PUT', body: JSON.stringify(data) }),
+    convert: (id, data) => request(`/leads/${id}/convert`, { method: 'POST', body: JSON.stringify(data) }),
+    delete: (id) => request(`/leads/${id}`, { method: 'DELETE' })
   },
   courses: {
     getAll: () => request('/courses'),

@@ -21,7 +21,11 @@ import {
   Eye,
   AlertCircle,
   Building2,
-  ShieldAlert
+  ShieldAlert,
+  Settings2,
+  Sliders,
+  DollarSign,
+  TrendingUp
 } from 'lucide-react';
 import { api } from '../services/api';
 import { useAuth } from '../context/AuthContext';
@@ -42,6 +46,17 @@ export const Users = ({ initialCenterId = 'ALL', setTab }) => {
 
   // Selected teacher for students list modal
   const [selectedTeacher, setSelectedTeacher] = useState(null);
+
+  // Teacher compensation configuration modal
+  const [showCompensationModal, setShowCompensationModal] = useState(false);
+  const [selectedTeacherForCompensation, setSelectedTeacherForCompensation] = useState(null);
+  const [compensationForm, setCompensationForm] = useState({
+    compensationType: 'Percentage',
+    customSharePercentage: 70,
+    fixedType: 'FixedPerStudent',
+    fixedAmount: 400000
+  });
+  const [compensationSaving, setCompensationSaving] = useState(false);
 
   // Create & Edit Modals
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -196,6 +211,46 @@ export const Users = ({ initialCenterId = 'ALL', setTab }) => {
       newPassword: ''
     });
     setShowEditModal(true);
+  };
+
+  const openCompensationModal = (t) => {
+    setSelectedTeacherForCompensation(t);
+    const expPct = t.experienceYears >= 3 ? 70 : (t.experienceYears >= 2 ? 60 : (t.experienceYears >= 1 ? 50 : 40));
+    const compType = t.compensationType || 'Percentage';
+    const isFixedMonthly = compType === 'FixedMonthly';
+    setCompensationForm({
+      compensationType: compType,
+      customSharePercentage: t.customSharePercentage || t.sharePercentage || expPct,
+      fixedType: isFixedMonthly ? 'FixedMonthly' : 'FixedPerStudent',
+      fixedAmount: t.fixedAmount || (isFixedMonthly ? 8000000 : 400000)
+    });
+    setShowCompensationModal(true);
+  };
+
+  const handleSaveCompensation = async (e) => {
+    e.preventDefault();
+    if (!selectedTeacherForCompensation) return;
+    setCompensationSaving(true);
+    try {
+      const type = compensationForm.compensationType === 'Percentage'
+        ? 'Percentage'
+        : compensationForm.fixedType;
+
+      const payload = {
+        compensationType: type,
+        customSharePercentage: type === 'Percentage' ? Number(compensationForm.customSharePercentage) : null,
+        fixedAmount: type !== 'Percentage' ? Number(compensationForm.fixedAmount) : null
+      };
+
+      await api.users.updateCompensation(selectedTeacherForCompensation.id, payload);
+      showToast("O'qituvchi ulush va maosh parametrlari muvaffaqiyatli saqlandi!", 'success');
+      setShowCompensationModal(false);
+      fetchUsers();
+    } catch (err) {
+      showToast(err.message, 'error');
+    } finally {
+      setCompensationSaving(false);
+    }
   };
 
   const formatCurrency = (val) => {
@@ -549,137 +604,158 @@ export const Users = ({ initialCenterId = 'ALL', setTab }) => {
               <thead>
                 <tr>
                   <th>O'qituvchi</th>
-                  <th>Telefon</th>
-                  <th>Ish Staji</th>
-                  <th>To'lovdan Foizi</th>
-                  <th>O'quvchilari Ro'yxati</th>
-                  <th>Bu Oylik Daromad</th>
-                  <th>Jami Ishlangan Summa</th>
-                  <th style={{ textAlign: 'right' }}>Tahrirlash</th>
+                  <th>O'quvchilari</th>
+                  <th>Markazga Tushumi (Oyiga)</th>
+                  <th>Ulush / Maosh Modeli</th>
+                  <th>O'qituvchi Maoshi</th>
+                  <th>Markaz Sof Foydasi</th>
+                  <th style={{ textAlign: 'right' }}>Amallar</th>
                 </tr>
               </thead>
               <tbody>
                 {loading ? (
                   <tr>
-                    <td colSpan={8} style={{ textAlign: 'center', padding: '40px' }}>
+                    <td colSpan={7} style={{ textAlign: 'center', padding: '40px' }}>
                       <div className="spinner" />
                     </td>
                   </tr>
                 ) : users.length === 0 ? (
                   <tr>
-                    <td colSpan={8} style={{ textAlign: 'center', padding: '40px', color: '#9ca3af' }}>
+                    <td colSpan={7} style={{ textAlign: 'center', padding: '40px', color: '#9ca3af' }}>
                       O'qituvchilar topilmadi
                     </td>
                   </tr>
                 ) : (
-                  users.map((t) => (
-                    <tr key={t.id}>
-                      {/* Name & Login */}
-                      <td>
-                        <div style={{ fontWeight: 800, color: '#fff' }}>{t.fullName}</div>
-                        <div style={{ fontSize: '12px', color: '#10b981', fontFamily: 'monospace' }}>
-                          Login: @{t.username || t.email.split('@')[0]}
-                        </div>
-                      </td>
+                  users.map((t) => {
+                    const stCount = t.studentsCount || 0;
+                    const revenue = t.monthlyRevenueGenerated || (stCount * 800000);
+                    const earned = t.monthlyEarned || 0;
+                    const centerProfit = t.centerNetProfit != null ? t.centerNetProfit : Math.max(0, revenue - earned);
+                    const isFixed = t.compensationType === 'FixedPerStudent' || t.compensationType === 'FixedMonthly';
 
-                      {/* Phone */}
-                      <td style={{ color: '#d1d5db', fontSize: '13px' }}>
-                        📞 {t.phone || '—'}
-                      </td>
+                    return (
+                      <tr key={t.id}>
+                        {/* Name, Login & Experience */}
+                        <td>
+                          <div style={{ fontWeight: 800, color: '#fff' }}>{t.fullName}</div>
+                          <div style={{ fontSize: '12px', color: '#10b981', fontFamily: 'monospace' }}>
+                            Login: @{t.username || t.email.split('@')[0]}
+                          </div>
+                          <div style={{ display: 'flex', gap: '6px', alignItems: 'center', marginTop: '4px' }}>
+                            <span style={{ fontSize: '11px', background: 'rgba(255, 255, 255, 0.08)', padding: '2px 6px', borderRadius: '4px', color: '#CBD5E1' }}>
+                              {t.experienceYears >= 1 ? `${t.experienceYears} yil staj` : '6 oy (yangi)'}
+                            </span>
+                            {t.centerName && (
+                              <span style={{ fontSize: '11px', color: '#94A3B8' }}>
+                                • {t.centerName}
+                              </span>
+                            )}
+                          </div>
+                        </td>
 
-                      {/* Experience Years */}
-                      <td>
-                        <div style={{ fontWeight: 800, color: '#fff', fontSize: '14px' }}>
-                          {t.experienceYears >= 1 ? `${t.experienceYears} yil staj` : '6 oy (yangi)'}
-                        </div>
-                        <div style={{ fontSize: '11px', color: '#9ca3af' }}>
-                          {t.experienceYears >= 3 ? '3+ yillik tajriba' : t.experienceYears >= 2 ? '2 yillik tajriba' : t.experienceYears >= 1 ? '1 yillik tajriba' : '1 yildan kam'}
-                        </div>
-                      </td>
-
-                      {/* Share Percentage Badge */}
-                      <td>
-                        <span
-                          style={{
-                            fontSize: '14px',
-                            fontWeight: 900,
-                            padding: '4px 12px',
-                            borderRadius: '8px',
-                            background:
-                              t.sharePercentage >= 70
-                                ? 'rgba(16, 185, 129, 0.2)'
-                                : t.sharePercentage >= 60
-                                ? 'rgba(59, 130, 246, 0.2)'
-                                : t.sharePercentage >= 50
-                                ? 'rgba(245, 158, 11, 0.2)'
-                                : 'rgba(156, 163, 175, 0.2)',
-                            color:
-                              t.sharePercentage >= 70
-                                ? '#34d399'
-                                : t.sharePercentage >= 60
-                                ? '#60a5fa'
-                                : t.sharePercentage >= 50
-                                ? '#fbbf24'
-                                : '#d1d5db',
-                            border: `1px solid ${
-                              t.sharePercentage >= 70
-                                ? '#10b981'
-                                : t.sharePercentage >= 60
-                                ? '#3b82f6'
-                                : t.sharePercentage >= 50
-                                ? '#f59e0b'
-                                : '#9ca3af'
-                            }`
-                          }}
-                        >
-                          {t.sharePercentage}% ulush
-                        </span>
-                        <div style={{ fontSize: '11px', color: '#9ca3af', marginTop: '4px' }}>
-                          1 talabaga: {formatCurrency(800000 * (t.sharePercentage / 100))}
-                        </div>
-                      </td>
-
-                      {/* Students List Button & Count */}
-                      <td>
-                        <button
-                          onClick={() => setSelectedTeacher(t)}
-                          className="btn btn-secondary btn-sm"
-                          style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
-                        >
-                          <UsersIcon size={14} color="#10b981" />
-                          <span>{t.studentsCount} nafar o'quvchi &rarr;</span>
-                        </button>
-                      </td>
-
-                      {/* Monthly Earned */}
-                      <td>
-                        <div style={{ fontSize: '15px', fontWeight: 900, color: '#10b981' }}>
-                          {formatCurrency(t.monthlyEarned)}
-                        </div>
-                        <div style={{ fontSize: '11px', color: '#9ca3af' }}>Bu oygi maosh</div>
-                      </td>
-
-                      {/* Total Lifetime Earned */}
-                      <td>
-                        <div style={{ fontSize: '14px', fontWeight: 800, color: '#34d399' }}>
-                          {formatCurrency(t.totalEarned)}
-                        </div>
-                        <div style={{ fontSize: '11px', color: '#9ca3af' }}>Jami to'langan</div>
-                      </td>
-
-                      {/* Edit actions */}
-                      <td style={{ textAlign: 'right' }}>
-                        <div style={{ display: 'inline-flex', gap: '6px' }}>
-                          <button onClick={() => openEdit(t)} className="btn btn-ghost btn-icon">
-                            <Edit2 size={16} color="#34d399" />
+                        {/* Students List Button & Count */}
+                        <td>
+                          <button
+                            onClick={() => setSelectedTeacher(t)}
+                            className="btn btn-secondary btn-sm"
+                            style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+                          >
+                            <UsersIcon size={14} color="#10b981" />
+                            <span>{stCount} nafar o'quvchi &rarr;</span>
                           </button>
-                          <button onClick={() => handleDelete(t.id, t.fullName)} className="btn btn-ghost btn-icon">
-                            <Trash2 size={16} color="#fb7185" />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
+                        </td>
+
+                        {/* Monthly Revenue Generated (Center Revenue) */}
+                        <td>
+                          <div style={{ fontSize: '15px', fontWeight: 900, color: '#60A5FA' }}>
+                            {formatCurrency(revenue)}
+                          </div>
+                          <div style={{ fontSize: '11px', color: '#94A3B8', marginTop: '2px' }}>
+                            {stCount} o'quvchi × 800 000 so'm
+                          </div>
+                        </td>
+
+                        {/* Compensation Model Badge & Setting */}
+                        <td>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'flex-start' }}>
+                            <span
+                              style={{
+                                fontSize: '12px',
+                                fontWeight: 800,
+                                padding: '4px 10px',
+                                borderRadius: '6px',
+                                background: isFixed ? 'rgba(245, 158, 11, 0.18)' : 'rgba(16, 185, 129, 0.18)',
+                                color: isFixed ? '#FBBF24' : '#34D399',
+                                border: isFixed ? '1px solid rgba(245, 158, 11, 0.35)' : '1px solid rgba(16, 185, 129, 0.35)'
+                              }}
+                            >
+                              {t.compensationTypeName || (t.compensationType === 'FixedMonthly'
+                                ? `Oylik ${(t.fixedAmount || 8000000).toLocaleString('uz-UZ')} so'm`
+                                : t.compensationType === 'FixedPerStudent'
+                                ? `Har biriga ${(t.fixedAmount || 400000).toLocaleString('uz-UZ')} so'm`
+                                : `${t.sharePercentage || 70}% ulush`)}
+                            </span>
+                            <button
+                              onClick={() => openCompensationModal(t)}
+                              style={{
+                                background: 'none',
+                                border: 'none',
+                                color: '#A855F7',
+                                fontSize: '11px',
+                                fontWeight: 700,
+                                cursor: 'pointer',
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '4px',
+                                padding: 0
+                              }}
+                            >
+                              <Settings2 size={12} />
+                              <span>Ulush / Maoshni sozlash</span>
+                            </button>
+                          </div>
+                        </td>
+
+                        {/* Teacher Monthly Earned */}
+                        <td>
+                          <div style={{ fontSize: '15px', fontWeight: 900, color: '#10b981' }}>
+                            {formatCurrency(earned)}
+                          </div>
+                          <div style={{ fontSize: '11px', color: '#9ca3af' }}>O'qituvchi ulushi</div>
+                        </td>
+
+                        {/* Center Net Retained Profit */}
+                        <td>
+                          <div style={{ fontSize: '15px', fontWeight: 900, color: '#F59E0B' }}>
+                            {formatCurrency(centerProfit)}
+                          </div>
+                          <div style={{ fontSize: '11px', color: '#34D399', fontWeight: 600 }}>
+                            Markaz sof foydasi
+                          </div>
+                        </td>
+
+                        {/* Actions */}
+                        <td style={{ textAlign: 'right' }}>
+                          <div style={{ display: 'inline-flex', gap: '6px' }}>
+                            <button
+                              onClick={() => openCompensationModal(t)}
+                              title="Maosh va ulush sozlamalari"
+                              className="btn btn-ghost btn-icon"
+                              style={{ color: '#A855F7' }}
+                            >
+                              <Sliders size={16} />
+                            </button>
+                            <button onClick={() => openEdit(t)} title="Tahrirlash" className="btn btn-ghost btn-icon">
+                              <Edit2 size={16} color="#34d399" />
+                            </button>
+                            <button onClick={() => handleDelete(t.id, t.fullName)} title="O'chirish" className="btn btn-ghost btn-icon">
+                              <Trash2 size={16} color="#fb7185" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })
                 )}
               </tbody>
             </table>
@@ -1215,6 +1291,430 @@ export const Users = ({ initialCenterId = 'ALL', setTab }) => {
                 </button>
                 <button type="submit" className="btn btn-primary">
                   Saqlash
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+      {/* 4. TEACHER COMPENSATION & PROFIT SPLIT MODAL */}
+      {showCompensationModal && selectedTeacherForCompensation && (
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          background: 'rgba(0, 0, 0, 0.8)',
+          backdropFilter: 'blur(8px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1100,
+          padding: '1rem'
+        }}>
+          <div style={{
+            background: '#1E293B',
+            borderRadius: '16px',
+            border: '1px solid rgba(168, 85, 247, 0.35)',
+            width: '100%',
+            maxWidth: '560px',
+            maxHeight: '92vh',
+            overflowY: 'auto',
+            padding: '1.75rem',
+            boxShadow: '0 25px 50px rgba(0, 0, 0, 0.6)'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                <span style={{ fontSize: '1.5rem' }}>⚙️</span>
+                <div>
+                  <h2 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#F8FAFC', margin: 0 }}>
+                    O'qituvchi Ulushi va Maoshini Sozlash
+                  </h2>
+                  <div style={{ fontSize: '0.8rem', color: '#94A3B8', marginTop: '2px' }}>
+                    Markaz rahbari tomonidan o'qituvchiga beriladigan foiz yoki qat'iy summani belgilash
+                  </div>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowCompensationModal(false)}
+                style={{ background: 'none', border: 'none', color: '#94A3B8', cursor: 'pointer' }}
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            {/* Teacher Details Badge */}
+            <div style={{
+              background: 'rgba(15, 23, 42, 0.7)',
+              padding: '0.85rem 1rem',
+              borderRadius: '10px',
+              border: '1px solid rgba(255, 255, 255, 0.08)',
+              marginBottom: '1.25rem',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              flexWrap: 'wrap',
+              gap: '0.5rem'
+            }}>
+              <div>
+                <div style={{ fontWeight: 800, color: '#F8FAFC', fontSize: '0.95rem' }}>
+                  {selectedTeacherForCompensation.fullName}
+                </div>
+                <div style={{ fontSize: '0.75rem', color: '#94A3B8' }}>
+                  Staj: {selectedTeacherForCompensation.experienceYears} yil • {selectedTeacherForCompensation.centerName || 'EduFlow'}
+                </div>
+              </div>
+              <div style={{ textAlign: 'right' }}>
+                <span style={{
+                  fontSize: '0.75rem',
+                  fontWeight: 700,
+                  padding: '0.25rem 0.65rem',
+                  borderRadius: '9999px',
+                  background: 'rgba(59, 130, 246, 0.15)',
+                  color: '#60A5FA',
+                  border: '1px solid rgba(59, 130, 246, 0.3)'
+                }}>
+                  {selectedTeacherForCompensation.studentsCount || 0} ta o'quvchi biriktirilgan
+                </span>
+              </div>
+            </div>
+
+            <form onSubmit={handleSaveCompensation} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+              {/* Method Selection (2 Usul) */}
+              <div>
+                <label style={{ display: 'block', fontSize: '0.825rem', fontWeight: 700, color: '#E2E8F0', marginBottom: '0.5rem' }}>
+                  To'lov va Ulush Usulini Tanlang:
+                </label>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+                  <button
+                    type="button"
+                    onClick={() => setCompensationForm({ ...compensationForm, compensationType: 'Percentage' })}
+                    style={{
+                      padding: '0.85rem 1rem',
+                      borderRadius: '10px',
+                      cursor: 'pointer',
+                      textAlign: 'left',
+                      border: compensationForm.compensationType === 'Percentage'
+                        ? '2px solid #A855F7'
+                        : '1px solid rgba(255, 255, 255, 0.1)',
+                      background: compensationForm.compensationType === 'Percentage'
+                        ? 'rgba(168, 85, 247, 0.15)'
+                        : 'rgba(15, 23, 42, 0.6)',
+                      color: '#F8FAFC',
+                      transition: 'all 0.15s ease'
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 800, fontSize: '0.9rem', color: compensationForm.compensationType === 'Percentage' ? '#C084FC' : '#F8FAFC' }}>
+                      <Percent size={18} />
+                      1. Foiz Usulida (%)
+                    </div>
+                    <div style={{ fontSize: '0.75rem', color: '#94A3B8', marginTop: '0.35rem' }}>
+                      Har bir o'quvchining 800 000 so'm to'lovidan ma'lum % ulush
+                    </div>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setCompensationForm({ ...compensationForm, compensationType: 'Fixed' })}
+                    style={{
+                      padding: '0.85rem 1rem',
+                      borderRadius: '10px',
+                      cursor: 'pointer',
+                      textAlign: 'left',
+                      border: compensationForm.compensationType !== 'Percentage'
+                        ? '2px solid #F59E0B'
+                        : '1px solid rgba(255, 255, 255, 0.1)',
+                      background: compensationForm.compensationType !== 'Percentage'
+                        ? 'rgba(245, 158, 11, 0.15)'
+                        : 'rgba(15, 23, 42, 0.6)',
+                      color: '#F8FAFC',
+                      transition: 'all 0.15s ease'
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 800, fontSize: '0.9rem', color: compensationForm.compensationType !== 'Percentage' ? '#FBBF24' : '#F8FAFC' }}>
+                      <DollarSign size={18} />
+                      2. Qat'iy Summa (UZS)
+                    </div>
+                    <div style={{ fontSize: '0.75rem', color: '#94A3B8', marginTop: '0.35rem' }}>
+                      Har bir o'quvchiga yoki oylik qat'iy belgilangan summa
+                    </div>
+                  </button>
+                </div>
+              </div>
+
+              {/* MODE 1: FOIZ USULI */}
+              {compensationForm.compensationType === 'Percentage' && (
+                <div style={{
+                  background: 'rgba(168, 85, 247, 0.08)',
+                  border: '1px solid rgba(168, 85, 247, 0.25)',
+                  borderRadius: '12px',
+                  padding: '1.25rem',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '1rem'
+                }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <label style={{ fontSize: '0.85rem', fontWeight: 700, color: '#C084FC' }}>
+                      O'qituvchi Ulush Foizi (%):
+                    </label>
+                    <span style={{ fontSize: '1.3rem', fontWeight: 900, color: '#C084FC' }}>
+                      {compensationForm.customSharePercentage}%
+                    </span>
+                  </div>
+
+                  <input
+                    type="range"
+                    min="10"
+                    max="90"
+                    step="1"
+                    value={compensationForm.customSharePercentage}
+                    onChange={(e) => setCompensationForm({ ...compensationForm, customSharePercentage: parseInt(e.target.value) || 50 })}
+                    style={{ width: '100%', accentColor: '#A855F7', cursor: 'pointer' }}
+                  />
+
+                  {/* Preset Pills */}
+                  <div>
+                    <div style={{ fontSize: '0.75rem', color: '#94A3B8', marginBottom: '0.4rem' }}>
+                      Tezkor ulush tanlash:
+                    </div>
+                    <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                      {[40, 50, 60, 65, 70, 75, 80].map((pct) => (
+                        <button
+                          key={pct}
+                          type="button"
+                          onClick={() => setCompensationForm({ ...compensationForm, customSharePercentage: pct })}
+                          style={{
+                            padding: '0.35rem 0.75rem',
+                            borderRadius: '6px',
+                            border: compensationForm.customSharePercentage === pct ? '1px solid #A855F7' : '1px solid rgba(255, 255, 255, 0.1)',
+                            background: compensationForm.customSharePercentage === pct ? '#A855F7' : 'rgba(15, 23, 42, 0.6)',
+                            color: '#FFFFFF',
+                            fontSize: '0.8rem',
+                            fontWeight: 700,
+                            cursor: 'pointer'
+                          }}
+                        >
+                          {pct}%
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* MODE 2: QAT'IY SUMMA USULI */}
+              {compensationForm.compensationType !== 'Percentage' && (
+                <div style={{
+                  background: 'rgba(245, 158, 11, 0.08)',
+                  border: '1px solid rgba(245, 158, 11, 0.25)',
+                  borderRadius: '12px',
+                  padding: '1.25rem',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '1rem'
+                }}>
+                  <div>
+                    <label style={{ fontSize: '0.8rem', fontWeight: 600, color: '#FBBF24', marginBottom: '0.4rem', display: 'block' }}>
+                      Summa Turi:
+                    </label>
+                    <div style={{ display: 'flex', gap: '0.75rem' }}>
+                      <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.85rem', color: '#F8FAFC', cursor: 'pointer' }}>
+                        <input
+                          type="radio"
+                          name="fixedType"
+                          value="FixedPerStudent"
+                          checked={compensationForm.fixedType === 'FixedPerStudent'}
+                          onChange={() => setCompensationForm({ ...compensationForm, fixedType: 'FixedPerStudent', fixedAmount: 400000 })}
+                        />
+                        Har bir o'quvchi uchun (so'm)
+                      </label>
+                      <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.85rem', color: '#F8FAFC', cursor: 'pointer' }}>
+                        <input
+                          type="radio"
+                          name="fixedType"
+                          value="FixedMonthly"
+                          checked={compensationForm.fixedType === 'FixedMonthly'}
+                          onChange={() => setCompensationForm({ ...compensationForm, fixedType: 'FixedMonthly', fixedAmount: 8000000 })}
+                        />
+                        Oylik qat'iy maosh (so'm)
+                      </label>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: '#CBD5E1', marginBottom: '0.35rem' }}>
+                      {compensationForm.fixedType === 'FixedPerStudent' ? "Har bir o'quvchi uchun summa (UZS) *" : "Oylik qat'iy maosh summasi (UZS) *"}
+                    </label>
+                    <input
+                      type="number"
+                      step="10000"
+                      min="50000"
+                      required
+                      value={compensationForm.fixedAmount}
+                      onChange={(e) => setCompensationForm({ ...compensationForm, fixedAmount: parseInt(e.target.value) || 0 })}
+                      style={{
+                        width: '100%',
+                        padding: '0.65rem 0.85rem',
+                        background: 'rgba(15, 23, 42, 0.7)',
+                        border: '1px solid rgba(255, 255, 255, 0.12)',
+                        borderRadius: '8px',
+                        color: '#F8FAFC',
+                        fontSize: '0.95rem',
+                        fontWeight: 700,
+                        boxSizing: 'border-box'
+                      }}
+                    />
+                  </div>
+
+                  {/* Preset Pills */}
+                  <div>
+                    <div style={{ fontSize: '0.75rem', color: '#94A3B8', marginBottom: '0.4rem' }}>
+                      Tezkor namunalar:
+                    </div>
+                    <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                      {compensationForm.fixedType === 'FixedPerStudent' ? (
+                        [300000, 350000, 400000, 450000, 500000].map((amt) => (
+                          <button
+                            key={amt}
+                            type="button"
+                            onClick={() => setCompensationForm({ ...compensationForm, fixedAmount: amt })}
+                            style={{
+                              padding: '0.35rem 0.65rem',
+                              borderRadius: '6px',
+                              border: compensationForm.fixedAmount === amt ? '1px solid #F59E0B' : '1px solid rgba(255, 255, 255, 0.1)',
+                              background: compensationForm.fixedAmount === amt ? '#F59E0B' : 'rgba(15, 23, 42, 0.6)',
+                              color: compensationForm.fixedAmount === amt ? '#000' : '#FFFFFF',
+                              fontSize: '0.75rem',
+                              fontWeight: 700,
+                              cursor: 'pointer'
+                            }}
+                          >
+                            {(amt / 1000)} ming
+                          </button>
+                        ))
+                      ) : (
+                        [6000000, 7000000, 8000000, 9000000, 10000000, 12000000].map((amt) => (
+                          <button
+                            key={amt}
+                            type="button"
+                            onClick={() => setCompensationForm({ ...compensationForm, fixedAmount: amt })}
+                            style={{
+                              padding: '0.35rem 0.65rem',
+                              borderRadius: '6px',
+                              border: compensationForm.fixedAmount === amt ? '1px solid #F59E0B' : '1px solid rgba(255, 255, 255, 0.1)',
+                              background: compensationForm.fixedAmount === amt ? '#F59E0B' : 'rgba(15, 23, 42, 0.6)',
+                              color: compensationForm.fixedAmount === amt ? '#000' : '#FFFFFF',
+                              fontSize: '0.75rem',
+                              fontWeight: 700,
+                              cursor: 'pointer'
+                            }}
+                          >
+                            {(amt / 1000000)} mln
+                          </button>
+                        ))
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* LIVE SIMULATION (JONLI HISOBLASH) */}
+              {(() => {
+                const sCount = selectedTeacherForCompensation.studentsCount || 4;
+                const totalRevenue = sCount * 800000;
+                let simulatedEarned = 0;
+
+                if (compensationForm.compensationType === 'Percentage') {
+                  simulatedEarned = totalRevenue * (Number(compensationForm.customSharePercentage) || 50) / 100;
+                } else if (compensationForm.fixedType === 'FixedPerStudent') {
+                  simulatedEarned = sCount * (Number(compensationForm.fixedAmount) || 400000);
+                } else {
+                  simulatedEarned = Number(compensationForm.fixedAmount) || 8000000;
+                }
+
+                const simulatedCenterProfit = Math.max(0, totalRevenue - simulatedEarned);
+                const teacherPctOfRevenue = totalRevenue > 0 ? Math.round((simulatedEarned / totalRevenue) * 100) : 50;
+
+                return (
+                  <div style={{
+                    background: 'rgba(15, 23, 42, 0.85)',
+                    border: '1px solid rgba(255, 255, 255, 0.12)',
+                    borderRadius: '12px',
+                    padding: '1rem',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '0.65rem'
+                  }}>
+                    <div style={{ fontSize: '0.8rem', fontWeight: 800, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                      📊 Jonli Moliya Taqsimoti ({sCount} ta o'quvchi misolida):
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.5rem', textAlign: 'center' }}>
+                      <div style={{ background: 'rgba(59, 130, 246, 0.12)', padding: '0.6rem 0.4rem', borderRadius: '8px', border: '1px solid rgba(59, 130, 246, 0.25)' }}>
+                        <div style={{ fontSize: '0.7rem', color: '#94A3B8' }}>Markaz Tushumi</div>
+                        <div style={{ fontSize: '0.95rem', fontWeight: 800, color: '#60A5FA' }}>
+                          {formatCurrency(totalRevenue)}
+                        </div>
+                      </div>
+
+                      <div style={{ background: 'rgba(16, 185, 129, 0.12)', padding: '0.6rem 0.4rem', borderRadius: '8px', border: '1px solid rgba(16, 185, 129, 0.25)' }}>
+                        <div style={{ fontSize: '0.7rem', color: '#94A3B8' }}>O'qituvchiga</div>
+                        <div style={{ fontSize: '0.95rem', fontWeight: 800, color: '#34D399' }}>
+                          {formatCurrency(simulatedEarned)}
+                        </div>
+                      </div>
+
+                      <div style={{ background: 'rgba(245, 158, 11, 0.12)', padding: '0.6rem 0.4rem', borderRadius: '8px', border: '1px solid rgba(245, 158, 11, 0.25)' }}>
+                        <div style={{ fontSize: '0.7rem', color: '#94A3B8' }}>Markaz Sof Foydasi</div>
+                        <div style={{ fontSize: '0.95rem', fontWeight: 800, color: '#FBBF24' }}>
+                          {formatCurrency(simulatedCenterProfit)}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Progress Bar of Split */}
+                    <div style={{ marginTop: '0.25rem' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.7rem', color: '#CBD5E1', marginBottom: '0.25rem' }}>
+                        <span>O'qituvchi: {teacherPctOfRevenue}%</span>
+                        <span>Markaz foydasi: {Math.max(0, 100 - teacherPctOfRevenue)}%</span>
+                      </div>
+                      <div style={{ height: '8px', width: '100%', background: 'rgba(245, 158, 11, 0.4)', borderRadius: '4px', overflow: 'hidden' }}>
+                        <div style={{ height: '100%', width: `${Math.min(100, teacherPctOfRevenue)}%`, background: '#10B981', transition: 'width 0.2s ease' }} />
+                      </div>
+                    </div>
+                  </div>
+                );
+              })()}
+
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '0.5rem' }}>
+                <button
+                  type="button"
+                  onClick={() => setShowCompensationModal(false)}
+                  style={{
+                    padding: '0.65rem 1.2rem',
+                    borderRadius: '8px',
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    background: 'transparent',
+                    color: '#94A3B8',
+                    fontWeight: 600,
+                    cursor: 'pointer'
+                  }}
+                >
+                  Bekor qilish
+                </button>
+                <button
+                  type="submit"
+                  disabled={compensationSaving}
+                  style={{
+                    padding: '0.65rem 1.4rem',
+                    borderRadius: '8px',
+                    border: 'none',
+                    background: 'linear-gradient(135deg, #A855F7 0%, #7C3AED 100%)',
+                    color: '#FFFFFF',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    boxShadow: '0 4px 14px rgba(124, 58, 237, 0.35)'
+                  }}
+                >
+                  {compensationSaving ? 'Saqlanmoqda...' : 'Parametrlarni Saqlash'}
                 </button>
               </div>
             </form>

@@ -109,8 +109,15 @@ public class AuthService : IAuthService
 
         if (u.Role == UserRole.Teacher)
         {
-            int sharePct = u.ExperienceYears >= 3 ? 70 : (u.ExperienceYears >= 2 ? 60 : (u.ExperienceYears >= 1 ? 50 : 40));
-            dto.SharePercentage = sharePct;
+            dto.CompensationType = u.CompensationType;
+            dto.CustomSharePercentage = u.CustomSharePercentage;
+            dto.FixedAmount = u.FixedAmount;
+
+            int expPct = u.ExperienceYears >= 3 ? 70 : (u.ExperienceYears >= 2 ? 60 : (u.ExperienceYears >= 1 ? 50 : 40));
+            int effectiveShare = u.CustomSharePercentage.HasValue && u.CustomSharePercentage.Value > 0
+                ? u.CustomSharePercentage.Value
+                : expPct;
+            dto.SharePercentage = effectiveShare;
 
             var teachingStudents = u.TeachingGroups
                 .SelectMany(g => g.Enrollments)
@@ -122,8 +129,36 @@ public class AuthService : IAuthService
 
             dto.StudentsCount = teachingStudents.Count;
             dto.StudentNames = teachingStudents.Select(s => s.FullName).ToList();
-            dto.MonthlyEarned = teachingStudents.Count * 800000m * sharePct / 100m;
-            dto.TotalEarned = dto.MonthlyEarned * Math.Max(1, u.ExperienceYears * 12);
+
+            var revenue = teachingStudents.Count * 800000m;
+            dto.MonthlyRevenueGenerated = revenue;
+
+            decimal monthlyEarned = 0m;
+            switch (u.CompensationType)
+            {
+                case TeacherCompensationType.Percentage:
+                    dto.CompensationTypeName = $"Ulush ({effectiveShare}%)";
+                    monthlyEarned = revenue * effectiveShare / 100m;
+                    break;
+                case TeacherCompensationType.FixedPerStudent:
+                    var perStudent = u.FixedAmount.HasValue && u.FixedAmount.Value > 0 ? u.FixedAmount.Value : 400000m;
+                    dto.CompensationTypeName = $"Har bir o'quvchiga ({perStudent:N0} so'm)";
+                    monthlyEarned = teachingStudents.Count * perStudent;
+                    break;
+                case TeacherCompensationType.FixedMonthly:
+                    var fixedMonthly = u.FixedAmount.HasValue && u.FixedAmount.Value > 0 ? u.FixedAmount.Value : 8000000m;
+                    dto.CompensationTypeName = $"Oylik qat'iy maosh ({fixedMonthly:N0} so'm)";
+                    monthlyEarned = fixedMonthly;
+                    break;
+                default:
+                    dto.CompensationTypeName = $"Ulush ({effectiveShare}%)";
+                    monthlyEarned = revenue * effectiveShare / 100m;
+                    break;
+            }
+
+            dto.MonthlyEarned = monthlyEarned;
+            dto.CenterNetProfit = Math.Max(0m, revenue - monthlyEarned);
+            dto.TotalEarned = monthlyEarned * Math.Max(1, u.ExperienceYears * 12);
         }
         else if (u.Role == UserRole.Student)
         {
@@ -387,5 +422,30 @@ public class UserService : IUserService
         await _audit.LogAsync("DELETE", "User", id.ToString(), $"Foydalanuvchi o'chirildi: {user.Email}");
 
         return ApiResponse<bool>.Ok(true, "Foydalanuvchi muvaffaqiyatli o'chirildi.");
+    }
+
+    public async Task<ApiResponse<UserDto>> UpdateTeacherCompensationAsync(Guid teacherId, UpdateTeacherCompensationDto request)
+    {
+        var user = await _db.Users
+            .Include(u => u.Enrollments).ThenInclude(e => e.Group)
+            .Include(u => u.TeachingGroups).ThenInclude(g => g.Enrollments).ThenInclude(e => e.Student)
+            .Include(u => u.Payments)
+            .Include(u => u.Attendances)
+            .FirstOrDefaultAsync(u => u.Id == teacherId);
+
+        if (user == null)
+            return ApiResponse<UserDto>.Fail("O'qituvchi topilmadi.");
+
+        if (user.Role != UserRole.Teacher)
+            return ApiResponse<UserDto>.Fail("Faqat o'qituvchilarning maosh va ulush parametrlarini sozlash mumkin.");
+
+        user.CompensationType = request.CompensationType;
+        user.CustomSharePercentage = request.CustomSharePercentage;
+        user.FixedAmount = request.FixedAmount;
+
+        await _db.SaveChangesAsync();
+        await _audit.LogAsync("UPDATE_COMPENSATION", "User", user.Id.ToString(), $"O'qituvchi ulushi/maoshi yangilandi: {user.FullName}, Turi: {request.CompensationType}");
+
+        return ApiResponse<UserDto>.Ok(AuthService.MapUserToDto(user), "O'qituvchi maosh/ulush parametrlari muvaffaqiyatli saqlandi.");
     }
 }

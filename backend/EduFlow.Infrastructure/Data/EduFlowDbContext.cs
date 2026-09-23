@@ -20,6 +20,7 @@ public class EduFlowDbContext : DbContext
     public DbSet<Submission> Submissions => Set<Submission>();
     public DbSet<Payment> Payments => Set<Payment>();
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
+    public DbSet<Lead> Leads => Set<Lead>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -65,6 +66,8 @@ public class EduFlowDbContext : DbContext
             entity.Property(e => e.ParentPhone).HasMaxLength(50);
             entity.Property(e => e.Role).HasConversion<string>();
             entity.Property(e => e.Status).HasConversion<string>();
+            entity.Property(e => e.CompensationType).HasConversion<string>();
+            entity.Property(e => e.FixedAmount).HasPrecision(18, 2);
         });
 
         // Course
@@ -203,6 +206,33 @@ public class EduFlowDbContext : DbContext
             entity.HasOne(e => e.User)
                 .WithMany(u => u.AuditLogs)
                 .HasForeignKey(e => e.UserId)
+                .OnDelete(DeleteBehavior.SetNull);
+        });
+
+        // Lead
+        modelBuilder.Entity<Lead>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.FullName).HasMaxLength(150).IsRequired();
+            entity.Property(e => e.Phone).HasMaxLength(50).IsRequired();
+            entity.Property(e => e.Email).HasMaxLength(150);
+            entity.Property(e => e.Source).HasConversion<string>();
+            entity.Property(e => e.Status).HasConversion<string>();
+            entity.Property(e => e.EstimatedBudget).HasPrecision(18, 2);
+
+            entity.HasOne(l => l.Center)
+                .WithMany()
+                .HasForeignKey(l => l.CenterId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(l => l.TargetCourse)
+                .WithMany()
+                .HasForeignKey(l => l.TargetCourseId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            entity.HasOne(l => l.ConvertedStudent)
+                .WithMany()
+                .HasForeignKey(l => l.ConvertedStudentId)
                 .OnDelete(DeleteBehavior.SetNull);
         });
     }

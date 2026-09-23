@@ -58,6 +58,7 @@ builder.Services.AddScoped<IAssignmentService, AssignmentService>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
 builder.Services.AddScoped<IDashboardService, DashboardService>();
 builder.Services.AddScoped<ILearningCenterService, LearningCenterService>();
+builder.Services.AddScoped<ILeadService, LeadService>();
 
 // 4. Controllers & JSON settings
 builder.Services.AddControllers()

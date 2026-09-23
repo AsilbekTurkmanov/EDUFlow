@@ -72,3 +72,32 @@ public enum CenterStatus
     Suspended,       // Vaqtincha to'xtatilgan
     Expired          // Obuna muddati tugagan
 }
+
+public enum LeadStatus
+{
+    Interested,        // Qiziqish bildirganlar (Yangi kelgan lidlar)
+    Contacted,         // Gaplashilganlar (Qo'ng'iroq qilingan, aloqaga chiqilgan)
+    MeetingScheduled,  // Uchrashuv belgilanganlar (Markazga uchrashuvga kelishi rejalashtirilgan)
+    DemoAttended,      // Demo darsga kelganlar (Sinov darsida qatnashgan)
+    Converted,         // To'lov qilganlar (Shartnoma tuzgan, to'lov qilgan)
+    Lost               // Rad etganlar / Noaktiv
+}
+
+public enum LeadSource
+{
+    Instagram,
+    Telegram,
+    Facebook,
+    Recommendation,
+    Banner,
+    Website,
+    WalkIn,
+    Other
+}
+
+public enum TeacherCompensationType
+{
+    Percentage,       // Foiz usulida (40-70% yoki rahbar belgilagan maxsus %)
+    FixedPerStudent,  // Har bir o'quvchidan qat'iy summa (masalan, 400 000 so'm / o'quvchi)
+    FixedMonthly      // Oylik o'zgarmas maosh (masalan, 8 000 000 so'm / oy)
+}

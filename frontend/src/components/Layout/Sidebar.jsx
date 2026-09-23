@@ -11,7 +11,8 @@ import {
   CreditCard,
   History,
   LogOut,
-  GraduationCap
+  GraduationCap,
+  Target
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
@@ -27,6 +28,7 @@ export const Sidebar = ({ currentTab, setTab }) => {
       // Super Admin and Center Admins have SaaS Centers Hub
       items.push(
         { id: 'centers', label: '🏢 O\'quv Markazlari (SaaS)', icon: Building2 },
+        { id: 'leads', label: '🎯 Lidlar (CRM Doska)', icon: Target },
         { id: 'users', label: 'Foydalanuvchilar', icon: Users },
         { id: 'courses', label: 'Kurslar', icon: BookOpen },
         { id: 'groups', label: 'Guruhlar', icon: FolderKanban },

@@ -21,8 +21,9 @@ public static class DatabaseInitializer
         {
             var hasAdmin = await db.Users.AnyAsync(u => u.Username == "asilbekturkmanov");
             var hasCenters = await db.LearningCenters.AnyAsync();
+            var hasLeads = await db.Leads.AnyAsync();
             var totalUsers = await db.Users.CountAsync();
-            if (!hasAdmin || !hasCenters || totalUsers < 50)
+            if (!hasAdmin || !hasCenters || !hasLeads || totalUsers < 50)
             {
                 needsRecreation = true;
             }
@@ -231,6 +232,7 @@ public static class DatabaseInitializer
         };
 
         var teachersList = new List<User> { mainTeacher };
+        int tIdx = 0;
         foreach (var tc in teacherConfigs)
         {
             var t = new User
@@ -247,6 +249,30 @@ public static class DatabaseInitializer
                 ExperienceYears = tc.Item4,
                 CreatedAt = DateTime.UtcNow.AddYears(-Math.Max(1, tc.Item4))
             };
+
+            // Sample compensation schemes for testing
+            if (tIdx == 0) // Anvar Karimov (Senior .NET)
+            {
+                t.CompensationType = TeacherCompensationType.FixedPerStudent;
+                t.FixedAmount = 450000m;
+            }
+            else if (tIdx == 1) // Madina Alimova (Frontend Lead)
+            {
+                t.CompensationType = TeacherCompensationType.Percentage;
+                t.CustomSharePercentage = 65;
+            }
+            else if (tIdx == 2) // Bobur Mirzayev (Mobile Lead)
+            {
+                t.CompensationType = TeacherCompensationType.FixedMonthly;
+                t.FixedAmount = 9000000m;
+            }
+            else if (tIdx == 5) // Sarvar Usmonov (Python Backend)
+            {
+                t.CompensationType = TeacherCompensationType.FixedPerStudent;
+                t.FixedAmount = 400000m;
+            }
+            tIdx++;
+
             allUsers.Add(t);
             teachersList.Add(t);
         }
@@ -717,6 +743,81 @@ public static class DatabaseInitializer
         db.AuditLogs.AddRange(auditLogs);
         await db.SaveChangesAsync();
 
-        logger.LogInformation("Database seeded successfully with Multi-Tenant Learning Centers and 800+ authentic data records!");
+        // 11. CRM Pipeline Leads (35 leads across 5 stages)
+        var leadSeedConfigs = new[]
+        {
+            // Qiziqish bildirganlar (Interested)
+            ("Oybek Mahmudov", "+998 90 112 34 56", "oybek.m@gmail.com", LeadSource.Instagram, LeadStatus.Interested, ".NET FullStack Dasturlash", "Instagram Direct orqali kurs dasturini va narxlarini so'radi. Kurs boshlanishi haqida qiziqmoqda.", (DateTime?)null, (DateTime?)null, 800000m, center1.Id),
+            ("Gulasal Yo'ldosheva", "+998 91 223 45 67", "gulasal.y@mail.ru", LeadSource.Instagram, LeadStatus.Interested, "Frontend React & Next.js", "Insta Stories dagi reklama orqali yozdi. Kompyuteri bor, noldan boshlamoqchi.", (DateTime?)null, (DateTime?)null, 800000m, center1.Id),
+            ("Bekzod Rahimov", "+998 93 334 56 78", "bekzod.r@gmail.com", LeadSource.Telegram, LeadStatus.Interested, "Python & Data Science", "Telegram kanal orqali murojaat qildi. Oqshomgi guruhlarga qiziqyapti.", (DateTime?)null, (DateTime?)null, 800000m, center1.Id),
+            ("Nigora Tursunova", "+998 94 445 67 89", "nigora.t@gmail.com", LeadSource.Facebook, LeadStatus.Interested, "UI/UX Dizayn & Figma", "Facebook postiga izoh qoldirdi. Dizayn asoslarini o'rganish istagida.", (DateTime?)null, (DateTime?)null, 800000m, center2.Id),
+            ("Sherali Norbekov", "+998 97 556 78 90", "sherali.n@inbox.uz", LeadSource.Recommendation, LeadStatus.Interested, "Flutter Mobile App Dev", "Do'sti tavsiyasi bilan telefon qildi. Hafta oxirida ma'lumot olmoqchi.", (DateTime?)null, (DateTime?)null, 800000m, center2.Id),
+            ("Kamila Yusupova", "+998 99 667 89 01", "kamila.y@gmail.com", LeadSource.Instagram, LeadStatus.Interested, "QA Software Testing", "Instagram orqali yozdi, IT ga yangi kirib kelayotgan qizlar uchun guruh bormi deb so'radi.", (DateTime?)null, (DateTime?)null, 800000m, center1.Id),
+            ("Alibek Toirov", "+998 90 778 90 12", "alibek.t@gmail.com", LeadSource.Website, LeadStatus.Interested, ".NET FullStack Dasturlash", "Sayt orqali ariza qoldirdi. Ishdan keyin 19:00 dagi darslarga qiziqmoqda.", (DateTime?)null, (DateTime?)null, 800000m, center3.Id),
+            ("Zarina Qosimova", "+998 91 889 01 23", "zarina.q@gmail.com", LeadSource.Banner, LeadStatus.Interested, "Frontend React & Next.js", "Ko'chadagi bannerdagi QR kodni skaner qilib ariza tashladi.", (DateTime?)null, (DateTime?)null, 800000m, center4.Id),
+
+            // Gaplashilganlar (Contacted)
+            ("Mirjalol Vohidov", "+998 93 990 12 34", "mirjalol.v@gmail.com", LeadSource.Instagram, LeadStatus.Contacted, ".NET FullStack Dasturlash", "Telefon orqali bog'lanildi. Kurs formati, davomiyligi (6 oy) tushuntirildi. Ota-onasi bilan maslahatlashmoqda.", (DateTime?)null, (DateTime?)null, 800000m, center1.Id),
+            ("Dildora Sobirova", "+998 94 001 23 45", "dildora.s@mail.ru", LeadSource.Telegram, LeadStatus.Contacted, "Frontend React & Next.js", "Menejer bog'landi. Dars jadvali ma'qul keldi, o'quv dasturi pdf fayli yuborildi.", (DateTime?)null, (DateTime?)null, 800000m, center1.Id),
+            ("Sanjarbek Aliyev", "+998 97 112 34 56", "sanjar.a@gmail.com", LeadSource.Instagram, LeadStatus.Contacted, "Python & Data Science", "Instagram Direct orqali qo'ng'iroq qilindi. Talaba, chegirma bormi deb surishtirdi.", (DateTime?)null, (DateTime?)null, 800000m, center2.Id),
+            ("Fotima Rustamova", "+998 99 223 45 67", "fotima.r@gmail.com", LeadSource.Recommendation, LeadStatus.Contacted, "UI/UX Dizayn & Figma", "Bog'lanildi, portfolioni ko'rib chiqdi. Hafta o'rtasida qayta qo'ng'iroq qilishni so'radi.", (DateTime?)null, (DateTime?)null, 800000m, center2.Id),
+            ("Javlonbek Xudoyberdiyev", "+998 90 334 56 78", "javlon.x@gmail.com", LeadSource.Website, LeadStatus.Contacted, "Flutter Mobile App Dev", "Operator suhbatlashdi. Ingliz tili darajasi Intermediate, tez kunda boshlay oladi.", (DateTime?)null, (DateTime?)null, 800000m, center3.Id),
+            ("Madinaxon Ergasheva", "+998 91 445 67 89", "madina.e@gmail.com", LeadSource.Facebook, LeadStatus.Contacted, "QA Software Testing", "Facebook orqali qoldirilgan raqamga qo'ng'iroq qilindi. Kurs dasturi yuborildi.", (DateTime?)null, (DateTime?)null, 800000m, center1.Id),
+            ("Shoxruxbek Olimov", "+998 93 556 78 90", "shoxrux.o@inbox.uz", LeadSource.Telegram, LeadStatus.Contacted, ".NET FullStack Dasturlash", "Telegram orqali to'liq konsultatsiya berildi. Uchrashuvga chaqirildi.", (DateTime?)null, (DateTime?)null, 800000m, center4.Id),
+
+            // Uchrashuv belgilanganlar (MeetingScheduled)
+            ("Humoyun G'aniyev", "+998 94 667 89 01", "humoyun.g@gmail.com", LeadSource.Instagram, LeadStatus.MeetingScheduled, ".NET FullStack Dasturlash", "Markazimizga kelib o'qituvchi bilan yuzma-yuz suhbatlashishga rozi bo'ldi.", DateTime.UtcNow.AddDays(1), (DateTime?)null, 800000m, center1.Id),
+            ("Nodiraxon Karimova", "+998 97 778 90 12", "nodira.k@mail.ru", LeadSource.Telegram, LeadStatus.MeetingScheduled, "Frontend React & Next.js", "Ertaga soat 15:00 da markaz filialiga ota-onasi bilan keladi.", DateTime.UtcNow.AddDays(1), (DateTime?)null, 800000m, center1.Id),
+            ("Boburxon Shodiyev", "+998 99 889 01 23", "bobur.sh@gmail.com", LeadSource.Instagram, LeadStatus.MeetingScheduled, "Python & Data Science", "Shanba kuni soat 11:00 ga ofisda uchrashuv belgilandi.", DateTime.UtcNow.AddDays(2), (DateTime?)null, 800000m, center2.Id),
+            ("Sevinch Mamatova", "+998 90 990 12 34", "sevinch.m@gmail.com", LeadSource.Recommendation, LeadStatus.MeetingScheduled, "UI/UX Dizayn & Figma", "Juma kuni soat 17:00 ga dizayn xonamizda konsultatsiya.", DateTime.UtcNow.AddDays(1), (DateTime?)null, 800000m, center1.Id),
+            ("Eldorbek Qodirov", "+998 91 001 23 45", "eldor.q@gmail.com", LeadSource.Website, LeadStatus.MeetingScheduled, "Flutter Mobile App Dev", "Dushanba soat 14:00 da o'quv markazimizga keladi.", DateTime.UtcNow.AddDays(3), (DateTime?)null, 800000m, center3.Id),
+            ("Mohinur Saidova", "+998 93 112 34 56", "mohinur.s@gmail.com", LeadSource.Facebook, LeadStatus.MeetingScheduled, "QA Software Testing", "Ofisga kelib shartnoma shartlari bilan tanishmoqchi.", DateTime.UtcNow.AddDays(2), (DateTime?)null, 800000m, center2.Id),
+            ("Sarvarbek Bozorov", "+998 94 223 45 67", "sarvar.b@inbox.uz", LeadSource.Banner, LeadStatus.MeetingScheduled, ".NET FullStack Dasturlash", "Ertaga soat 16:30 da mentor bilan uchrashadi.", DateTime.UtcNow.AddDays(1), (DateTime?)null, 800000m, center4.Id),
+
+            // Demo darsga kelganlar (DemoAttended)
+            ("Javohirbek Islomov", "+998 97 334 56 78", "javohir.i@gmail.com", LeadSource.Instagram, LeadStatus.DemoAttended, ".NET FullStack Dasturlash", "Demo ochiq darsda faol qatnashdi, Shahriyor domlaning dars o'tishi juda ma'qul keldi.", DateTime.UtcNow.AddDays(-2), DateTime.UtcNow.AddDays(-1), 800000m, center1.Id),
+            ("Shahrizoda Ergasheva", "+998 99 445 67 89", "shahrizoda.e@mail.ru", LeadSource.Telegram, LeadStatus.DemoAttended, "Frontend React & Next.js", "Frontend bo'yicha amaliy demo darsda qatnashdi. O'ziga loyiha yoqdi, guruhga qo'shilmoqchi.", DateTime.UtcNow.AddDays(-3), DateTime.UtcNow.AddDays(-1), 800000m, center1.Id),
+            ("Ulug'bek Nazarov", "+998 90 556 78 90", "ulugbek.n@gmail.com", LeadSource.Instagram, LeadStatus.DemoAttended, "Python & Data Science", "Sinov darsiga qatnashdi, Python algoritmlarini tez tushundi. To'lov tafsilotlarini so'radi.", DateTime.UtcNow.AddDays(-2), DateTime.UtcNow.AddDays(-1), 800000m, center2.Id),
+            ("Zilolaxon Hamidova", "+998 91 667 89 01", "zilola.h@gmail.com", LeadSource.Recommendation, LeadStatus.DemoAttended, "UI/UX Dizayn & Figma", "Dizayn master-klassida qatnashdi, birinchi prototipini chizdi. Juda xursand.", DateTime.UtcNow.AddDays(-4), DateTime.UtcNow.AddDays(-2), 800000m, center1.Id),
+            ("Temurbek Yusupov", "+998 93 778 90 12", "temur.y@gmail.com", LeadSource.Website, LeadStatus.DemoAttended, "Flutter Mobile App Dev", "Mobil dasturlash sinov darsida qatnashdi. Guruh boshlanishini kutyapti.", DateTime.UtcNow.AddDays(-3), DateTime.UtcNow.AddDays(-1), 800000m, center3.Id),
+            ("Charosxon Abdullayeva", "+998 94 889 01 23", "charos.a@gmail.com", LeadSource.Facebook, LeadStatus.DemoAttended, "QA Software Testing", "QA darsiga kirdi, bug report yozish amaliyotini sinab ko'rdi. To'lov qilishga tayyor.", DateTime.UtcNow.AddDays(-2), DateTime.UtcNow.AddDays(-1), 800000m, center2.Id),
+            ("Asadbek Qobilov", "+998 97 990 12 34", "asadbek.q@inbox.uz", LeadSource.Instagram, LeadStatus.DemoAttended, ".NET FullStack Dasturlash", "Demo darsda qatnashdi, kontrakt shartnomasi qog'ozlarini oldi.", DateTime.UtcNow.AddDays(-2), DateTime.UtcNow.AddDays(-1), 800000m, center4.Id),
+
+            // To'lov qilganlar (Converted / Ready to convert)
+            ("Murodjon Jo'rayev", "+998 99 001 23 45", "murodjon.j@gmail.com", LeadSource.Instagram, LeadStatus.Converted, ".NET FullStack Dasturlash", "800 000 so'm to'lov qabul qilindi! Click orqali to'landi. Guruhga biriktirishga tayyor.", DateTime.UtcNow.AddDays(-5), DateTime.UtcNow.AddDays(-3), 800000m, center1.Id),
+            ("Durdona Xoliqova", "+998 90 112 34 56", "durdona.x@mail.ru", LeadSource.Telegram, LeadStatus.Converted, "Frontend React & Next.js", "Kassaga 800 000 so'm naqd pul to'ladi. Kvitansiya berildi. O'quvchi profilini ochish kutilmoqda.", DateTime.UtcNow.AddDays(-4), DateTime.UtcNow.AddDays(-2), 800000m, center1.Id),
+            ("Sherzodbek To'xtayev", "+998 91 223 45 67", "sherzod.t@gmail.com", LeadSource.Recommendation, LeadStatus.Converted, "Python & Data Science", "Payme orqali 800 000 so'm oylik to'lov o'tkazildi. CRM dan o'quvchiga o'tkazishga tayyor.", DateTime.UtcNow.AddDays(-6), DateTime.UtcNow.AddDays(-3), 800000m, center2.Id),
+            ("Gulbahor Nurmatova", "+998 93 334 56 78", "gulbahor.n@gmail.com", LeadSource.Instagram, LeadStatus.Converted, "UI/UX Dizayn & Figma", "Bank orqali 800 000 so'm to'landi. Ertangi guruhga qabul qilindi.", DateTime.UtcNow.AddDays(-4), DateTime.UtcNow.AddDays(-2), 800000m, center1.Id),
+            ("Jamshidbek Rahmonov", "+998 94 445 67 89", "jamshid.r@gmail.com", LeadSource.Website, LeadStatus.Converted, "Flutter Mobile App Dev", "800 000 so'm to'lov to'liq amalga oshirildi.", DateTime.UtcNow.AddDays(-3), DateTime.UtcNow.AddDays(-1), 800000m, center3.Id),
+            ("Nargizaxon Soliyeva", "+998 97 556 78 90", "nargiza.s@gmail.com", LeadSource.Banner, LeadStatus.Converted, ".NET FullStack Dasturlash", "Terminal orqali 800 000 so'm to'lov qilindi. 1-darsga tayyor.", DateTime.UtcNow.AddDays(-5), DateTime.UtcNow.AddDays(-2), 800000m, center4.Id)
+        };
+
+        var leads = new List<Lead>();
+        foreach (var cfg in leadSeedConfigs)
+        {
+            leads.Add(new Lead
+            {
+                Id = Guid.NewGuid(),
+                FullName = cfg.Item1,
+                Phone = cfg.Item2,
+                Email = cfg.Item3,
+                Source = cfg.Item4,
+                Status = cfg.Item5,
+                CourseOfInterest = cfg.Item6,
+                Notes = cfg.Item7,
+                MeetingDate = cfg.Item8,
+                DemoLessonDate = cfg.Item9,
+                EstimatedBudget = cfg.Item10,
+                CenterId = cfg.Item11,
+                ConvertedAt = cfg.Item5 == LeadStatus.Converted ? DateTime.UtcNow.AddDays(-1) : null,
+                CreatedAt = DateTime.UtcNow.AddDays(-rnd.Next(7, 25))
+            });
+        }
+
+        db.Leads.AddRange(leads);
+        await db.SaveChangesAsync();
+        logger.LogInformation($"Saved {leads.Count} CRM Pipeline Leads across 5 stages.");
+
+        logger.LogInformation("Database seeded successfully with Multi-Tenant Learning Centers, CRM Leads, and 850+ authentic data records!");
     }
 }

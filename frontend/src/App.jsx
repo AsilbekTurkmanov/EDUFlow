@@ -5,6 +5,7 @@ import { Navbar } from './components/Layout/Navbar';
 import { Login } from './pages/Login';
 import { Dashboard } from './pages/Dashboard';
 import { Centers } from './pages/Centers';
+import { Leads } from './pages/Leads';
 import { Users } from './pages/Users';
 import { Courses } from './pages/Courses';
 import { Groups } from './pages/Groups';
@@ -49,6 +50,7 @@ export function App() {
     switch (currentTab) {
       case 'dashboard': return 'Boshqaruv Paneli';
       case 'centers': return '🏢 O\'quv Markazlari (SaaS Hub)';
+      case 'leads': return '🎯 Lidlar CRM Doskasi (Pipeline)';
       case 'users': return 'Foydalanuvchilar & To\'lov Analitikasi';
       case 'courses': return 'Kurslar';
       case 'groups': return 'Guruhlar';
@@ -78,6 +80,7 @@ export function App() {
               }} 
             />
           )}
+          {currentTab === 'leads' && <Leads />}
           {currentTab === 'users' && (
             <Users 
               initialCenterId={filterCenterId} 

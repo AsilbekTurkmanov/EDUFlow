@@ -30,9 +30,15 @@ public class UserDto
     public string? CenterName { get; set; }
     public DateTime CreatedAt { get; set; }
 
-    // Teacher specific calculations
-    public int SharePercentage { get; set; } // 70%, 60%, 50%, 40%
-    public decimal MonthlyEarned { get; set; }
+    // Teacher specific calculations & flexible compensation settings
+    public TeacherCompensationType CompensationType { get; set; } = TeacherCompensationType.Percentage;
+    public string CompensationTypeName { get; set; } = "Foizda (%)";
+    public int? CustomSharePercentage { get; set; }
+    public decimal? FixedAmount { get; set; }
+    public int SharePercentage { get; set; } // Effective percentage (e.g. 70%, 65%)
+    public decimal MonthlyRevenueGenerated { get; set; } // Markazga oyiga keltirgan jami tushumi (studentsCount * 800,000 UZS)
+    public decimal MonthlyEarned { get; set; } // O'qituvchiga to'lanadigan ulush/maosh
+    public decimal CenterNetProfit { get; set; } // Markazda qoladigan sof foyda
     public decimal TotalEarned { get; set; }
     public int StudentsCount { get; set; }
     public List<string> StudentNames { get; set; } = new();
@@ -81,4 +87,11 @@ public class UpdateUserDto
     public int ExperienceYears { get; set; }
     public Guid? CenterId { get; set; }
     public string? NewPassword { get; set; }
+}
+
+public class UpdateTeacherCompensationDto
+{
+    public TeacherCompensationType CompensationType { get; set; } = TeacherCompensationType.Percentage;
+    public int? CustomSharePercentage { get; set; }
+    public decimal? FixedAmount { get; set; }
 }

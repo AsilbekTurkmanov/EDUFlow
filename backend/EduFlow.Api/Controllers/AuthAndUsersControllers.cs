@@ -98,6 +98,17 @@ public class UsersController : ControllerBase
         return Ok(result);
     }
 
+    [HttpPut("{id:guid}/compensation")]
+    [Authorize(Roles = "Admin")]
+    public async Task<ActionResult<ApiResponse<UserDto>>> UpdateTeacherCompensation(Guid id, [FromBody] UpdateTeacherCompensationDto request)
+    {
+        var result = await _userService.UpdateTeacherCompensationAsync(id, request);
+        if (!result.Success)
+            return BadRequest(result);
+
+        return Ok(result);
+    }
+
     [HttpDelete("{id}")]
     [Authorize(Roles = "Admin")]
     public async Task<ActionResult<ApiResponse<bool>>> DeleteUser(Guid id)

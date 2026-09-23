@@ -36,6 +36,7 @@ public interface IUserService
     Task<ApiResponse<UserDto>> GetUserByIdAsync(Guid id);
     Task<ApiResponse<UserDto>> CreateUserAsync(CreateUserDto request);
     Task<ApiResponse<UserDto>> UpdateUserAsync(Guid id, UpdateUserDto request);
+    Task<ApiResponse<UserDto>> UpdateTeacherCompensationAsync(Guid teacherId, UpdateTeacherCompensationDto request);
     Task<ApiResponse<bool>> DeleteUserAsync(Guid id);
 }
 
@@ -103,4 +104,16 @@ public interface IAuditLogService
 {
     Task LogAsync(string action, string entity, string? entityId = null, string? metadata = null);
     Task<ApiResponse<List<AuditLogDto>>> GetRecentLogsAsync(int count = 50);
+}
+
+public interface ILeadService
+{
+    Task<ApiResponse<List<LeadDto>>> GetLeadsAsync(Guid? centerId = null, LeadStatus? status = null, LeadSource? source = null, string? search = null);
+    Task<ApiResponse<LeadDto>> GetLeadByIdAsync(Guid id);
+    Task<ApiResponse<LeadDto>> CreateLeadAsync(CreateLeadDto request);
+    Task<ApiResponse<LeadDto>> UpdateLeadAsync(Guid id, UpdateLeadDto request);
+    Task<ApiResponse<LeadDto>> UpdateLeadStatusAsync(Guid id, UpdateLeadStatusDto request);
+    Task<ApiResponse<UserDto>> ConvertLeadToStudentAsync(Guid id, ConvertLeadDto request);
+    Task<ApiResponse<bool>> DeleteLeadAsync(Guid id);
+    Task<ApiResponse<LeadSummaryStatsDto>> GetLeadStatsAsync(Guid? centerId = null);
 }
