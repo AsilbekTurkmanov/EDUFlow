@@ -19,14 +19,18 @@ import {
   Percent,
   Wallet,
   Eye,
-  AlertCircle
+  AlertCircle,
+  Building2,
+  ShieldAlert
 } from 'lucide-react';
 import { api } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 
-export const Users = () => {
+export const Users = ({ initialCenterId = 'ALL', setTab }) => {
   const { showToast, role } = useAuth();
   const [users, setUsers] = useState([]);
+  const [centers, setCenters] = useState([]);
+  const [selectedCenterId, setSelectedCenterId] = useState(initialCenterId);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [activeTab, setActiveTab] = useState('students'); // 'students' | 'teachers' | 'all'
@@ -52,7 +56,8 @@ export const Users = () => {
     role: 'Student',
     phone: '',
     parentPhone: '',
-    experienceYears: 0
+    experienceYears: 0,
+    centerId: ''
   });
 
   const [editForm, setEditForm] = useState({
@@ -64,24 +69,46 @@ export const Users = () => {
     phone: '',
     parentPhone: '',
     experienceYears: 0,
+    centerId: '',
     newPassword: ''
   });
 
   useEffect(() => {
+    if (initialCenterId) {
+      setSelectedCenterId(initialCenterId);
+    }
+  }, [initialCenterId]);
+
+  useEffect(() => {
+    api.centers.getAll().then(r => {
+      if (r?.data) {
+        setCenters(r.data);
+        if (!createForm.centerId && r.data.length > 0) {
+          setCreateForm(prev => ({ ...prev, centerId: r.data[0].id }));
+        }
+      }
+    }).catch(() => {});
+  }, []);
+
+  useEffect(() => {
     fetchUsers();
-  }, [page, activeTab]);
+  }, [page, activeTab, selectedCenterId]);
 
   const fetchUsers = async () => {
     setLoading(true);
     try {
-      const params = { page, pageSize: 25 };
+      const params = { page, pageSize: 35 };
       if (activeTab === 'students') params.role = 'Student';
       else if (activeTab === 'teachers') params.role = 'Teacher';
       if (search) params.search = search;
 
       const res = await api.users.getAll(params);
       if (res?.data) {
-        setUsers(res.data.items || []);
+        let items = res.data.items || [];
+        if (selectedCenterId && selectedCenterId !== 'ALL') {
+          items = items.filter(u => u.centerId === selectedCenterId);
+        }
+        setUsers(items);
         setTotalPages(res.data.totalPages || 1);
       }
     } catch (err) {
@@ -100,7 +127,15 @@ export const Users = () => {
   const handleCreate = async (e) => {
     e.preventDefault();
     try {
-      await api.users.create(createForm);
+      const targetCenterId = createForm.centerId || (selectedCenterId !== 'ALL' ? selectedCenterId : centers[0]?.id);
+      const targetCenter = centers.find(c => c.id === targetCenterId);
+
+      if (createForm.role === 'Student' && targetCenter && (targetCenter.isBlocked || targetCenter.activeStudentsCount >= targetCenter.maxStudentsQuota)) {
+        showToast(`❌ DIQQAT: "${targetCenter.name}" markazi kvotasi to'lgan (${targetCenter.activeStudentsCount}/${targetCenter.maxStudentsQuota}). Yangi o'quvchi qo'shish bloklangan!`, 'error');
+        return;
+      }
+
+      await api.users.create({ ...createForm, centerId: targetCenterId });
       showToast('Foydalanuvchi muvaffaqiyatli qo\'shildi', 'success');
       setShowCreateModal(false);
       setCreateForm({
@@ -111,9 +146,12 @@ export const Users = () => {
         role: 'Student',
         phone: '',
         parentPhone: '',
-        experienceYears: 0
+        experienceYears: 0,
+        centerId: centers[0]?.id || ''
       });
       fetchUsers();
+      // refresh centers to get updated quotas
+      api.centers.getAll().then(r => r?.data && setCenters(r.data)).catch(() => {});
     } catch (err) {
       showToast(err.message, 'error');
     }
@@ -171,8 +209,57 @@ export const Users = () => {
     return '+0 so\'m';
   };
 
+  const activeCenter = centers.find(c => c.id === selectedCenterId);
+
   return (
     <div>
+      {/* QUOTA WARNING / BLOCK ALERT BANNER */}
+      {activeCenter && (activeCenter.isBlocked || activeCenter.isQuotaExceeded) && (
+        <div style={{ background: 'rgba(244, 63, 94, 0.12)', border: '1px solid rgba(244, 63, 94, 0.35)', borderRadius: '12px', padding: '16px 20px', marginBottom: '20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div style={{ background: '#f43f5e', color: '#fff', padding: '8px', borderRadius: '8px', display: 'flex' }}>
+              <ShieldAlert size={22} />
+            </div>
+            <div>
+              <div style={{ fontWeight: 800, fontSize: '15px', color: '#fff' }}>
+                🚫 DIQQAT: "{activeCenter.name}" kvotasi to'lgan ({activeCenter.activeStudentsCount} / {activeCenter.maxStudentsQuota} ta o'quvchi)!
+              </div>
+              <div style={{ fontSize: '13px', color: '#fb7185', marginTop: '2px' }}>
+                Tizim avtomatik ravishda ushbu markazga yangi o'quvchi qo'shishni blokladi. Yangi o'quvchi qabul qilish uchun tarifni oshiring.
+              </div>
+            </div>
+          </div>
+          {setTab && (
+            <button onClick={() => setTab('centers')} className="btn btn-danger btn-sm">
+              <Sparkles size={14} /> <span>Tarifni Oshirish (Upgrade)</span>
+            </button>
+          )}
+        </div>
+      )}
+
+      {activeCenter && !activeCenter.isBlocked && !activeCenter.isQuotaExceeded && activeCenter.quotaUsagePercentage >= 90 && (
+        <div style={{ background: 'rgba(245, 158, 11, 0.12)', border: '1px solid rgba(245, 158, 11, 0.35)', borderRadius: '12px', padding: '14px 20px', marginBottom: '20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div style={{ background: '#f59e0b', color: '#fff', padding: '8px', borderRadius: '8px', display: 'flex' }}>
+              <AlertCircle size={20} />
+            </div>
+            <div>
+              <div style={{ fontWeight: 800, fontSize: '14px', color: '#fff' }}>
+                ⚡ OGOHLANTIRISH: "{activeCenter.name}" kvotasi deyarli to'ldi ({activeCenter.activeStudentsCount} / {activeCenter.maxStudentsQuota} ta - {activeCenter.quotaUsagePercentage}%)!
+              </div>
+              <div style={{ fontSize: '12px', color: '#fcd34d', marginTop: '2px' }}>
+                Atigi {activeCenter.remainingQuota} ta bo'sh o'rin qoldi. Tez orada limit to'ladi.
+              </div>
+            </div>
+          </div>
+          {setTab && (
+            <button onClick={() => setTab('centers')} className="btn btn-amber btn-sm">
+              <Sparkles size={14} /> <span>Tarifni Oshirish</span>
+            </button>
+          )}
+        </div>
+      )}
+
       {/* Page Header */}
       <div className="page-header">
         <div>
@@ -181,7 +268,10 @@ export const Users = () => {
             O'quvchilar ro'yxati, ota-onalar kontaktlari, oylik to'lovlar diagrammasi va o'qituvchilar maosh analitikasi
           </p>
         </div>
-        <button onClick={() => setShowCreateModal(true)} className="btn btn-primary">
+        <button 
+          onClick={() => setShowCreateModal(true)} 
+          className="btn btn-primary"
+        >
           <Plus size={18} />
           <span>Yangi Foydalanuvchi</span>
         </button>
@@ -235,8 +325,8 @@ export const Users = () => {
 
       {/* Filter / Search Bar */}
       <div className="card" style={{ marginBottom: '20px', padding: '14px 20px' }}>
-        <form onSubmit={handleSearch} style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-          <div style={{ flex: 1, position: 'relative' }}>
+        <form onSubmit={handleSearch} style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
+          <div style={{ flex: 1, minWidth: '220px', position: 'relative' }}>
             <Search size={16} style={{ position: 'absolute', left: '12px', top: '13px', color: '#6b7280' }} />
             <input
               type="text"
@@ -250,9 +340,30 @@ export const Users = () => {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="form-input"
-              style={{ paddingLeft: '38px' }}
+              style={{ paddingLeft: '38px', margin: 0 }}
             />
           </div>
+
+          {/* Center Selector Dropdown */}
+          <div style={{ minWidth: '240px' }}>
+            <select
+              value={selectedCenterId}
+              onChange={(e) => {
+                setSelectedCenterId(e.target.value);
+                setPage(1);
+              }}
+              className="form-select"
+              style={{ margin: 0 }}
+            >
+              <option value="ALL">🏢 Barcha O'quv Markazlari ({centers.length})</option>
+              {centers.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name} {c.isBlocked ? '🚫 (BLOK)' : `(${c.activeStudentsCount}/${c.maxStudentsQuota})`}
+                </option>
+              ))}
+            </select>
+          </div>
+
           <button type="submit" className="btn btn-secondary">
             <Filter size={16} />
             <span>Qidirish</span>
@@ -299,6 +410,12 @@ export const Users = () => {
                         <div style={{ fontSize: '12px', color: '#10b981', fontFamily: 'monospace' }}>
                           @{u.username || u.email.split('@')[0]}
                         </div>
+                        {u.centerName && (
+                          <div style={{ fontSize: '11px', color: '#9ca3af', marginTop: '2px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                            <Building2 size={11} color="#34d399" />
+                            <span>{u.centerName}</span>
+                          </div>
+                        )}
                       </td>
 
                       {/* Phone & Parent Phone */}
@@ -810,6 +927,40 @@ export const Users = () => {
             </div>
             <form onSubmit={handleCreate}>
               <div className="modal-body">
+                {/* Center selector with live quota status */}
+                <div className="form-group">
+                  <label className="form-label" style={{ fontWeight: 700 }}>
+                    🏢 Tegishli O'quv Markazi *
+                  </label>
+                  <select
+                    value={createForm.centerId}
+                    onChange={(e) => setCreateForm({ ...createForm, centerId: e.target.value })}
+                    className="form-select"
+                  >
+                    {centers.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.name} &mdash; ({c.activeStudentsCount} / {c.maxStudentsQuota} ta {c.isBlocked ? '🚫 LIMIT TO\'LGAN' : `${c.quotaUsagePercentage}% band`})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Quota Exceeded Block Warning inside modal */}
+                {(() => {
+                  const targetCenter = centers.find(c => c.id === (createForm.centerId || centers[0]?.id));
+                  if (createForm.role === 'Student' && targetCenter && (targetCenter.isBlocked || targetCenter.activeStudentsCount >= targetCenter.maxStudentsQuota)) {
+                    return (
+                      <div style={{ background: 'rgba(244, 63, 94, 0.15)', border: '1px solid #f43f5e', borderRadius: '10px', padding: '12px 14px', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '10px', color: '#fb7185' }}>
+                        <ShieldAlert size={20} style={{ flexShrink: 0 }} />
+                        <div style={{ fontSize: '13px', lineHeight: 1.4 }}>
+                          <strong>Kvotasi to'lgan!</strong> "{targetCenter.name}" markazining o'quvchi limiti ({targetCenter.activeStudentsCount}/{targetCenter.maxStudentsQuota}) to'lganligi sababli yangi o'quvchi qo'shish avtomatik bloklandi.
+                        </div>
+                      </div>
+                    );
+                  }
+                  return null;
+                })()}
+
                 <div className="form-group">
                   <label className="form-label">To'liq Ism Familiya *</label>
                   <input
@@ -917,9 +1068,20 @@ export const Users = () => {
                 <button type="button" onClick={() => setShowCreateModal(false)} className="btn btn-secondary">
                   Bekor qilish
                 </button>
-                <button type="submit" className="btn btn-primary">
-                  Qo'shish
-                </button>
+                {(() => {
+                  const targetCenter = centers.find(c => c.id === (createForm.centerId || centers[0]?.id));
+                  const isBlocked = createForm.role === 'Student' && targetCenter && (targetCenter.isBlocked || targetCenter.activeStudentsCount >= targetCenter.maxStudentsQuota);
+                  return (
+                    <button 
+                      type="submit" 
+                      disabled={isBlocked} 
+                      className={`btn ${isBlocked ? 'btn-secondary' : 'btn-primary'}`}
+                      style={{ opacity: isBlocked ? 0.5 : 1, cursor: isBlocked ? 'not-allowed' : 'pointer' }}
+                    >
+                      {isBlocked ? '🚫 Kvota To\'lgan (Bloklangan)' : 'Qo\'shish'}
+                    </button>
+                  );
+                })()}
               </div>
             </form>
           </div>

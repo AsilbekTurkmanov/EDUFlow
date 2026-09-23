@@ -1,5 +1,4 @@
-import React from 'react';
-import { Shield, UserCheck, BookOpen, LogOut } from 'lucide-react';
+import { Shield, UserCheck, BookOpen, LogOut, Building2 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
 export const Navbar = ({ currentTabTitle }) => {
@@ -76,6 +75,24 @@ export const Navbar = ({ currentTabTitle }) => {
         <h2 style={{ fontSize: '18px', fontWeight: 800, color: '#ffffff', margin: 0, letterSpacing: '-0.3px' }}>
           {currentTabTitle}
         </h2>
+        {user?.centerName && (
+          <span
+            className="badge badge-emerald"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '3px 10px',
+              fontSize: '11px',
+              fontWeight: 600,
+              background: 'rgba(16, 185, 129, 0.1)',
+              border: '1px solid rgba(16, 185, 129, 0.25)',
+              color: '#34d399'
+            }}
+          >
+            <Building2 size={12} /> {user.centerName}
+          </span>
+        )}
       </div>
 
       <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>

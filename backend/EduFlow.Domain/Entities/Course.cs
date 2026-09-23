@@ -10,6 +10,8 @@ public class Course
     public decimal Price { get; set; }
     public int DurationWeeks { get; set; }
     public CourseStatus Status { get; set; } = CourseStatus.Active;
+    public Guid? CenterId { get; set; }
+    public LearningCenter? Center { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     // Navigation

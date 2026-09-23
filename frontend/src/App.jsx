@@ -4,6 +4,7 @@ import { Sidebar } from './components/Layout/Sidebar';
 import { Navbar } from './components/Layout/Navbar';
 import { Login } from './pages/Login';
 import { Dashboard } from './pages/Dashboard';
+import { Centers } from './pages/Centers';
 import { Users } from './pages/Users';
 import { Courses } from './pages/Courses';
 import { Groups } from './pages/Groups';
@@ -17,6 +18,7 @@ import './App.css';
 export function App() {
   const { user, loading, role } = useAuth();
   const [currentTab, setCurrentTab] = useState('dashboard');
+  const [filterCenterId, setFilterCenterId] = useState('ALL');
 
   useEffect(() => {
     // When role changes, switch to dashboard
@@ -46,7 +48,8 @@ export function App() {
   const getTabTitle = () => {
     switch (currentTab) {
       case 'dashboard': return 'Boshqaruv Paneli';
-      case 'users': return 'Foydalanuvchilar';
+      case 'centers': return '🏢 O\'quv Markazlari (SaaS Hub)';
+      case 'users': return 'Foydalanuvchilar & To\'lov Analitikasi';
       case 'courses': return 'Kurslar';
       case 'groups': return 'Guruhlar';
       case 'schedule': return 'Dars Jadvali';
@@ -67,7 +70,20 @@ export function App() {
 
         <main className="page-body">
           {currentTab === 'dashboard' && <Dashboard setTab={setCurrentTab} />}
-          {currentTab === 'users' && <Users />}
+          {currentTab === 'centers' && (
+            <Centers 
+              onSelectCenterForUsers={(centerId) => {
+                setFilterCenterId(centerId);
+                setCurrentTab('users');
+              }} 
+            />
+          )}
+          {currentTab === 'users' && (
+            <Users 
+              initialCenterId={filterCenterId} 
+              setTab={setCurrentTab} 
+            />
+          )}
           {currentTab === 'courses' && <Courses />}
           {currentTab === 'groups' && <Groups />}
           {currentTab === 'schedule' && <Schedule />}

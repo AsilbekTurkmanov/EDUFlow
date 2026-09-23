@@ -6,22 +6,137 @@ export const removeToken = () => localStorage.removeItem('eduflow_token');
 
 // In-browser mock data for GitHub Pages standalone demo when local backend is unreachable
 const mockSeed = {
+  centers: [
+    {
+      id: '1491683e-a729-4ca9-85c1-630c101195da',
+      name: 'Registon Smart School (Yunusobod)',
+      slug: 'registon-smart',
+      phone: '+998 71 202 33 44',
+      email: 'yunusobod@registon.uz',
+      address: 'Yunusobod 4-mavze, Ahmad Donish ko\'chasi',
+      tariffPlan: 0,
+      tariffPlanName: 'Boshlang\'ich (200 ta / 500 ming)',
+      maxStudentsQuota: 200,
+      monthlySubscriptionPrice: 500000,
+      status: 'QuotaExceeded',
+      statusText: 'Limit to\'lgan (Bloklangan)',
+      activeStudentsCount: 200,
+      coursesCount: 3,
+      groupsCount: 5,
+      teachersCount: 4,
+      remainingQuota: 0,
+      quotaUsagePercentage: 100.0,
+      isQuotaExceeded: true,
+      isBlocked: true,
+      canAddStudents: false,
+      subscriptionValidUntil: new Date(Date.now() + 86400000 * 60).toISOString(),
+      daysUntilExpiry: 60,
+      autoBlockOnQuotaExceeded: true
+    },
+    {
+      id: '1571bbef-ab69-4efc-88c1-e68547e47740',
+      name: 'Najot Nur IT Academy (Chilonzor)',
+      slug: 'najot-nur',
+      phone: '+998 78 888 99 00',
+      email: 'info@najotnur.uz',
+      address: 'Chilonzor 9-mavze, Qatortol ko\'chasi 1-uy',
+      tariffPlan: 0,
+      tariffPlanName: 'Boshlang\'ich (200 ta / 500 ming)',
+      maxStudentsQuota: 200,
+      monthlySubscriptionPrice: 500000,
+      status: 'Active',
+      statusText: 'Faol (99% band)',
+      activeStudentsCount: 198,
+      coursesCount: 3,
+      groupsCount: 6,
+      teachersCount: 4,
+      remainingQuota: 2,
+      quotaUsagePercentage: 99.0,
+      isQuotaExceeded: false,
+      isBlocked: false,
+      canAddStudents: true,
+      subscriptionValidUntil: new Date(Date.now() + 86400000 * 150).toISOString(),
+      daysUntilExpiry: 150,
+      autoBlockOnQuotaExceeded: true
+    },
+    {
+      id: 'a0d3c5b0-9643-4f7c-9364-d72591a75ddc',
+      name: 'EduFlow Bosh Markaz (Toshkent)',
+      slug: 'toshkent',
+      phone: '+998 71 200 00 11',
+      email: 'toshkent@eduflow.uz',
+      address: 'Amir Temur shoh ko\'chasi 107-B, Toshkent',
+      tariffPlan: 1,
+      tariffPlanName: 'Standart (400 ta / 700 ming)',
+      maxStudentsQuota: 400,
+      monthlySubscriptionPrice: 700000,
+      status: 'Active',
+      statusText: 'Faol',
+      activeStudentsCount: 121,
+      coursesCount: 4,
+      groupsCount: 9,
+      teachersCount: 5,
+      remainingQuota: 279,
+      quotaUsagePercentage: 30.2,
+      isQuotaExceeded: false,
+      isBlocked: false,
+      canAddStudents: true,
+      subscriptionValidUntil: new Date(Date.now() + 86400000 * 330).toISOString(),
+      daysUntilExpiry: 330,
+      autoBlockOnQuotaExceeded: true
+    },
+    {
+      id: 'ac38ad5b-aefa-4a0f-9039-d32dc2e03d70',
+      name: 'PDP Enterprise Campus (Beruniy)',
+      slug: 'pdp-campus',
+      phone: '+998 78 777 47 47',
+      email: 'enterprise@pdp.uz',
+      address: 'Beruniy shoh ko\'chasi 3A-uy',
+      tariffPlan: 2,
+      tariffPlanName: 'Katta Markaz (1000 ta / 1.2 mln)',
+      maxStudentsQuota: 1000,
+      monthlySubscriptionPrice: 1200000,
+      status: 'Active',
+      statusText: 'Faol',
+      activeStudentsCount: 340,
+      coursesCount: 2,
+      groupsCount: 5,
+      teachersCount: 4,
+      remainingQuota: 660,
+      quotaUsagePercentage: 34.0,
+      isQuotaExceeded: false,
+      isBlocked: false,
+      canAddStudents: true,
+      subscriptionValidUntil: new Date(Date.now() + 86400000 * 270).toISOString(),
+      daysUntilExpiry: 270,
+      autoBlockOnQuotaExceeded: true
+    }
+  ],
+  tariffs: [
+    { plan: 0, name: 'Boshlang\'ich', maxStudentsQuota: 200, monthlyPrice: 500000, description: '200 tagacha faol o\'quvchi. Yangi ochilgan o\'quv markazlari va kichik maktablar uchun.' },
+    { plan: 1, name: 'Standart', maxStudentsQuota: 400, monthlyPrice: 700000, description: '400 tagacha faol o\'quvchi. O\'rta hajmdagi zamonaviy o\'quv markazlari uchun eng ommabop tarif.' },
+    { plan: 2, name: 'Katta Markaz (Enterprise)', maxStudentsQuota: 1000, monthlyPrice: 1200000, description: '1000 tagacha faol o\'quvchi. Yirik IT akademiyalar va ko\'p tarmoqli ta\'lim muassasalari.' },
+    { plan: 3, name: 'Cheksiz (Unlimited VIP)', maxStudentsQuota: 999999, monthlyPrice: 2500000, description: 'Cheksiz o\'quvchilar soni, maxsus server va 24/7 VIP ustuvor qo\'llab-quvvatlash.' }
+  ],
   users: [
-    { id: '1', fullName: 'Asilbek Turkmanov (Super Admin)', username: 'asilbekturkmanov', email: 'asilbekturkmanov@eduflow.uz', role: 'Admin', status: 'Active', phone: '+998 99 199 20 12' },
-    { id: '2', fullName: 'Shahriyor O\'qituvchi', username: 'shahriyor', email: 'shahriyor@eduflow.uz', role: 'Teacher', status: 'Active', phone: '+998 90 345 67 89', experienceYears: 3, sharePercentage: 70, monthlyEarned: 15680000, totalEarned: 564480000, studentNames: ['Turkmanov O\'quvchi', 'Jasur Bekmirzayev', 'Shahzod Normatov', 'Dilnoza Rahimova'] },
-    { id: '3', fullName: 'Turkmanov O\'quvchi', username: 'turkmanov', email: 'turkmanov@eduflow.uz', role: 'Student', status: 'Active', phone: '+998 99 199 20 12', parentPhone: '+998 90 777 55 44', balance: 0, balanceFormatted: '+0 so\'m', presentCount: 24, absentCount: 1, monthlyPaymentStats: [{ month: 'Apr', amount: 800000, isPaid: true }, { month: 'May', amount: 800000, isPaid: true }, { month: 'Iyun', amount: 800000, isPaid: true }, { month: 'Iyul', amount: 800000, isPaid: true }, { month: 'Avg', amount: 800000, isPaid: true }, { month: 'Sen', amount: 800000, isPaid: true }] },
-    { id: '4', fullName: 'Jasur Bekmirzayev', username: 'jasur_b', email: 'jasur@eduflow.uz', role: 'Student', status: 'Active', phone: '+998 97 111 22 33', parentPhone: '+998 90 111 22 33', balance: -800000, balanceFormatted: '-800 000 so\'m', presentCount: 22, absentCount: 3, monthlyPaymentStats: [{ month: 'Apr', amount: 800000, isPaid: true }, { month: 'May', amount: 800000, isPaid: true }, { month: 'Iyun', amount: 800000, isPaid: true }, { month: 'Iyul', amount: 800000, isPaid: true }, { month: 'Avg', amount: 800000, isPaid: true }, { month: 'Sen', amount: 0, isPaid: false }] },
-    { id: '5', fullName: 'Shahzod Normatov', username: 'shahzod_n', email: 'shahzod@eduflow.uz', role: 'Student', status: 'Active', phone: '+998 91 444 55 66', parentPhone: '+998 90 444 55 66', balance: 7200000, balanceFormatted: '+7 200 000 so\'m', presentCount: 25, absentCount: 0, monthlyPaymentStats: [{ month: 'Apr', amount: 800000, isPaid: true }, { month: 'May', amount: 800000, isPaid: true }, { month: 'Iyun', amount: 800000, isPaid: true }, { month: 'Iyul', amount: 800000, isPaid: true }, { month: 'Avg', amount: 800000, isPaid: true }, { month: 'Sen', amount: 800000, isPaid: true }] },
-    { id: '6', fullName: 'Dilnoza Rahimova', username: 'dilnoza_r', email: 'dilnoza@eduflow.uz', role: 'Student', status: 'Active', phone: '+998 99 777 88 99', parentPhone: '+998 90 888 99 00', balance: 0, balanceFormatted: '+0 so\'m', presentCount: 23, absentCount: 2, monthlyPaymentStats: [{ month: 'Apr', amount: 800000, isPaid: true }, { month: 'May', amount: 800000, isPaid: true }, { month: 'Iyun', amount: 800000, isPaid: true }, { month: 'Iyul', amount: 800000, isPaid: true }, { month: 'Avg', amount: 800000, isPaid: true }, { month: 'Sen', amount: 800000, isPaid: true }] }
+    { id: '1', fullName: 'Asilbek Turkmanov (Super Admin)', username: 'asilbekturkmanov', email: 'asilbekturkmanov@eduflow.uz', role: 'Admin', status: 'Active', phone: '+998 99 199 20 12', centerId: null, centerName: 'Barcha Markazlar (Super Admin)' },
+    { id: 'u_najot_admin', fullName: 'Najot Nur IT Admin', username: 'najot_admin', email: 'admin@najotnur.uz', role: 'Admin', status: 'Active', phone: '+998 78 888 99 01', centerId: '1571bbef-ab69-4efc-88c1-e68547e47740', centerName: 'Najot Nur IT Academy (Chilonzor)' },
+    { id: 'u_reg_admin', fullName: 'Registon Smart Admin', username: 'registon_admin', email: 'admin@registon.uz', role: 'Admin', status: 'Active', phone: '+998 71 202 33 45', centerId: '1491683e-a729-4ca9-85c1-630c101195da', centerName: 'Registon Smart School (Yunusobod)' },
+    { id: 'u_pdp_admin', fullName: 'PDP Campus Admin', username: 'pdp_admin', email: 'admin@pdp.uz', role: 'Admin', status: 'Active', phone: '+998 78 777 47 48', centerId: 'ac38ad5b-aefa-4a0f-9039-d32dc2e03d70', centerName: 'PDP Enterprise Campus (Beruniy)' },
+    { id: '2', fullName: 'Shahriyor O\'qituvchi', username: 'shahriyor', email: 'shahriyor@eduflow.uz', role: 'Teacher', status: 'Active', phone: '+998 90 345 67 89', centerId: 'a0d3c5b0-9643-4f7c-9364-d72591a75ddc', centerName: 'EduFlow Bosh Markaz (Toshkent)', experienceYears: 3, sharePercentage: 70, monthlyEarned: 15680000, totalEarned: 564480000, studentNames: ['Turkmanov O\'quvchi', 'Jasur Bekmirzayev', 'Shahzod Normatov', 'Dilnoza Rahimova'] },
+    { id: '3', fullName: 'Turkmanov O\'quvchi', username: 'turkmanov', email: 'turkmanov@eduflow.uz', role: 'Student', status: 'Active', phone: '+998 99 199 20 12', parentPhone: '+998 90 777 55 44', centerId: 'a0d3c5b0-9643-4f7c-9364-d72591a75ddc', centerName: 'EduFlow Bosh Markaz (Toshkent)', balance: 0, balanceFormatted: '+0 so\'m', presentCount: 24, absentCount: 1, monthlyPaymentStats: [{ month: 'Apr', amount: 800000, isPaid: true }, { month: 'May', amount: 800000, isPaid: true }, { month: 'Iyun', amount: 800000, isPaid: true }, { month: 'Iyul', amount: 800000, isPaid: true }, { month: 'Avg', amount: 800000, isPaid: true }, { month: 'Sen', amount: 800000, isPaid: true }] },
+    { id: '4', fullName: 'Jasur Bekmirzayev', username: 'jasur_b', email: 'jasur@eduflow.uz', role: 'Student', status: 'Active', phone: '+998 97 111 22 33', parentPhone: '+998 90 111 22 33', centerId: 'a0d3c5b0-9643-4f7c-9364-d72591a75ddc', centerName: 'EduFlow Bosh Markaz (Toshkent)', balance: -800000, balanceFormatted: '-800 000 so\'m', presentCount: 22, absentCount: 3, monthlyPaymentStats: [{ month: 'Apr', amount: 800000, isPaid: true }, { month: 'May', amount: 800000, isPaid: true }, { month: 'Iyun', amount: 800000, isPaid: true }, { month: 'Iyul', amount: 800000, isPaid: true }, { month: 'Avg', amount: 800000, isPaid: true }, { month: 'Sen', amount: 0, isPaid: false }] },
+    { id: '5', fullName: 'Shahzod Normatov', username: 'shahzod_n', email: 'shahzod@eduflow.uz', role: 'Student', status: 'Active', phone: '+998 91 444 55 66', parentPhone: '+998 90 444 55 66', centerId: 'a0d3c5b0-9643-4f7c-9364-d72591a75ddc', centerName: 'EduFlow Bosh Markaz (Toshkent)', balance: 7200000, balanceFormatted: '+7 200 000 so\'m', presentCount: 25, absentCount: 0, monthlyPaymentStats: [{ month: 'Apr', amount: 800000, isPaid: true }, { month: 'May', amount: 800000, isPaid: true }, { month: 'Iyun', amount: 800000, isPaid: true }, { month: 'Iyul', amount: 800000, isPaid: true }, { month: 'Avg', amount: 800000, isPaid: true }, { month: 'Sen', amount: 800000, isPaid: true }] },
+    { id: '6', fullName: 'Dilnoza Rahimova', username: 'dilnoza_r', email: 'dilnoza@eduflow.uz', role: 'Student', status: 'Active', phone: '+998 99 777 88 99', parentPhone: '+998 90 888 99 00', centerId: 'a0d3c5b0-9643-4f7c-9364-d72591a75ddc', centerName: 'EduFlow Bosh Markaz (Toshkent)', balance: 0, balanceFormatted: '+0 so\'m', presentCount: 23, absentCount: 2, monthlyPaymentStats: [{ month: 'Apr', amount: 800000, isPaid: true }, { month: 'May', amount: 800000, isPaid: true }, { month: 'Iyun', amount: 800000, isPaid: true }, { month: 'Iyul', amount: 800000, isPaid: true }, { month: 'Avg', amount: 800000, isPaid: true }, { month: 'Sen', amount: 800000, isPaid: true }] }
   ],
   courses: [
-    { id: 'c1', name: '.NET 10 Backend Architecture', description: 'Clean Architecture, EF Core, PostgreSQL, REST API, Docker va CI/CD kursi', price: 800000, durationWeeks: 16, status: 'Active', groupsCount: 1 },
-    { id: 'c2', name: 'React JS & Modern Frontend', description: 'React 19, SPA, State Management, Tailwind/Vanilla CSS va zamonaviy veb ilovalar', price: 800000, durationWeeks: 12, status: 'Active', groupsCount: 1 },
-    { id: 'c3', name: 'Full-Stack Enterprise Bootcamp', description: 'Frontend React + Backend .NET to\'liq integratsiya loyihasi', price: 800000, durationWeeks: 24, status: 'Active', groupsCount: 1 }
+    { id: 'c1', name: '.NET 10 Backend Architecture', description: 'Clean Architecture, EF Core, PostgreSQL, REST API, Docker va CI/CD kursi', price: 800000, durationWeeks: 16, status: 'Active', groupsCount: 1, centerId: 'a0d3c5b0-9643-4f7c-9364-d72591a75ddc', centerName: 'EduFlow Bosh Markaz (Toshkent)' },
+    { id: 'c2', name: 'React JS & Modern Frontend', description: 'React 19, SPA, State Management, Tailwind/Vanilla CSS va zamonaviy veb ilovalar', price: 800000, durationWeeks: 12, status: 'Active', groupsCount: 1, centerId: 'a0d3c5b0-9643-4f7c-9364-d72591a75ddc', centerName: 'EduFlow Bosh Markaz (Toshkent)' },
+    { id: 'c3', name: 'Full-Stack Enterprise Bootcamp', description: 'Frontend React + Backend .NET to\'liq integratsiya loyihasi', price: 800000, durationWeeks: 24, status: 'Active', groupsCount: 1, centerId: 'a0d3c5b0-9643-4f7c-9364-d72591a75ddc', centerName: 'EduFlow Bosh Markaz (Toshkent)' }
   ],
   groups: [
-    { id: 'g1', name: 'DOTNET-G101', color: '#10B981', courseId: 'c1', courseName: '.NET 10 Backend Architecture', teacherId: '2', teacherName: 'Shahriyor O\'qituvchi', startDate: '2026-08-18', status: 'Active', studentsCount: 4 },
-    { id: 'g2', name: 'REACT-G201', color: '#3B82F6', courseId: 'c2', courseName: 'React JS & Modern Frontend', teacherId: '2', teacherName: 'Shahriyor O\'qituvchi', startDate: '2026-08-28', status: 'Active', studentsCount: 3 }
+    { id: 'g1', name: 'DOTNET-G101', color: '#10B981', courseId: 'c1', courseName: '.NET 10 Backend Architecture', teacherId: '2', teacherName: 'Shahriyor O\'qituvchi', startDate: '2026-08-18', status: 'Active', studentsCount: 4, centerId: 'a0d3c5b0-9643-4f7c-9364-d72591a75ddc' },
+    { id: 'g2', name: 'REACT-G201', color: '#3B82F6', courseId: 'c2', courseName: 'React JS & Modern Frontend', teacherId: '2', teacherName: 'Shahriyor O\'qituvchi', startDate: '2026-08-28', status: 'Active', studentsCount: 3, centerId: 'a0d3c5b0-9643-4f7c-9364-d72591a75ddc' }
   ],
   lessons: [
     { id: 'l1', groupId: 'g1', groupName: 'DOTNET-G101', groupColor: '#10B981', title: '1-Dars: Clean Architecture & EF Core', startsAt: '2026-09-21T08:30:00Z', endsAt: '2026-09-21T10:00:00Z', room: 'Auditoriya 101', onlineUrl: 'https://meet.google.com/edu-net-101', teacherName: 'Shahriyor O\'qituvchi' },
@@ -42,11 +157,11 @@ const mockSeed = {
   ],
   audit: [
     { id: 'au1', action: 'LOGIN', entity: 'User', userName: 'Asilbek Turkmanov (Super Admin)', createdAt: new Date().toISOString(), metadata: 'Tizimga muvaffaqiyatli kirildi' },
-    { id: 'au2', action: 'CREATE', entity: 'Course', userName: 'Asilbek Turkmanov (Super Admin)', createdAt: new Date(Date.now() - 86400000).toISOString(), metadata: 'Kurs qo\'shildi: .NET 10 Backend Architecture' }
+    { id: 'au2', action: 'INIT', entity: 'SaaS Platform', userName: 'Asilbek Turkmanov (Super Admin)', createdAt: new Date(Date.now() - 86400000 * 10).toISOString(), metadata: 'Multi-Tenant o\'quv markazlari va kvota avtomatik bloklash tizimi yoqildi' }
   ]
 };
 
-// Local storage storage initialization for demo fallback
+// Local storage helper functions
 const getStorage = (key, fallback) => {
   const item = localStorage.getItem(`eduflow_${key}`);
   if (!item) {
@@ -96,25 +211,29 @@ export async function request(endpoint, options = {}) {
 
     return data;
   } catch (err) {
-    // If server unreachable or aborted, use standalone demo fallback
+    // If server unreachable or offline (e.g. GitHub Pages), use offline fallback
+    if (err.message && !err.message.includes('Failed to fetch') && !err.message.includes('aborted') && !err.message.includes('NetworkError')) {
+      // Re-throw genuine business/API errors (like Quota Exceeded 400 Bad Request)
+      throw err;
+    }
     return handleOfflineFallback(endpoint, options);
   }
 }
 
 function handleOfflineFallback(endpoint, options) {
-  const method = (options.method || 'GET').toUpperCase();
-  const body = options.body ? JSON.parse(options.body) : null;
+  const method = options.method || 'GET';
+  let body = {};
+  if (options.body) {
+    try { body = JSON.parse(options.body); } catch { body = {}; }
+  }
 
   // Auth login
-  if (endpoint === '/auth/login' && method === 'POST') {
+  if (endpoint === '/auth/login') {
     const users = getStorage('users', mockSeed.users);
-    const rawInput = (body.username || body.email || '').trim().toLowerCase();
-    const cleanPhone = rawInput.replace(/[\s-]/g, '');
-    const user = users.find(
-      (u) =>
-        (u.username && u.username.toLowerCase() === rawInput) ||
-        (u.email && u.email.toLowerCase() === rawInput) ||
-        (u.phone && u.phone.replace(/[\s-]/g, '').toLowerCase() === cleanPhone)
+    const identifier = (body.username || '').trim().toLowerCase();
+    const user = users.find(u => 
+      (u.username && u.username.toLowerCase() === identifier) || 
+      (u.email && u.email.toLowerCase() === identifier)
     );
 
     if (!user || (body.password !== '+998991992012' && body.password !== '123456')) {
@@ -136,24 +255,171 @@ function handleOfflineFallback(endpoint, options) {
     return { success: false, data: null };
   }
 
-  // Users
+  // Centers (SaaS Multi-Tenancy & Quota Management)
+  if (endpoint.startsWith('/centers')) {
+    let centers = getStorage('centers', mockSeed.centers);
+    const tariffs = mockSeed.tariffs;
+
+    if (endpoint === '/centers/tariffs') {
+      return { success: true, data: tariffs };
+    }
+
+    if (endpoint === '/centers/current') {
+      const curUser = getStorage('current_user', mockSeed.users[0]);
+      let center = centers.find(c => c.id === curUser.centerId) || centers[0];
+      return { success: true, data: center };
+    }
+
+    if (endpoint.includes('/tariff') && method === 'PUT') {
+      const parts = endpoint.split('/');
+      const centerId = parts[2];
+      const selectedTariff = tariffs.find(t => t.plan === body.tariffPlan) || tariffs[0];
+      
+      centers = centers.map(c => {
+        if (c.id === centerId) {
+          const newMaxQuota = selectedTariff.maxStudentsQuota;
+          const isQuotaExceeded = c.activeStudentsCount >= newMaxQuota;
+          const isBlocked = isQuotaExceeded && c.autoBlockOnQuotaExceeded;
+          const status = isQuotaExceeded ? 'QuotaExceeded' : 'Active';
+          const statusText = isQuotaExceeded ? 'Limit to\'lgan (Bloklangan)' : 'Faol';
+          const remainingQuota = Math.max(0, newMaxQuota - c.activeStudentsCount);
+          const quotaUsagePercentage = Math.round((c.activeStudentsCount / newMaxQuota) * 1000) / 10;
+
+          return {
+            ...c,
+            tariffPlan: selectedTariff.plan,
+            tariffPlanName: `${selectedTariff.name} (${selectedTariff.maxStudentsQuota} ta / ${(selectedTariff.monthlyPrice / 1000).toLocaleString('uz-UZ')} ming)`,
+            maxStudentsQuota: newMaxQuota,
+            monthlySubscriptionPrice: selectedTariff.monthlyPrice,
+            status,
+            statusText,
+            remainingQuota,
+            quotaUsagePercentage,
+            isQuotaExceeded,
+            isBlocked,
+            canAddStudents: !isBlocked
+          };
+        }
+        return c;
+      });
+
+      setStorage('centers', centers);
+      const updated = centers.find(c => c.id === centerId);
+      return { success: true, data: updated, message: `Tarif muvaffaqiyatli yangilandi! Yangi limit: ${selectedTariff.maxStudentsQuota} ta o'quvchi.` };
+    }
+
+    if (method === 'GET') {
+      const id = endpoint.split('/')[2];
+      if (id) {
+        const found = centers.find(c => c.id === id);
+        return { success: true, data: found };
+      }
+      return { success: true, data: centers };
+    }
+
+    if (method === 'POST') {
+      const selectedTariff = tariffs.find(t => t.plan === body.tariffPlan) || tariffs[0];
+      const newCenter = {
+        id: 'center_' + Date.now(),
+        name: body.name,
+        slug: body.slug || body.name.toLowerCase().replace(/[^a-z0-9]/g, '-'),
+        phone: body.phone,
+        email: body.email,
+        address: body.address,
+        tariffPlan: selectedTariff.plan,
+        tariffPlanName: `${selectedTariff.name} (${selectedTariff.maxStudentsQuota} ta / ${(selectedTariff.monthlyPrice / 1000).toLocaleString('uz-UZ')} ming)`,
+        maxStudentsQuota: selectedTariff.maxStudentsQuota,
+        monthlySubscriptionPrice: selectedTariff.monthlyPrice,
+        status: 'Active',
+        statusText: 'Faol',
+        activeStudentsCount: 0,
+        coursesCount: 0,
+        groupsCount: 0,
+        teachersCount: 0,
+        remainingQuota: selectedTariff.maxStudentsQuota,
+        quotaUsagePercentage: 0,
+        isQuotaExceeded: false,
+        isBlocked: false,
+        canAddStudents: true,
+        subscriptionValidUntil: new Date(Date.now() + 86400000 * 30 * (body.initialMonths || 1)).toISOString(),
+        daysUntilExpiry: 30 * (body.initialMonths || 1),
+        autoBlockOnQuotaExceeded: true
+      };
+
+      centers = [newCenter, ...centers];
+      setStorage('centers', centers);
+      return { success: true, data: newCenter, message: 'Yangi o\'quv markazi muvaffaqiyatli ochildi!' };
+    }
+
+    if (method === 'PUT') {
+      const id = endpoint.split('/')[2];
+      centers = centers.map(c => (c.id === id ? { ...c, ...body } : c));
+      setStorage('centers', centers);
+      return { success: true, data: body, message: 'Markaz ma\'lumotlari yangilandi' };
+    }
+
+    if (method === 'DELETE') {
+      const id = endpoint.split('/')[2];
+      centers = centers.filter(c => c.id !== id);
+      setStorage('centers', centers);
+      return { success: true, data: true, message: 'Markaz tizimdan o\'chirildi' };
+    }
+  }
+
+  // Users (with automatic quota enforcement check)
   if (endpoint.startsWith('/users')) {
     let users = getStorage('users', mockSeed.users);
+    let centers = getStorage('centers', mockSeed.centers);
+
     if (method === 'GET') {
       return { success: true, data: { items: users, totalCount: users.length, pageNumber: 1, pageSize: 20, totalPages: 1 } };
     }
+
     if (method === 'POST') {
-      const newUser = { id: String(Date.now()), ...body, status: 'Active' };
+      const role = body.role === 2 || body.role === 'Student' ? 'Student' : (body.role === 1 || body.role === 'Teacher' ? 'Teacher' : 'Admin');
+      const targetCenterId = body.centerId || centers[0]?.id;
+      const targetCenter = centers.find(c => c.id === targetCenterId);
+
+      // Auto-Blocking Quota Enforcement Check
+      if (role === 'Student' && targetCenter) {
+        if (targetCenter.isBlocked || targetCenter.activeStudentsCount >= targetCenter.maxStudentsQuota) {
+          throw new Error(`❌ DIQQAT: "${targetCenter.name}" markazining o'quvchi kvotasi (${targetCenter.activeStudentsCount} / ${targetCenter.maxStudentsQuota}) to'lgan! Yangi o'quvchi qo'shish avtomatik ravishda bloklangan. Davom etish uchun markaz tarifini oshiring.`);
+        }
+
+        // Increment student count in center
+        targetCenter.activeStudentsCount += 1;
+        targetCenter.remainingQuota = Math.max(0, targetCenter.maxStudentsQuota - targetCenter.activeStudentsCount);
+        targetCenter.quotaUsagePercentage = Math.round((targetCenter.activeStudentsCount / targetCenter.maxStudentsQuota) * 1000) / 10;
+        if (targetCenter.activeStudentsCount >= targetCenter.maxStudentsQuota) {
+          targetCenter.isQuotaExceeded = true;
+          targetCenter.isBlocked = true;
+          targetCenter.status = 'QuotaExceeded';
+          targetCenter.statusText = 'Limit to\'lgan (Bloklangan)';
+          targetCenter.canAddStudents = false;
+        }
+        setStorage('centers', centers);
+      }
+
+      const newUser = { 
+        id: String(Date.now()), 
+        ...body, 
+        role,
+        status: 'Active',
+        centerId: targetCenterId,
+        centerName: targetCenter ? targetCenter.name : 'EduFlow'
+      };
       users = [newUser, ...users];
       setStorage('users', users);
       return { success: true, data: newUser, message: "Foydalanuvchi qo'shildi" };
     }
+
     if (method === 'PUT') {
       const id = endpoint.split('/')[2];
       users = users.map((u) => (u.id === id ? { ...u, ...body } : u));
       setStorage('users', users);
       return { success: true, data: body, message: 'Foydalanuvchi yangilandi' };
     }
+
     if (method === 'DELETE') {
       const id = endpoint.split('/')[2];
       users = users.filter((u) => u.id !== id);
@@ -318,15 +584,17 @@ function handleOfflineFallback(endpoint, options) {
       return {
         success: true,
         data: {
-          totalStudents: 131,
+          totalStudents: 859,
           totalTeachers: 16,
           totalCourses: 12,
           activeGroups: 25,
           totalRevenue: 564480000,
           monthlyRevenue: 15680000,
+          totalCenters: 4,
+          totalCentersRevenue: 2900000,
           recentPayments: mockSeed.payments,
           recentEnrollments: [
-            { id: 'e1', groupName: 'DOTNET-G101', studentName: 'Turkmanov O\'quvchi', joinedAt: new Date().toISOString() }
+            { id: 'e1', groupName: 'DOTNET-PRO-101', studentName: 'Turkmanov O\'quvchi', joinedAt: new Date().toISOString() }
           ]
         }
       };
@@ -377,6 +645,16 @@ export const api = {
   auth: {
     login: (credentials) => request('/auth/login', { method: 'POST', body: JSON.stringify(credentials) }),
     getMe: () => request('/auth/me')
+  },
+  centers: {
+    getAll: () => request('/centers'),
+    getById: (id) => request(`/centers/${id}`),
+    getCurrent: () => request('/centers/current'),
+    getTariffs: () => request('/centers/tariffs'),
+    create: (data) => request('/centers', { method: 'POST', body: JSON.stringify(data) }),
+    updateTariff: (id, data) => request(`/centers/${id}/tariff`, { method: 'PUT', body: JSON.stringify(data) }),
+    update: (id, data) => request(`/centers/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+    delete: (id) => request(`/centers/${id}`, { method: 'DELETE' })
   },
   users: {
     getAll: (params = {}) => {

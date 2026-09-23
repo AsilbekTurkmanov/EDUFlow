@@ -244,6 +244,17 @@ a:hover {
 .card-violet {
   border-left: 4px solid var(--violet-500);
 }
+.card-rose {
+  border-left: 4px solid var(--rose-500);
+}
+.card-cyan {
+  border-left: 4px solid #06b6d4;
+}
+.badge-cyan {
+  background: rgba(6, 182, 212, 0.14);
+  color: #22d3ee;
+  border: 1px solid rgba(6, 182, 212, 0.3);
+}
 
 /* Stat KPI Cards */
 .stat-grid {

@@ -16,6 +16,8 @@ public class Group
     public DateTime? EndDate { get; set; }
     public GroupStatus Status { get; set; } = GroupStatus.Active;
     public string? Color { get; set; }
+    public Guid? CenterId { get; set; }
+    public LearningCenter? Center { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     // Navigations

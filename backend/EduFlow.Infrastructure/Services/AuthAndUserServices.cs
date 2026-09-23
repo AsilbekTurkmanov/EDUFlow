@@ -102,6 +102,8 @@ public class AuthService : IAuthService
             Phone = u.Phone,
             ParentPhone = u.ParentPhone,
             ExperienceYears = u.ExperienceYears,
+            CenterId = u.CenterId,
+            CenterName = u.Center?.Name,
             CreatedAt = u.CreatedAt
         };
 
@@ -178,12 +180,14 @@ public class UserService : IUserService
     private readonly EduFlowDbContext _db;
     private readonly IPasswordHasher _passwordHasher;
     private readonly IAuditLogService _audit;
+    private readonly ICurrentUserService _currentUser;
 
-    public UserService(EduFlowDbContext db, IPasswordHasher passwordHasher, IAuditLogService audit)
+    public UserService(EduFlowDbContext db, IPasswordHasher passwordHasher, IAuditLogService audit, ICurrentUserService currentUser)
     {
         _db = db;
         _passwordHasher = passwordHasher;
         _audit = audit;
+        _currentUser = currentUser;
     }
 
     public async Task<ApiResponse<PagedResult<UserDto>>> GetUsersAsync(int page = 1, int pageSize = 20, UserRole? role = null, UserStatus? status = null, string? search = null)
@@ -251,6 +255,42 @@ public class UserService : IUserService
         if (await _db.Users.AnyAsync(u => u.Email.ToLower() == emailLower))
             return ApiResponse<UserDto>.Fail("Ushbu email bilan foydalanuvchi allaqachon mavjud.");
 
+        Guid? centerId = request.CenterId;
+        if (!centerId.HasValue && _currentUser.UserId.HasValue)
+        {
+            var curUser = await _db.Users.FindAsync(_currentUser.UserId.Value);
+            centerId = curUser?.CenterId;
+        }
+
+        if (!centerId.HasValue)
+        {
+            var firstCenter = await _db.LearningCenters.FirstOrDefaultAsync();
+            centerId = firstCenter?.Id;
+        }
+
+        // Automatic Quota Enforcement Check
+        if (request.Role == UserRole.Student && centerId.HasValue)
+        {
+            var center = await _db.LearningCenters.FindAsync(centerId.Value);
+            if (center != null)
+            {
+                var activeStudentsCount = await _db.Users.CountAsync(u => u.CenterId == center.Id && u.Role == UserRole.Student && u.Status == UserStatus.Active);
+                if (activeStudentsCount >= center.MaxStudentsQuota)
+                {
+                    if (center.Status == CenterStatus.Active)
+                    {
+                        center.Status = CenterStatus.QuotaExceeded;
+                        await _db.SaveChangesAsync();
+                    }
+
+                    return ApiResponse<UserDto>.Fail(
+                        $"Diqqat! '{center.Name}' markazining tarif limiti to'lgan ({activeStudentsCount}/{center.MaxStudentsQuota} o'quvchi). " +
+                        $"Belgilangan o'quvchilar sonidan oshib ketganligi sababli yangi o'quvchi qo'shish avtomatik bloklandi! " +
+                        $"Iltimos, markaz tarifini oshiring (Standart 400 yoki Enterprise 1000).");
+                }
+            }
+        }
+
         var user = new User
         {
             FullName = request.FullName.Trim(),
@@ -262,6 +302,7 @@ public class UserService : IUserService
             Phone = request.Phone,
             ParentPhone = request.ParentPhone,
             ExperienceYears = request.ExperienceYears,
+            CenterId = centerId,
             CreatedAt = DateTime.UtcNow
         };
 

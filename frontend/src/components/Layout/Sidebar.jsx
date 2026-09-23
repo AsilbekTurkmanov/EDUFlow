@@ -1,6 +1,7 @@
 import React from 'react';
 import {
   LayoutDashboard,
+  Building2,
   Users,
   BookOpen,
   FolderKanban,
@@ -23,7 +24,9 @@ export const Sidebar = ({ currentTab, setTab }) => {
     ];
 
     if (role === 'Admin') {
+      // Super Admin and Center Admins have SaaS Centers Hub
       items.push(
+        { id: 'centers', label: '🏢 O\'quv Markazlari (SaaS)', icon: Building2 },
         { id: 'users', label: 'Foydalanuvchilar', icon: Users },
         { id: 'courses', label: 'Kurslar', icon: BookOpen },
         { id: 'groups', label: 'Guruhlar', icon: FolderKanban },
@@ -70,7 +73,7 @@ export const Sidebar = ({ currentTab, setTab }) => {
           <div style={{ fontWeight: 800, fontSize: '18px', letterSpacing: '-0.5px', color: '#fff' }}>
             EDU<span style={{ color: '#10b981' }}>FLOW</span>
           </div>
-          <div style={{ fontSize: '11px', color: '#9ca3af' }}>O'quv Markazi Tizimi</div>
+          <div style={{ fontSize: '11px', color: '#9ca3af' }}>SaaS Multi-Tenant Tizimi</div>
         </div>
       </div>
 
@@ -92,13 +95,39 @@ export const Sidebar = ({ currentTab, setTab }) => {
       </nav>
 
       <div className="sidebar-footer">
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
-          <div>
-            <div style={{ fontSize: '13px', fontWeight: 700, color: '#fff' }}>{user?.fullName}</div>
-            <div style={{ fontSize: '12px', color: '#9ca3af' }}>{user?.email}</div>
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '8px', gap: '8px' }}>
+          <div style={{ overflow: 'hidden' }}>
+            <div style={{ fontSize: '13px', fontWeight: 700, color: '#fff', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              {user?.fullName}
+            </div>
+            <div style={{ fontSize: '12px', color: '#9ca3af', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              {user?.email}
+            </div>
           </div>
-          <span className={`badge ${getRoleBadgeClass()}`}>{role}</span>
+          <span className={`badge ${getRoleBadgeClass()}`} style={{ flexShrink: 0 }}>{role}</span>
         </div>
+
+        {/* Center scope badge */}
+        {user?.centerName && (
+          <div style={{ 
+            fontSize: '11px', 
+            color: '#34d399', 
+            background: 'rgba(16, 185, 129, 0.1)', 
+            border: '1px solid rgba(16, 185, 129, 0.2)',
+            padding: '4px 8px', 
+            borderRadius: '6px',
+            marginBottom: '10px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '5px',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap'
+          }}>
+            <Building2 size={13} style={{ flexShrink: 0 }} />
+            <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>{user.centerName}</span>
+          </div>
+        )}
 
         <button onClick={logout} className="btn btn-secondary btn-sm" style={{ width: '100%' }}>
           <LogOut size={16} />

@@ -26,6 +26,8 @@ public class UserDto
     public string? Phone { get; set; }
     public string? ParentPhone { get; set; }
     public int ExperienceYears { get; set; }
+    public Guid? CenterId { get; set; }
+    public string? CenterName { get; set; }
     public DateTime CreatedAt { get; set; }
 
     // Teacher specific calculations
@@ -64,6 +66,7 @@ public class CreateUserDto
     public string? Phone { get; set; }
     public string? ParentPhone { get; set; }
     public int ExperienceYears { get; set; } = 0;
+    public Guid? CenterId { get; set; }
 }
 
 public class UpdateUserDto
@@ -76,5 +79,6 @@ public class UpdateUserDto
     public string? Phone { get; set; }
     public string? ParentPhone { get; set; }
     public int ExperienceYears { get; set; }
+    public Guid? CenterId { get; set; }
     public string? NewPassword { get; set; }
 }

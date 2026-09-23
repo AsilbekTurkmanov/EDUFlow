@@ -9,6 +9,7 @@ public class EduFlowDbContext : DbContext
     {
     }
 
+    public DbSet<LearningCenter> LearningCenters => Set<LearningCenter>();
     public DbSet<User> Users => Set<User>();
     public DbSet<Course> Courses => Set<Course>();
     public DbSet<Group> Groups => Set<Group>();
@@ -23,6 +24,35 @@ public class EduFlowDbContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+
+        // LearningCenter
+        modelBuilder.Entity<LearningCenter>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.HasIndex(e => e.Slug).IsUnique();
+            entity.Property(e => e.Name).HasMaxLength(200).IsRequired();
+            entity.Property(e => e.Slug).HasMaxLength(150).IsRequired();
+            entity.Property(e => e.Phone).HasMaxLength(50);
+            entity.Property(e => e.Address).HasMaxLength(300);
+            entity.Property(e => e.TariffPlan).HasConversion<string>();
+            entity.Property(e => e.Status).HasConversion<string>();
+            entity.Property(e => e.MonthlySubscriptionPrice).HasPrecision(18, 2);
+
+            entity.HasMany(c => c.Users)
+                .WithOne(u => u.Center)
+                .HasForeignKey(u => u.CenterId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            entity.HasMany(c => c.Courses)
+                .WithOne(cr => cr.Center)
+                .HasForeignKey(cr => cr.CenterId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasMany(c => c.Groups)
+                .WithOne(g => g.Center)
+                .HasForeignKey(g => g.CenterId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
 
         // User
         modelBuilder.Entity<User>(entity =>

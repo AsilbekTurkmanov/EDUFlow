@@ -12,6 +12,18 @@ public interface ICurrentUserService
     bool IsAuthenticated { get; }
 }
 
+public interface ILearningCenterService
+{
+    Task<ApiResponse<List<LearningCenterDto>>> GetCentersAsync();
+    Task<ApiResponse<LearningCenterDto>> GetCenterByIdAsync(Guid id);
+    Task<ApiResponse<LearningCenterDto>> CreateCenterAsync(CreateCenterDto request);
+    Task<ApiResponse<LearningCenterDto>> UpdateCenterAsync(Guid id, UpdateCenterDto request);
+    Task<ApiResponse<LearningCenterDto>> UpdateTariffAsync(Guid id, UpdateCenterTariffDto request);
+    Task<ApiResponse<bool>> DeleteCenterAsync(Guid id);
+    Task<ApiResponse<List<TariffPlanOptionDto>>> GetTariffPlansAsync();
+    Task<ApiResponse<bool>> CheckAndEnforceQuotaAsync(Guid centerId);
+}
+
 public interface IAuthService
 {
     Task<ApiResponse<LoginResponseDto>> LoginAsync(LoginRequestDto request);

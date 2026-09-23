@@ -14,6 +14,8 @@ public class User
     public string? Phone { get; set; }
     public string? ParentPhone { get; set; }
     public int ExperienceYears { get; set; } = 0;
+    public Guid? CenterId { get; set; }
+    public LearningCenter? Center { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     // Navigation properties
