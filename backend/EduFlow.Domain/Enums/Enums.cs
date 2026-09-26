@@ -4,7 +4,8 @@ public enum UserRole
 {
     Admin,
     Teacher,
-    Student
+    Student,
+    Parent
 }
 
 public enum UserStatus
@@ -100,4 +101,39 @@ public enum TeacherCompensationType
     Percentage,       // Foiz usulida (40-70% yoki rahbar belgilagan maxsus %)
     FixedPerStudent,  // Har bir o'quvchidan qat'iy summa (masalan, 400 000 so'm / o'quvchi)
     FixedMonthly      // Oylik o'zgarmas maosh (masalan, 8 000 000 so'm / oy)
+}
+
+public enum NotificationType
+{
+    Info,
+    Warning,
+    Success,
+    Attendance,
+    Payment,
+    Assignment,
+    Lead,
+    Exam
+}
+
+public enum PayrollStatus
+{
+    Pending,
+    Approved,
+    Paid
+}
+
+public enum StudentRiskLevel
+{
+    Low,
+    Medium,
+    High
+}
+
+public enum ExamGrade
+{
+    A,
+    B,
+    C,
+    D,
+    F
 }

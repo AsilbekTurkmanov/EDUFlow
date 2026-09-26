@@ -59,7 +59,13 @@ public class AuthService : IAuthService
             return ApiResponse<LoginResponseDto>.Fail("Foydalanuvchi hisobi faol emas. Administratorga murojaat qiling.");
         }
 
-        var token = _jwtGenerator.GenerateToken(user);
+        var token = _jwtGenerator.GenerateAccessToken(user);
+        var refreshToken = _jwtGenerator.GenerateRefreshToken();
+
+        user.RefreshToken = refreshToken;
+        user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(14);
+        await _db.SaveChangesAsync();
+
         await _audit.LogAsync("LOGIN", "User", user.Id.ToString(), $"Foydalanuvchi tizimga kirdi: {user.Email} ({user.Role})");
 
         var userDto = MapUserToDto(user);
@@ -67,8 +73,46 @@ public class AuthService : IAuthService
         return ApiResponse<LoginResponseDto>.Ok(new LoginResponseDto
         {
             Token = token,
+            RefreshToken = refreshToken,
             User = userDto
         }, "Tizimga muvaffaqiyatli kirildi.");
+    }
+
+    public async Task<ApiResponse<LoginResponseDto>> RefreshTokenAsync(RefreshTokenRequestDto request)
+    {
+        var principal = _jwtGenerator.GetPrincipalFromExpiredToken(request.AccessToken);
+        if (principal == null)
+            return ApiResponse<LoginResponseDto>.Fail("Yaroqsiz token taqdim etildi.");
+
+        var userIdStr = principal.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        if (!Guid.TryParse(userIdStr, out var userId))
+            return ApiResponse<LoginResponseDto>.Fail("Foydalanuvchi ma'lumoti topilmadi.");
+
+        var user = await _db.Users
+            .Include(u => u.Enrollments).ThenInclude(e => e.Group)
+            .Include(u => u.TeachingGroups).ThenInclude(g => g.Enrollments).ThenInclude(e => e.Student)
+            .Include(u => u.Payments)
+            .Include(u => u.Attendances)
+            .FirstOrDefaultAsync(u => u.Id == userId);
+
+        if (user == null || user.RefreshToken != request.RefreshToken || user.RefreshTokenExpiryTime <= DateTime.UtcNow)
+        {
+            return ApiResponse<LoginResponseDto>.Fail("Yaroqsiz yoki muddati o'tgan refresh token.");
+        }
+
+        var newAccessToken = _jwtGenerator.GenerateAccessToken(user);
+        var newRefreshToken = _jwtGenerator.GenerateRefreshToken();
+
+        user.RefreshToken = newRefreshToken;
+        user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(14);
+        await _db.SaveChangesAsync();
+
+        return ApiResponse<LoginResponseDto>.Ok(new LoginResponseDto
+        {
+            Token = newAccessToken,
+            RefreshToken = newRefreshToken,
+            User = MapUserToDto(user)
+        }, "Token muvaffaqiyatli yangilandi.");
     }
 
     public async Task<ApiResponse<UserDto>> GetCurrentUserAsync()

@@ -4,6 +4,7 @@ using EduFlow.Api.Middleware;
 using EduFlow.Api.Services;
 using EduFlow.Application.Interfaces;
 using EduFlow.Infrastructure.Data;
+using EduFlow.Infrastructure.Hubs;
 using EduFlow.Infrastructure.Security;
 using EduFlow.Infrastructure.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -21,9 +22,9 @@ builder.Services.AddDbContext<EduFlowDbContext>(options =>
 });
 
 // 2. Security & JWT
-var secretKey = builder.Configuration["Jwt:SecretKey"] ?? "EduFlow_Super_Secure_Secret_Key_For_Jwt_2026!#$*123456789";
-var issuer = builder.Configuration["Jwt:Issuer"] ?? "EduFlowServer";
-var audience = builder.Configuration["Jwt:Audience"] ?? "EduFlowClient";
+var secretKey = builder.Configuration["Jwt:SecretKey"] ?? SecurityDefaults.DefaultSecretKey;
+var issuer = builder.Configuration["Jwt:Issuer"] ?? SecurityDefaults.DefaultIssuer;
+var audience = builder.Configuration["Jwt:Audience"] ?? SecurityDefaults.DefaultAudience;
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -38,9 +39,24 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateIssuerSigningKey = true,
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey))
         };
+
+        options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                var accessToken = context.Request.Query["access_token"];
+                var path = context.HttpContext.Request.Path;
+                if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/hubs"))
+                {
+                    context.Token = accessToken;
+                }
+                return Task.CompletedTask;
+            }
+        };
     });
 
 builder.Services.AddAuthorization();
+builder.Services.AddSignalR();
 
 // 3. DI Services
 builder.Services.AddHttpContextAccessor();
@@ -59,6 +75,13 @@ builder.Services.AddScoped<IPaymentService, PaymentService>();
 builder.Services.AddScoped<IDashboardService, DashboardService>();
 builder.Services.AddScoped<ILearningCenterService, LearningCenterService>();
 builder.Services.AddScoped<ILeadService, LeadService>();
+builder.Services.AddScoped<IRoomService, RoomService>();
+builder.Services.AddScoped<ITeacherPayrollService, TeacherPayrollService>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.AddScoped<IExamService, ExamService>();
+builder.Services.AddScoped<ICertificateService, CertificateService>();
+builder.Services.AddScoped<IStudentRiskService, StudentRiskService>();
+builder.Services.AddScoped<IParentService, ParentService>();
 
 // 4. Controllers & JSON settings
 builder.Services.AddControllers()
@@ -76,9 +99,10 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
     {
-        policy.AllowAnyOrigin()
+        policy.SetIsOriginAllowed(origin => true)
               .AllowAnyHeader()
-              .AllowAnyMethod();
+              .AllowAnyMethod()
+              .AllowCredentials();
     });
 });
 
@@ -102,6 +126,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapHub<EduFlowHub>("/hubs/eduflow");
 
 // Initialize & Seed Database
 try

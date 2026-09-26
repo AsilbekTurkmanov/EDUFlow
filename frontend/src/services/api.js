@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://localhost:5000/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 export const getToken = () => localStorage.getItem('eduflow_token');
 export const setToken = (token) => localStorage.setItem('eduflow_token', token);
@@ -1124,5 +1124,52 @@ export const api = {
   },
   auditLogs: {
     getAll: (count = 50) => request(`/auditlogs?count=${count}`)
+  },
+  rooms: {
+    getAll: (centerId) => request(`/rooms${centerId ? `?centerId=${centerId}` : ''}`),
+    getById: (id) => request(`/rooms/${id}`),
+    create: (data) => request('/rooms', { method: 'POST', body: JSON.stringify(data) }),
+    update: (id, data) => request(`/rooms/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+    delete: (id) => request(`/rooms/${id}`, { method: 'DELETE' }),
+    checkAvailability: (id, startsAt, endsAt, excludeLessonId) => {
+      const q = new URLSearchParams({ startsAt, endsAt, ...(excludeLessonId ? { excludeLessonId } : {}) }).toString();
+      return request(`/rooms/${id}/check-availability?${q}`);
+    }
+  },
+  payroll: {
+    getAll: (params = {}) => {
+      const q = new URLSearchParams(params).toString();
+      return request(`/payroll${q ? `?${q}` : ''}`);
+    },
+    getTeacherPayroll: (teacherId, periodMonth) => request(`/payroll/teacher/${teacherId}${periodMonth ? `?periodMonth=${periodMonth}` : ''}`),
+    generateCenter: (data) => request('/payroll/generate-center', { method: 'POST', body: JSON.stringify(data) }),
+    pay: (id, data) => request(`/payroll/${id}/pay`, { method: 'POST', body: JSON.stringify(data) })
+  },
+  notifications: {
+    getAll: (unreadOnly = false) => request(`/notifications${unreadOnly ? '?unreadOnly=true' : ''}`),
+    getUnreadCount: () => request('/notifications/unread-count'),
+    markAsRead: (id) => request(`/notifications/${id}/read`, { method: 'POST' }),
+    markAllAsRead: () => request('/notifications/read-all', { method: 'POST' })
+  },
+  exams: {
+    getAll: (groupId) => request(`/exams${groupId ? `?groupId=${groupId}` : ''}`),
+    getById: (id) => request(`/exams/${id}`),
+    create: (data) => request('/exams', { method: 'POST', body: JSON.stringify(data) }),
+    saveResults: (data) => request('/exams/batch-results', { method: 'POST', body: JSON.stringify(data) }),
+    getStudentResults: (studentId) => request(`/exams/student-results${studentId ? `?studentId=${studentId}` : ''}`)
+  },
+  certificates: {
+    getAll: (studentId) => request(`/certificates${studentId ? `?studentId=${studentId}` : ''}`),
+    issue: (data) => request('/certificates/issue', { method: 'POST', body: JSON.stringify(data) }),
+    verify: (code) => request(`/certificates/verify/${code}`)
+  },
+  risks: {
+    getAll: (params = {}) => {
+      const q = new URLSearchParams(params).toString();
+      return request(`/studentrisks${q ? `?${q}` : ''}`);
+    }
+  },
+  parent: {
+    getChildren: () => request('/parent/children')
   }
 };

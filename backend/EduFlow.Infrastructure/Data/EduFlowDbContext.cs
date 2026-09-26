@@ -21,6 +21,12 @@ public class EduFlowDbContext : DbContext
     public DbSet<Payment> Payments => Set<Payment>();
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
     public DbSet<Lead> Leads => Set<Lead>();
+    public DbSet<Room> Rooms => Set<Room>();
+    public DbSet<TeacherPayroll> TeacherPayrolls => Set<TeacherPayroll>();
+    public DbSet<Notification> Notifications => Set<Notification>();
+    public DbSet<Exam> Exams => Set<Exam>();
+    public DbSet<ExamResult> ExamResults => Set<ExamResult>();
+    public DbSet<Certificate> Certificates => Set<Certificate>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -233,6 +239,101 @@ public class EduFlowDbContext : DbContext
             entity.HasOne(l => l.ConvertedStudent)
                 .WithMany()
                 .HasForeignKey(l => l.ConvertedStudentId)
+                .OnDelete(DeleteBehavior.SetNull);
+        });
+
+        // Room
+        modelBuilder.Entity<Room>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Name).HasMaxLength(150).IsRequired();
+            entity.HasOne(e => e.Center)
+                .WithMany()
+                .HasForeignKey(e => e.CenterId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // TeacherPayroll
+        modelBuilder.Entity<TeacherPayroll>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.PeriodMonth).HasMaxLength(20).IsRequired();
+            entity.Property(e => e.CompensationType).HasConversion<string>();
+            entity.Property(e => e.Status).HasConversion<string>();
+            entity.Property(e => e.TotalRevenueGenerated).HasPrecision(18, 2);
+            entity.Property(e => e.BaseAmount).HasPrecision(18, 2);
+            entity.Property(e => e.Bonus).HasPrecision(18, 2);
+            entity.Property(e => e.Deductions).HasPrecision(18, 2);
+            entity.Property(e => e.FinalAmount).HasPrecision(18, 2);
+            entity.HasOne(e => e.Teacher)
+                .WithMany()
+                .HasForeignKey(e => e.TeacherId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // Notification
+        modelBuilder.Entity<Notification>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Title).HasMaxLength(250).IsRequired();
+            entity.Property(e => e.Type).HasConversion<string>();
+            entity.HasOne(e => e.User)
+                .WithMany()
+                .HasForeignKey(e => e.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // Exam & ExamResult
+        modelBuilder.Entity<Exam>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Title).HasMaxLength(200).IsRequired();
+            entity.HasOne(e => e.Group)
+                .WithMany()
+                .HasForeignKey(e => e.GroupId)
+                .OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne(e => e.Course)
+                .WithMany()
+                .HasForeignKey(e => e.CourseId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<ExamResult>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Grade).HasConversion<string>();
+            entity.HasOne(e => e.Exam)
+                .WithMany(ex => ex.Results)
+                .HasForeignKey(e => e.ExamId)
+                .OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne(e => e.Student)
+                .WithMany()
+                .HasForeignKey(e => e.StudentId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // Certificate
+        modelBuilder.Entity<Certificate>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.HasIndex(e => e.CertificateCode).IsUnique();
+            entity.Property(e => e.CertificateCode).HasMaxLength(50).IsRequired();
+            entity.HasOne(e => e.Student)
+                .WithMany()
+                .HasForeignKey(e => e.StudentId)
+                .OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne(e => e.Course)
+                .WithMany()
+                .HasForeignKey(e => e.CourseId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // User Self-referencing Parent relation
+        modelBuilder.Entity<User>(entity =>
+        {
+            entity.HasOne(u => u.Parent)
+                .WithMany(p => p.Children)
+                .HasForeignKey(u => u.ParentId)
                 .OnDelete(DeleteBehavior.SetNull);
         });
     }

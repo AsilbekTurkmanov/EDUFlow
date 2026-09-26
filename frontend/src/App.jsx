@@ -10,6 +10,12 @@ import { Users } from './pages/Users';
 import { Courses } from './pages/Courses';
 import { Groups } from './pages/Groups';
 import { Schedule } from './pages/Schedule';
+import { Rooms } from './pages/Rooms';
+import { Payroll } from './pages/Payroll';
+import { Exams } from './pages/Exams';
+import { StudentRisks } from './pages/StudentRisks';
+import { Certificates } from './pages/Certificates';
+import { ParentPortal } from './pages/ParentPortal';
 import { Attendance } from './pages/Attendance';
 import { Assignments } from './pages/Assignments';
 import { Payments } from './pages/Payments';
@@ -22,8 +28,12 @@ export function App() {
   const [filterCenterId, setFilterCenterId] = useState('ALL');
 
   useEffect(() => {
-    // When role changes, switch to dashboard
-    setCurrentTab('dashboard');
+    // When role changes, switch to appropriate default dashboard
+    if (role === 'Parent') {
+      setCurrentTab('parent');
+    } else {
+      setCurrentTab('dashboard');
+    }
   }, [role]);
 
   if (loading) {
@@ -55,7 +65,13 @@ export function App() {
       case 'courses': return 'Kurslar';
       case 'groups': return 'Guruhlar';
       case 'schedule': return 'Dars Jadvali';
-      case 'attendance': return 'Davomad Jurnali';
+      case 'rooms': return '🏢 Auditoriyalar & Xonalar Boshqaruvi';
+      case 'payroll': return '💰 O\'qituvchilar Maoshi (Payroll)';
+      case 'exams': return '📝 Imtihonlar & Akademik Baholash';
+      case 'risks': return '⚠️ O\'quvchilar Xavf Tahlili (Risk Engine)';
+      case 'certificates': return '🏆 Sertifikatlar & QR Tasdiq';
+      case 'parent': return '👨‍👩‍👧 Ota-ona Portali';
+      case 'attendance': return 'Davomat Jurnali';
       case 'assignments': return 'Uy Vazifalari & Topshiriqlar';
       case 'payments': return 'Moliya & To\'lovlar';
       case 'audit': return 'Audit Tarixi';
@@ -68,7 +84,7 @@ export function App() {
       <Sidebar currentTab={currentTab} setTab={setCurrentTab} />
 
       <div className="main-content">
-        <Navbar currentTabTitle={getTabTitle()} />
+        <Navbar currentTabTitle={getTabTitle()} setTab={setCurrentTab} />
 
         <main className="page-body">
           {currentTab === 'dashboard' && <Dashboard setTab={setCurrentTab} />}
@@ -90,6 +106,12 @@ export function App() {
           {currentTab === 'courses' && <Courses />}
           {currentTab === 'groups' && <Groups />}
           {currentTab === 'schedule' && <Schedule />}
+          {currentTab === 'rooms' && <Rooms />}
+          {currentTab === 'payroll' && <Payroll />}
+          {currentTab === 'exams' && <Exams />}
+          {currentTab === 'risks' && <StudentRisks />}
+          {currentTab === 'certificates' && <Certificates />}
+          {currentTab === 'parent' && <ParentPortal />}
           {currentTab === 'attendance' && <Attendance />}
           {currentTab === 'assignments' && <Assignments />}
           {currentTab === 'payments' && <Payments />}

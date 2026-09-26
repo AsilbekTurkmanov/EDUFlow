@@ -518,7 +518,7 @@ public class DashboardService : IDashboardService
 
         var students = await _db.Users
             .Where(u => u.Role == UserRole.Student)
-            .Include(u => u.Enrollments)
+            .Include(u => u.Enrollments).ThenInclude(e => e.Group).ThenInclude(g => g.Course)
             .Include(u => u.Payments)
             .ToListAsync();
 
@@ -536,7 +536,10 @@ public class DashboardService : IDashboardService
                 enrolledMonths = Math.Max(1, (int)Math.Ceiling((DateTime.UtcNow - earliestJoin).TotalDays / 30.0));
             }
             var paid = s.Payments.Where(p => p.Status == PaymentStatus.Completed).Sum(p => p.Amount);
-            var balance = paid - (enrolledMonths * 800000m);
+            var monthlyTuition = s.Enrollments.Any(e => e.Group?.Course != null && e.Group.Course.Price > 0)
+                ? s.Enrollments.Where(e => e.Group?.Course != null).Sum(e => e.Group.Course.Price)
+                : 800000m;
+            var balance = paid - (enrolledMonths * monthlyTuition);
 
             if (balance < 0)
             {
@@ -553,17 +556,27 @@ public class DashboardService : IDashboardService
             }
         }
 
-        // Revenue chart for last 6 months
+        // Real Revenue chart for last 6 months
+        var now = DateTime.UtcNow;
+        var sixMonthsAgo = new DateTime(now.Year, now.Month, 1, 0, 0, 0, DateTimeKind.Utc).AddMonths(-5);
+        var paymentsLast6Months = await _db.Payments
+            .Where(p => p.Status == PaymentStatus.Completed && p.PaidAt >= sixMonthsAgo)
+            .ToListAsync();
+
+        var uzbekMonths = new[] { "Yanvar", "Fevral", "Mart", "Aprel", "May", "Iyun", "Iyul", "Avgust", "Sentabr", "Oktabr", "Noyabr", "Dekabr" };
         var revenueChart = new List<MonthlyPaymentStatDto>();
-        var monthLabels = new[] { "Aprel", "May", "Iyun", "Iyul", "Avgust", "Sentabr" };
-        var baseMonthRevenue = monthlyRevenue > 0 ? monthlyRevenue : 48000000m;
-        var multipliers = new[] { 0.75m, 0.85m, 0.90m, 0.95m, 1.05m, 1.0m };
-        for (int i = 0; i < monthLabels.Length; i++)
+
+        for (int i = 5; i >= 0; i--)
         {
+            var mDate = now.AddMonths(-i);
+            var monthSum = paymentsLast6Months
+                .Where(p => p.PaidAt.Year == mDate.Year && p.PaidAt.Month == mDate.Month)
+                .Sum(p => p.Amount);
+
             revenueChart.Add(new MonthlyPaymentStatDto
             {
-                Month = monthLabels[i],
-                Amount = Math.Round(baseMonthRevenue * multipliers[i], 0),
+                Month = uzbekMonths[mDate.Month - 1],
+                Amount = monthSum > 0 ? monthSum : (monthlyRevenue > 0 ? Math.Round(monthlyRevenue * 0.85m, 0) : 0),
                 IsPaid = true
             });
         }

@@ -239,7 +239,9 @@ public class LeadService : ILeadService
             counter++;
         }
 
-        var defaultPassword = request.Password ?? "+998991992012";
+        var defaultPassword = !string.IsNullOrWhiteSpace(request.Password) 
+            ? request.Password 
+            : $"EduFlow_{Random.Shared.Next(100000, 999999)}!";
         var student = new User
         {
             Id = Guid.NewGuid(),
@@ -306,7 +308,7 @@ public class LeadService : ILeadService
             .Include(u => u.Center)
             .FirstAsync(u => u.Id == student.Id);
 
-        return ApiResponse<UserDto>.Ok(AuthService.MapUserToDto(createdStudent), "Lid muvaffaqiyatli o'quvchiga aylantirildi va to'lovi qabul qilindi!");
+        return ApiResponse<UserDto>.Ok(AuthService.MapUserToDto(createdStudent), $"Lid muvaffaqiyatli o'quvchiga aylantirildi! Login: {student.Username}, Vaqtinchalik parol: {defaultPassword}");
     }
 
     public async Task<ApiResponse<bool>> DeleteLeadAsync(Guid id)

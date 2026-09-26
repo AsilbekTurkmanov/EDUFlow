@@ -10,6 +10,8 @@ public class Lesson
     public DateTime StartsAt { get; set; }
     public DateTime EndsAt { get; set; }
     public string Room { get; set; } = string.Empty;
+    public Guid? RoomId { get; set; }
+    public Room? RoomEntity { get; set; }
     public string? OnlineUrl { get; set; }
 
     public ICollection<Attendance> Attendances { get; set; } = new List<Attendance>();

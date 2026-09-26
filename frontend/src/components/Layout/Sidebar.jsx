@@ -12,7 +12,11 @@ import {
   History,
   LogOut,
   GraduationCap,
-  Target
+  Target,
+  DoorClosed,
+  DollarSign,
+  Award,
+  ShieldAlert
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
@@ -20,12 +24,20 @@ export const Sidebar = ({ currentTab, setTab }) => {
   const { user, role, logout } = useAuth();
 
   const getNavItems = () => {
+    if (role === 'Parent') {
+      return [
+        { id: 'parent', label: '👨‍👩‍👧 Farzandlarim', icon: Users },
+        { id: 'schedule', label: 'Dars Jadvali', icon: Calendar },
+        { id: 'exams', label: 'Imtihon Baholari', icon: Award },
+        { id: 'payments', label: 'To\'lovlar & Qarzdorlik', icon: CreditCard }
+      ];
+    }
+
     const items = [
       { id: 'dashboard', label: 'Boshqaruv Paneli', icon: LayoutDashboard }
     ];
 
     if (role === 'Admin') {
-      // Super Admin and Center Admins have SaaS Centers Hub
       items.push(
         { id: 'centers', label: '🏢 O\'quv Markazlari (SaaS)', icon: Building2 },
         { id: 'leads', label: '🎯 Lidlar (CRM Doska)', icon: Target },
@@ -33,7 +45,12 @@ export const Sidebar = ({ currentTab, setTab }) => {
         { id: 'courses', label: 'Kurslar', icon: BookOpen },
         { id: 'groups', label: 'Guruhlar', icon: FolderKanban },
         { id: 'schedule', label: 'Dars Jadvali', icon: Calendar },
-        { id: 'attendance', label: 'Davomad', icon: CheckSquare },
+        { id: 'rooms', label: '🏢 Auditoriyalar', icon: DoorClosed },
+        { id: 'payroll', label: '💰 O\'qituvchilar Maoshi', icon: DollarSign },
+        { id: 'exams', label: '📝 Imtihonlar & Baholar', icon: Award },
+        { id: 'risks', label: '⚠️ O\'quvchilar Xavfi', icon: ShieldAlert },
+        { id: 'certificates', label: '🏆 Sertifikatlar (QR)', icon: GraduationCap },
+        { id: 'attendance', label: 'Davomat', icon: CheckSquare },
         { id: 'assignments', label: 'Vazifalar', icon: FileCode },
         { id: 'payments', label: 'To\'lovlar', icon: CreditCard },
         { id: 'audit', label: 'Audit Tarixi', icon: History }
@@ -42,13 +59,18 @@ export const Sidebar = ({ currentTab, setTab }) => {
       items.push(
         { id: 'groups', label: 'Mening Guruhlarim', icon: FolderKanban },
         { id: 'schedule', label: 'Dars Jadvalim', icon: Calendar },
-        { id: 'attendance', label: 'Davomad Belgilash', icon: CheckSquare },
-        { id: 'assignments', label: 'Topshiriqlar & Baholash', icon: FileCode }
+        { id: 'attendance', label: 'Davomat Belgilash', icon: CheckSquare },
+        { id: 'exams', label: 'Imtihonlar & Baholar', icon: Award },
+        { id: 'assignments', label: 'Topshiriqlar', icon: FileCode },
+        { id: 'certificates', label: 'Sertifikatlar', icon: GraduationCap },
+        { id: 'payroll', label: 'Mening Maoshim', icon: DollarSign }
       );
     } else if (role === 'Student') {
       items.push(
         { id: 'groups', label: 'Guruhlarim', icon: FolderKanban },
         { id: 'schedule', label: 'Darslarim', icon: Calendar },
+        { id: 'exams', label: 'Mening Baholarim', icon: Award },
+        { id: 'certificates', label: 'Sertifikatlarim', icon: GraduationCap },
         { id: 'assignments', label: 'Uy Vazifalarim', icon: FileCode },
         { id: 'payments', label: 'Mening To\'lovlarim', icon: CreditCard }
       );

@@ -29,6 +29,17 @@ public class AuthController : ControllerBase
         return Ok(result);
     }
 
+    [HttpPost("refresh")]
+    [AllowAnonymous]
+    public async Task<ActionResult<ApiResponse<LoginResponseDto>>> Refresh([FromBody] RefreshTokenRequestDto request)
+    {
+        var result = await _authService.RefreshTokenAsync(request);
+        if (!result.Success)
+            return BadRequest(result);
+
+        return Ok(result);
+    }
+
     [HttpGet("me")]
     [Authorize]
     public async Task<ActionResult<ApiResponse<UserDto>>> GetMe()

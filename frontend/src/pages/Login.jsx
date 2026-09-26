@@ -8,13 +8,15 @@ import {
   Lock,
   User,
   Eye,
-  EyeOff
+  EyeOff,
+  Users,
+  Zap
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 export const Login = () => {
   const { login } = useAuth();
-  const [activeTab, setActiveTab] = useState('Admin'); // 'Admin' | 'Teacher' | 'Student'
+  const [activeTab, setActiveTab] = useState('Admin'); // 'Admin' | 'Teacher' | 'Student' | 'Parent'
   const [loginInput, setLoginInput] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -53,6 +55,17 @@ export const Login = () => {
       badgeClass: 'badge-violet',
       icon: BookOpen,
       loginPlaceholder: 'O\'quvchi niki yoki emaili'
+    },
+    Parent: {
+      role: 'Parent',
+      title: 'Ota-ona Portali',
+      subtitle: 'Farzandingiz davomati, baholari, to\'lovlari va dars jadvali nazorati',
+      color: '#38bdf8',
+      bgGlow: 'rgba(56, 189, 248, 0.15)',
+      borderColor: 'rgba(56, 189, 248, 0.35)',
+      badgeClass: 'badge-sky',
+      icon: Users,
+      loginPlaceholder: 'Ota-ona logini, emaili yoki telefoni'
     }
   };
 
@@ -155,12 +168,12 @@ export const Login = () => {
           </p>
         </div>
 
-        {/* 3 Dedicated Role Login Tabs */}
+        {/* 4 Dedicated Role Login Tabs */}
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(3, 1fr)',
-            gap: '8px',
+            gridTemplateColumns: 'repeat(4, 1fr)',
+            gap: '6px',
             background: 'rgba(0, 0, 0, 0.35)',
             padding: '6px',
             borderRadius: '16px',
@@ -176,7 +189,7 @@ export const Login = () => {
               flexDirection: 'column',
               alignItems: 'center',
               gap: '6px',
-              padding: '10px 6px',
+              padding: '10px 4px',
               borderRadius: '12px',
               border: 'none',
               cursor: 'pointer',
@@ -187,7 +200,7 @@ export const Login = () => {
             }}
           >
             <Shield size={18} color={activeTab === 'Admin' ? '#f59e0b' : '#6b7280'} />
-            <span style={{ fontSize: '12px', fontWeight: activeTab === 'Admin' ? 800 : 600 }}>Super Admin</span>
+            <span style={{ fontSize: '11px', fontWeight: activeTab === 'Admin' ? 800 : 600 }}>Admin</span>
           </button>
 
           <button
@@ -198,7 +211,7 @@ export const Login = () => {
               flexDirection: 'column',
               alignItems: 'center',
               gap: '6px',
-              padding: '10px 6px',
+              padding: '10px 4px',
               borderRadius: '12px',
               border: 'none',
               cursor: 'pointer',
@@ -209,7 +222,7 @@ export const Login = () => {
             }}
           >
             <UserCheck size={18} color={activeTab === 'Teacher' ? '#10b981' : '#6b7280'} />
-            <span style={{ fontSize: '12px', fontWeight: activeTab === 'Teacher' ? 800 : 600 }}>O'qituvchi</span>
+            <span style={{ fontSize: '11px', fontWeight: activeTab === 'Teacher' ? 800 : 600 }}>Ustoz</span>
           </button>
 
           <button
@@ -220,7 +233,7 @@ export const Login = () => {
               flexDirection: 'column',
               alignItems: 'center',
               gap: '6px',
-              padding: '10px 6px',
+              padding: '10px 4px',
               borderRadius: '12px',
               border: 'none',
               cursor: 'pointer',
@@ -231,7 +244,29 @@ export const Login = () => {
             }}
           >
             <BookOpen size={18} color={activeTab === 'Student' ? '#8b5cf6' : '#6b7280'} />
-            <span style={{ fontSize: '12px', fontWeight: activeTab === 'Student' ? 800 : 600 }}>O'quvchi</span>
+            <span style={{ fontSize: '11px', fontWeight: activeTab === 'Student' ? 800 : 600 }}>O'quvchi</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => handleTabChange('Parent')}
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '10px 4px',
+              borderRadius: '12px',
+              border: 'none',
+              cursor: 'pointer',
+              background: activeTab === 'Parent' ? 'rgba(56, 189, 248, 0.18)' : 'transparent',
+              color: activeTab === 'Parent' ? '#38bdf8' : '#9ca3af',
+              boxShadow: activeTab === 'Parent' ? '0 4px 12px rgba(56, 189, 248, 0.2)' : 'none',
+              transition: 'all 0.2s ease'
+            }}
+          >
+            <Users size={18} color={activeTab === 'Parent' ? '#38bdf8' : '#6b7280'} />
+            <span style={{ fontSize: '11px', fontWeight: activeTab === 'Parent' ? 800 : 600 }}>Ota-ona</span>
           </button>
         </div>
 
@@ -332,6 +367,64 @@ export const Login = () => {
             )}
           </button>
         </form>
+
+        {/* 1-Click Quick Demo Accounts */}
+        <div style={{ marginTop: '20px', paddingTop: '16px', borderTop: '1px solid rgba(255, 255, 255, 0.08)' }}>
+          <div style={{ fontSize: '11px', color: '#9ca3af', marginBottom: '10px', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+            <Zap size={13} color="#fbbf24" /> 1-Bosishda Demo Hisobga Kirish:
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+            <button
+              type="button"
+              onClick={() => {
+                setActiveTab('Admin');
+                setLoginInput('asilbekturkmanov');
+                setPassword('+998991992012');
+              }}
+              className="btn btn-ghost btn-sm"
+              style={{ fontSize: '11px', padding: '6px', justifyContent: 'center', color: '#fbbf24', border: '1px solid rgba(245, 158, 11, 0.2)' }}
+            >
+              👑 Super Admin
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setActiveTab('Teacher');
+                setLoginInput('anvar.teacher@eduflow.uz');
+                setPassword('+998991992012');
+              }}
+              className="btn btn-ghost btn-sm"
+              style={{ fontSize: '11px', padding: '6px', justifyContent: 'center', color: '#34d399', border: '1px solid rgba(16, 185, 129, 0.2)' }}
+            >
+              👨‍🏫 O'qituvchi
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setActiveTab('Student');
+                setLoginInput('jasur@eduflow.uz');
+                setPassword('+998991992012');
+              }}
+              className="btn btn-ghost btn-sm"
+              style={{ fontSize: '11px', padding: '6px', justifyContent: 'center', color: '#a78bfa', border: '1px solid rgba(139, 92, 246, 0.2)' }}
+            >
+              🎓 O'quvchi
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setActiveTab('Parent');
+                setLoginInput('ota.dilshod@eduflow.uz');
+                setPassword('+998991992012');
+              }}
+              className="btn btn-ghost btn-sm"
+              style={{ fontSize: '11px', padding: '6px', justifyContent: 'center', color: '#38bdf8', border: '1px solid rgba(56, 189, 248, 0.2)' }}
+            >
+              👨‍👩‍👧 Ota-ona
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );

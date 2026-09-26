@@ -27,6 +27,7 @@ public interface ILearningCenterService
 public interface IAuthService
 {
     Task<ApiResponse<LoginResponseDto>> LoginAsync(LoginRequestDto request);
+    Task<ApiResponse<LoginResponseDto>> RefreshTokenAsync(RefreshTokenRequestDto request);
     Task<ApiResponse<UserDto>> GetCurrentUserAsync();
 }
 

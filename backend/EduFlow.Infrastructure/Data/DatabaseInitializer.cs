@@ -22,8 +22,9 @@ public static class DatabaseInitializer
             var hasAdmin = await db.Users.AnyAsync(u => u.Username == "asilbekturkmanov");
             var hasCenters = await db.LearningCenters.AnyAsync();
             var hasLeads = await db.Leads.AnyAsync();
+            var hasRooms = await db.Rooms.AnyAsync();
             var totalUsers = await db.Users.CountAsync();
-            if (!hasAdmin || !hasCenters || !hasLeads || totalUsers < 50)
+            if (!hasAdmin || !hasCenters || !hasLeads || !hasRooms || totalUsers < 50)
             {
                 needsRecreation = true;
             }
@@ -817,6 +818,217 @@ public static class DatabaseInitializer
         db.Leads.AddRange(leads);
         await db.SaveChangesAsync();
         logger.LogInformation($"Saved {leads.Count} CRM Pipeline Leads across 5 stages.");
+
+        // ====================================================
+        // SEED ADVANCED FEATURES: Rooms, Payroll, Exams, Parent, Certificates
+        // ====================================================
+        logger.LogInformation("Seeding Rooms, Exams, Payrolls, Certificates, and Parent Portal data...");
+
+        // 1. Seed Rooms
+        var room1 = new Room { Id = Guid.NewGuid(), Name = "101-Asosiy Auditoriya", Capacity = 30, ComputersCount = 25, HasProjector = true, HasAirConditioner = true, CenterId = center1.Id };
+        var room2 = new Room { Id = Guid.NewGuid(), Name = "102-Frontend Laboratoriyasi", Capacity = 24, ComputersCount = 24, HasProjector = true, HasAirConditioner = true, CenterId = center1.Id };
+        var room3 = new Room { Id = Guid.NewGuid(), Name = "201-Backend & Cloud Lab", Capacity = 20, ComputersCount = 20, HasProjector = true, HasAirConditioner = true, CenterId = center1.Id };
+        var room4 = new Room { Id = Guid.NewGuid(), Name = "202-Kichik Seminar Xonasi", Capacity = 15, ComputersCount = 0, HasProjector = true, HasAirConditioner = false, CenterId = center1.Id };
+        var room5 = new Room { Id = Guid.NewGuid(), Name = "301-Smart Auditoriya", Capacity = 28, ComputersCount = 25, HasProjector = true, HasAirConditioner = true, CenterId = center2.Id };
+
+        db.Rooms.AddRange(room1, room2, room3, room4, room5);
+        await db.SaveChangesAsync();
+
+        // Assign rooms to existing lessons
+        var existingLessons = await db.Lessons.ToListAsync();
+        for (int i = 0; i < existingLessons.Count; i++)
+        {
+            var l = existingLessons[i];
+            var r = (i % 3 == 0) ? room1 : (i % 3 == 1) ? room2 : room3;
+            l.RoomId = r.Id;
+            l.Room = r.Name;
+        }
+        await db.SaveChangesAsync();
+
+        // 2. Seed Parent Account
+        var firstStudent = await db.Users.FirstOrDefaultAsync(u => u.Role == UserRole.Student);
+        var parentUser = new User
+        {
+            Id = Guid.NewGuid(),
+            FullName = "Dilshod Bekmirzayev (Ota)",
+            Email = "ota.dilshod@eduflow.uz",
+            Username = "dilshod_ota",
+            PasswordHash = defaultPasswordHash,
+            Role = UserRole.Parent,
+            Status = UserStatus.Active,
+            Phone = "+998 90 123 45 67",
+            CenterId = center1.Id,
+            CreatedAt = DateTime.UtcNow.AddDays(-60)
+        };
+
+        if (firstStudent != null)
+        {
+            firstStudent.ParentId = parentUser.Id;
+            firstStudent.ParentPhone = parentUser.Phone;
+        }
+
+        db.Users.Add(parentUser);
+        await db.SaveChangesAsync();
+
+        // 3. Seed Exams and Results
+        var sampleGroup = await db.Groups.Include(g => g.Enrollments).FirstOrDefaultAsync();
+        if (sampleGroup != null)
+        {
+            var exam1 = new Exam
+            {
+                Id = Guid.NewGuid(),
+                GroupId = sampleGroup.Id,
+                CourseId = sampleGroup.CourseId,
+                Title = "1-Modul Imtihoni (Midterm)",
+                ExamDate = DateTime.UtcNow.AddDays(-7),
+                MaxScore = 100,
+                PassingScore = 60,
+                Description = "Algoritmlar, ma'lumotlar tuzilmasi va asosiy sintaksis bo'yicha oraliq nazorat",
+                CreatedAt = DateTime.UtcNow.AddDays(-14)
+            };
+
+            var exam2 = new Exam
+            {
+                Id = Guid.NewGuid(),
+                GroupId = sampleGroup.Id,
+                CourseId = sampleGroup.CourseId,
+                Title = "2-Modul Amaliy Loyiha Himoyasi",
+                ExamDate = DateTime.UtcNow.AddDays(7),
+                MaxScore = 100,
+                PassingScore = 70,
+                Description = "Web API va ma'lumotlar bazasi integratsiyasi bo'yicha to'liq loyiha taqdimoti",
+                CreatedAt = DateTime.UtcNow.AddDays(-2)
+            };
+
+            db.Exams.AddRange(exam1, exam2);
+            await db.SaveChangesAsync();
+
+            // Results for exam 1
+            var enrolledStudents = sampleGroup.Enrollments.Select(e => e.StudentId).ToList();
+            foreach (var stId in enrolledStudents)
+            {
+                var score = rnd.Next(65, 98);
+                var grade = score >= 90 ? ExamGrade.A : score >= 80 ? ExamGrade.B : score >= 70 ? ExamGrade.C : ExamGrade.D;
+                db.ExamResults.Add(new ExamResult
+                {
+                    Id = Guid.NewGuid(),
+                    ExamId = exam1.Id,
+                    StudentId = stId,
+                    Score = score,
+                    Grade = grade,
+                    TeacherFeedback = score >= 90 ? "A'lo natija, barcha topshiriqlarni mustaqil bajardi." : "Yaxshi natija, amaliyotni kuchaytirish zarur.",
+                    EvaluatedAt = DateTime.UtcNow.AddDays(-6)
+                });
+            }
+            await db.SaveChangesAsync();
+        }
+
+        // 4. Seed Certificates
+        if (firstStudent != null && sampleGroup != null)
+        {
+            db.Certificates.Add(new Certificate
+            {
+                Id = Guid.NewGuid(),
+                CertificateCode = "EDF-2026-9812A",
+                StudentId = firstStudent.Id,
+                CourseId = sampleGroup.CourseId,
+                CenterId = center1.Id,
+                IssuedAt = DateTime.UtcNow.AddDays(-15),
+                FinalScore = 94,
+                GradeLetter = "A+",
+                VerificationUrl = "/verify-certificate/EDF-2026-9812A"
+            });
+            await db.SaveChangesAsync();
+        }
+
+        // 5. Seed Teacher Payrolls
+        var teachers = await db.Users.Where(u => u.Role == UserRole.Teacher).ToListAsync();
+        var currentMonth = DateTime.UtcNow.ToString("yyyy-MM");
+        var prevMonth = DateTime.UtcNow.AddMonths(-1).ToString("yyyy-MM");
+
+        foreach (var t in teachers)
+        {
+            db.TeacherPayrolls.Add(new TeacherPayroll
+            {
+                Id = Guid.NewGuid(),
+                TeacherId = t.Id,
+                CenterId = t.CenterId,
+                PeriodMonth = prevMonth,
+                ActiveStudentsCount = rnd.Next(15, 35),
+                TotalRevenueGenerated = 18400000m,
+                CompensationType = t.CompensationType,
+                SharePercentage = t.CustomSharePercentage ?? 70,
+                BaseAmount = 12880000m,
+                Bonus = 500000m,
+                Deductions = 0,
+                FinalAmount = 13380000m,
+                Status = PayrollStatus.Paid,
+                PaidAt = DateTime.UtcNow.AddDays(-20),
+                PaymentNote = $"{prevMonth} oyi uchun to'liq to'landi (Karta orqali o'tkazildi)",
+                CreatedAt = DateTime.UtcNow.AddDays(-25)
+            });
+
+            db.TeacherPayrolls.Add(new TeacherPayroll
+            {
+                Id = Guid.NewGuid(),
+                TeacherId = t.Id,
+                CenterId = t.CenterId,
+                PeriodMonth = currentMonth,
+                ActiveStudentsCount = rnd.Next(18, 38),
+                TotalRevenueGenerated = 22400000m,
+                CompensationType = t.CompensationType,
+                SharePercentage = t.CustomSharePercentage ?? 70,
+                BaseAmount = 15680000m,
+                Bonus = 0,
+                Deductions = 0,
+                FinalAmount = 15680000m,
+                Status = PayrollStatus.Pending,
+                CreatedAt = DateTime.UtcNow.AddDays(-2)
+            });
+        }
+        await db.SaveChangesAsync();
+
+        // 6. Seed Notifications
+        var adminUser = await db.Users.FirstOrDefaultAsync(u => u.Role == UserRole.Admin);
+        if (adminUser != null)
+        {
+            db.Notifications.AddRange(
+                new Notification
+                {
+                    Id = Guid.NewGuid(),
+                    UserId = adminUser.Id,
+                    Title = "🎯 Yangi lid kelib tushdi",
+                    Message = "Instagram orqali .NET FullStack kursiga yangi ariza kelib tushdi.",
+                    Type = NotificationType.Lead,
+                    ActionUrl = "leads",
+                    IsRead = false,
+                    CreatedAt = DateTime.UtcNow.AddMinutes(-12)
+                },
+                new Notification
+                {
+                    Id = Guid.NewGuid(),
+                    UserId = adminUser.Id,
+                    Title = "💰 To'lov qabul qilindi",
+                    Message = "Jasur Bekmirzayev tomonidan 800,000 UZS to'lov amalga oshirildi.",
+                    Type = NotificationType.Payment,
+                    ActionUrl = "payments",
+                    IsRead = false,
+                    CreatedAt = DateTime.UtcNow.AddHours(-2)
+                },
+                new Notification
+                {
+                    Id = Guid.NewGuid(),
+                    UserId = adminUser.Id,
+                    Title = "⚠️ O'quvchi xavf guruhi (Risk)",
+                    Message = "2 nafar o'quvchining davomati 60% dan tushib ketdi. E'tibor qarating.",
+                    Type = NotificationType.Warning,
+                    ActionUrl = "risks",
+                    IsRead = false,
+                    CreatedAt = DateTime.UtcNow.AddHours(-5)
+                }
+            );
+            await db.SaveChangesAsync();
+        }
 
         logger.LogInformation("Database seeded successfully with Multi-Tenant Learning Centers, CRM Leads, and 850+ authentic data records!");
     }

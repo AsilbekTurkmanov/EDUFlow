@@ -24,6 +24,19 @@ public class User
     public LearningCenter? Center { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
+    // Refresh Token Management
+    public string? RefreshToken { get; set; }
+    public DateTime? RefreshTokenExpiryTime { get; set; }
+
+    // Parent - Child Relationship (for Parent Portal)
+    public Guid? ParentId { get; set; }
+    public User? Parent { get; set; }
+    public ICollection<User> Children { get; set; } = new List<User>();
+
+    // Telegram Bot Integration
+    public string? TelegramChatId { get; set; }
+    public string? TelegramVerificationCode { get; set; }
+
     // Navigation properties
     public ICollection<Group> TeachingGroups { get; set; } = new List<Group>();
     public ICollection<Enrollment> Enrollments { get; set; } = new List<Enrollment>();

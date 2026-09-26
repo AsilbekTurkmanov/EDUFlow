@@ -12,6 +12,7 @@ public class LessonDto
     public DateTime StartsAt { get; set; }
     public DateTime EndsAt { get; set; }
     public string Room { get; set; } = string.Empty;
+    public Guid? RoomId { get; set; }
     public string? OnlineUrl { get; set; }
     public Guid TeacherId { get; set; }
     public string TeacherName { get; set; } = string.Empty;
@@ -24,6 +25,7 @@ public class CreateLessonDto
     public DateTime StartsAt { get; set; }
     public DateTime EndsAt { get; set; }
     public string Room { get; set; } = string.Empty;
+    public Guid? RoomId { get; set; }
     public string? OnlineUrl { get; set; }
 }
 
@@ -35,6 +37,7 @@ public class AttendanceDto
     public Guid StudentId { get; set; }
     public string StudentName { get; set; } = string.Empty;
     public AttendanceStatus Status { get; set; }
+    public DateTime LessonDate { get; set; }
     public string? Note { get; set; }
 }
 

@@ -7,6 +7,13 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace EduFlow.Infrastructure.Security;
 
+public static class SecurityDefaults
+{
+    public const string DefaultSecretKey = "EduFlow_Super_Secure_Secret_Key_For_Jwt_2026!#$*123456789";
+    public const string DefaultIssuer = "EduFlowServer";
+    public const string DefaultAudience = "EduFlowClient";
+}
+
 public interface IPasswordHasher
 {
     string Hash(string password);
@@ -22,6 +29,9 @@ public class PasswordHasher : IPasswordHasher
 public interface IJwtTokenGenerator
 {
     string GenerateToken(User user);
+    string GenerateAccessToken(User user);
+    string GenerateRefreshToken();
+    ClaimsPrincipal? GetPrincipalFromExpiredToken(string token);
 }
 
 public class JwtTokenGenerator : IJwtTokenGenerator
@@ -33,13 +43,15 @@ public class JwtTokenGenerator : IJwtTokenGenerator
         _configuration = configuration;
     }
 
-    public string GenerateToken(User user)
-    {
-        var secretKey = _configuration["Jwt:SecretKey"] ?? "EduFlow_Super_Secure_Secret_Key_For_Jwt_2026!#$*123";
-        var issuer = _configuration["Jwt:Issuer"] ?? "EduFlowServer";
-        var audience = _configuration["Jwt:Audience"] ?? "EduFlowClient";
+    private string SecretKey => _configuration["Jwt:SecretKey"] ?? SecurityDefaults.DefaultSecretKey;
+    private string Issuer => _configuration["Jwt:Issuer"] ?? SecurityDefaults.DefaultIssuer;
+    private string Audience => _configuration["Jwt:Audience"] ?? SecurityDefaults.DefaultAudience;
 
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
+    public string GenerateToken(User user) => GenerateAccessToken(user);
+
+    public string GenerateAccessToken(User user)
+    {
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(SecretKey));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
         var claims = new List<Claim>
@@ -50,14 +62,59 @@ public class JwtTokenGenerator : IJwtTokenGenerator
             new(ClaimTypes.Role, user.Role.ToString())
         };
 
+        if (user.CenterId.HasValue)
+        {
+            claims.Add(new Claim("CenterId", user.CenterId.Value.ToString()));
+        }
+
         var token = new JwtSecurityToken(
-            issuer: issuer,
-            audience: audience,
+            issuer: Issuer,
+            audience: Audience,
             claims: claims,
-            expires: DateTime.UtcNow.AddDays(7),
+            expires: DateTime.UtcNow.AddMinutes(30), // 30 minutes access token
             signingCredentials: creds
         );
 
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
+
+    public string GenerateRefreshToken()
+    {
+        var randomNumber = new byte[64];
+        using var rng = System.Security.Cryptography.RandomNumberGenerator.Create();
+        rng.GetBytes(randomNumber);
+        return Convert.ToBase64String(randomNumber);
+    }
+
+    public ClaimsPrincipal? GetPrincipalFromExpiredToken(string token)
+    {
+        var tokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateAudience = true,
+            ValidAudience = Audience,
+            ValidateIssuer = true,
+            ValidIssuer = Issuer,
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(SecretKey)),
+            ValidateLifetime = false // Here we validate claims even if token expired
+        };
+
+        var tokenHandler = new JwtSecurityTokenHandler();
+        try
+        {
+            var principal = tokenHandler.ValidateToken(token, tokenValidationParameters, out var securityToken);
+            if (securityToken is not JwtSecurityToken jwtSecurityToken || 
+                !jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase))
+            {
+                return null;
+            }
+
+            return principal;
+        }
+        catch
+        {
+            return null;
+        }
+    }
 }
+
