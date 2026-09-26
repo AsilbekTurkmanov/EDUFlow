@@ -485,19 +485,34 @@ function handleOfflineFallback(endpoint, options) {
 
   // Auth login
   if (endpoint === '/auth/login') {
-    const users = getStorage('users', mockSeed.users);
-    const identifier = (body.username || body.email || '').trim().toLowerCase();
-    const cleanPhone = identifier.replace(/\D/g, '');
+    const rawIdentifier = (body.username || body.email || '').trim().toLowerCase();
+    const cleanPhone = rawIdentifier.replace(/\D/g, '');
 
-    const user = users.find(u => {
+    // Always combine mockSeed.users with stored users so seed users are guaranteed to exist
+    const storedUsers = getStorage('users', []);
+    const userPool = [...mockSeed.users];
+    if (Array.isArray(storedUsers)) {
+      storedUsers.forEach(su => {
+        if (!userPool.some(u => u.id === su.id || (u.username && u.username.toLowerCase() === (su.username || '').toLowerCase()))) {
+          userPool.push(su);
+        }
+      });
+    }
+
+    const user = userPool.find(u => {
       const uName = (u.username || '').toLowerCase();
       const uEmail = (u.email || '').toLowerCase();
       const uPhone = (u.phone || '').replace(/\D/g, '');
-      if (uName === identifier || uEmail === identifier) return true;
-      if (uEmail.startsWith(identifier + '@')) return true;
-      if (identifier.includes('@') && uEmail.split('@')[0] === identifier.split('@')[0]) return true;
+      if (uName === rawIdentifier || uEmail === rawIdentifier) return true;
+      if (uEmail.startsWith(rawIdentifier + '@')) return true;
+      if (rawIdentifier.includes('@') && uEmail.split('@')[0] === rawIdentifier.split('@')[0]) return true;
       if (cleanPhone.length >= 7 && uPhone.includes(cleanPhone)) return true;
-      if (identifier === u.role.toLowerCase()) return true;
+      if (rawIdentifier === u.role.toLowerCase()) return true;
+      // Friendly role aliases
+      if ((rawIdentifier === 'admin' || rawIdentifier === 'admin@eduflow.uz') && u.role === 'Admin') return true;
+      if ((rawIdentifier === 'teacher' || rawIdentifier === 'ustoz' || rawIdentifier === 'anvar.ustoz@eduflow.uz') && u.role === 'Teacher') return true;
+      if ((rawIdentifier === 'student' || rawIdentifier === 'oquvchi' || rawIdentifier === 'jasur@eduflow.uz') && u.role === 'Student') return true;
+      if ((rawIdentifier === 'parent' || rawIdentifier === 'otaona' || rawIdentifier === 'otaona@eduflow.uz') && u.role === 'Parent') return true;
       return false;
     });
 
@@ -507,6 +522,7 @@ function handleOfflineFallback(endpoint, options) {
 
     const mockToken = 'mock_jwt_' + user.id;
     setStorage('current_user', user);
+    setToken(mockToken);
     return { success: true, data: { token: mockToken, user }, message: 'Muvaffaqiyatli kirildi' };
   }
 
