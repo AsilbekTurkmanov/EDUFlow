@@ -9,8 +9,7 @@ import {
   User,
   Eye,
   EyeOff,
-  Users,
-  Zap
+  Users
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
@@ -367,64 +366,6 @@ export const Login = () => {
             )}
           </button>
         </form>
-
-        {/* 1-Click Quick Demo Accounts */}
-        <div style={{ marginTop: '20px', paddingTop: '16px', borderTop: '1px solid rgba(255, 255, 255, 0.08)' }}>
-          <div style={{ fontSize: '11px', color: '#9ca3af', marginBottom: '10px', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
-            <Zap size={13} color="#fbbf24" /> 1-Bosishda Demo Hisobga Kirish:
-          </div>
-
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
-            <button
-              type="button"
-              onClick={() => {
-                setActiveTab('Admin');
-                setLoginInput('asilbekturkmanov');
-                setPassword('+998991992012');
-              }}
-              className="btn btn-ghost btn-sm"
-              style={{ fontSize: '11px', padding: '6px', justifyContent: 'center', color: '#fbbf24', border: '1px solid rgba(245, 158, 11, 0.2)' }}
-            >
-              👑 Super Admin
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                setActiveTab('Teacher');
-                setLoginInput('anvar.teacher@eduflow.uz');
-                setPassword('+998991992012');
-              }}
-              className="btn btn-ghost btn-sm"
-              style={{ fontSize: '11px', padding: '6px', justifyContent: 'center', color: '#34d399', border: '1px solid rgba(16, 185, 129, 0.2)' }}
-            >
-              👨‍🏫 O'qituvchi
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                setActiveTab('Student');
-                setLoginInput('jasur@eduflow.uz');
-                setPassword('+998991992012');
-              }}
-              className="btn btn-ghost btn-sm"
-              style={{ fontSize: '11px', padding: '6px', justifyContent: 'center', color: '#a78bfa', border: '1px solid rgba(139, 92, 246, 0.2)' }}
-            >
-              🎓 O'quvchi
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                setActiveTab('Parent');
-                setLoginInput('ota.dilshod@eduflow.uz');
-                setPassword('+998991992012');
-              }}
-              className="btn btn-ghost btn-sm"
-              style={{ fontSize: '11px', padding: '6px', justifyContent: 'center', color: '#38bdf8', border: '1px solid rgba(56, 189, 248, 0.2)' }}
-            >
-              👨‍👩‍👧 Ota-ona
-            </button>
-          </div>
-        </div>
       </div>
     </div>
   );

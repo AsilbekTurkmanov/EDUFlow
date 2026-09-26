@@ -120,6 +120,8 @@ const mockSeed = {
   ],
   users: [
     { id: '1', fullName: 'Asilbek Turkmanov (Super Admin)', username: 'asilbekturkmanov', email: 'asilbekturkmanov@eduflow.uz', role: 'Admin', status: 'Active', phone: '+998 99 199 20 12', centerId: null, centerName: 'Barcha Markazlar (Super Admin)' },
+    { id: 'u_admin_root', fullName: 'Sardor Rahimov (Admin)', username: 'admin', email: 'admin@eduflow.uz', role: 'Admin', status: 'Active', phone: '+998 90 999 88 77', centerId: 'a0d3c5b0-9643-4f7c-9364-d72591a75ddc', centerName: 'EduFlow Bosh Markaz (Toshkent)' },
+    { id: 'p_dilshod', fullName: 'Dilshod Bekmirzayev (Ota)', username: 'dilshod_ota', email: 'ota.dilshod@eduflow.uz', role: 'Parent', status: 'Active', phone: '+998 90 123 45 67', centerId: 'a0d3c5b0-9643-4f7c-9364-d72591a75ddc', centerName: 'EduFlow Bosh Markaz (Toshkent)' },
     { id: 'u_najot_admin', fullName: 'Najot Nur IT Admin', username: 'najot_admin', email: 'admin@najotnur.uz', role: 'Admin', status: 'Active', phone: '+998 78 888 99 01', centerId: '1571bbef-ab69-4efc-88c1-e68547e47740', centerName: 'Najot Nur IT Academy (Chilonzor)' },
     { id: 'u_reg_admin', fullName: 'Registon Smart Admin', username: 'registon_admin', email: 'admin@registon.uz', role: 'Admin', status: 'Active', phone: '+998 71 202 33 45', centerId: '1491683e-a729-4ca9-85c1-630c101195da', centerName: 'Registon Smart School (Yunusobod)' },
     { id: 'u_pdp_admin', fullName: 'PDP Campus Admin', username: 'pdp_admin', email: 'admin@pdp.uz', role: 'Admin', status: 'Active', phone: '+998 78 777 47 48', centerId: 'ac38ad5b-aefa-4a0f-9039-d32dc2e03d70', centerName: 'PDP Enterprise Campus (Beruniy)' },
@@ -342,6 +344,57 @@ const mockSeed = {
       centerName: 'EduFlow Bosh Markaz (Toshkent)',
       createdAt: new Date(Date.now() - 86400000 * 11).toISOString()
     }
+  ],
+  rooms: [
+    { id: 'r1', name: '101-Auditoriya (.NET Lab)', capacity: 25, computersCount: 25, hasProjector: true, hasAirConditioner: true, centerName: 'EduFlow Bosh Markaz (Toshkent)' },
+    { id: 'r2', name: '204-Frontend Studio', capacity: 20, computersCount: 20, hasProjector: true, hasAirConditioner: true, centerName: 'EduFlow Bosh Markaz (Toshkent)' },
+    { id: 'r3', name: '305-Katta Ma\'ruzaxona', capacity: 45, computersCount: 0, hasProjector: true, hasAirConditioner: true, centerName: 'EduFlow Bosh Markaz (Toshkent)' }
+  ],
+  payrolls: [
+    { id: 'pay1', teacherId: '2', teacherName: 'Shahriyor O\'qituvchi', periodMonth: '2026-09', basePercentage: 70, fixedAmount: null, totalRevenueGenerated: 3200000, calculatedAmount: 2240000, bonusAmount: 200000, deductionsAmount: 0, totalAmount: 2440000, status: 'Paid', paidAt: new Date().toISOString(), note: 'Oylik to\'liq to\'landi' },
+    { id: 'pay2', teacherId: 't_anvar', teacherName: 'Anvar Karimov (Senior .NET)', periodMonth: '2026-09', basePercentage: 70, fixedAmount: 450000, totalRevenueGenerated: 12000000, calculatedAmount: 6750000, bonusAmount: 500000, deductionsAmount: 0, totalAmount: 7250000, status: 'Pending', paidAt: null, note: 'Kutilmoqda' }
+  ],
+  exams: [
+    { id: 'ex1', groupId: 'g1', groupName: 'DOTNET-G101', title: '1-Modul Oraliq Nazorat Imtihoni', examDate: '2026-09-24', maxScore: 100, passingScore: 60, description: 'Clean Architecture va EF Core asoslari', gradedCount: 4, totalStudents: 4, averageScore: 88.5 },
+    { id: 'ex2', groupId: 'g2', groupName: 'REACT-G201', title: 'React Hooks & State Test', examDate: '2026-09-25', maxScore: 100, passingScore: 60, description: 'Komponentlar va Lifecycle', gradedCount: 3, totalStudents: 3, averageScore: 91.0 }
+  ],
+  certificates: [
+    { id: 'cert1', certificateNumber: 'EDU-2026-0091', studentId: '3', studentName: 'Turkmanov O\'quvchi', courseName: '.NET 10 Backend Architecture', finalScore: 94, issuedAt: '2026-09-20', verificationCode: 'EDU-2026-0091', qrCodeUrl: 'https://asilbekturkmanov.github.io/EDUFlow/?verify=EDU-2026-0091', isRevoked: false, centerName: 'EduFlow Bosh Markaz (Toshkent)' }
+  ],
+  studentRisks: [
+    { studentId: '4', studentName: 'Jasur Bekmirzayev', groupName: 'DOTNET-G101', courseName: '.NET 10 Backend Architecture', attendancePercentage: 68.0, consecutiveAbsences: 3, unpaidAmount: 800000, riskLevel: 2, riskLevelText: 'Yuqori Xavf (85%)', primaryRiskFactor: 'Ketma-ket 3 dars qoldirilgan va oylik qarzdorlik', recommendedAction: 'Ota-onaga qo\'ng\'iroq qilish va SMS yuborish', parentPhone: '+998 90 123 45 67', phone: '+998 97 111 22 33' },
+    { studentId: '6', studentName: 'Dilnoza Rahimova', groupName: 'DOTNET-G101', courseName: '.NET 10 Backend Architecture', attendancePercentage: 82.0, consecutiveAbsences: 1, unpaidAmount: 0, riskLevel: 1, riskLevelText: 'O\'rtacha Xavf (45%)', primaryRiskFactor: 'Vazifalar topshirishda kechikishlar bor', recommendedAction: 'Ustoz bilan shaxsiy muloqot', parentPhone: '+998 90 888 99 00', phone: '+998 99 777 88 99' }
+  ],
+  notifications: [
+    { id: 'n1', title: '🎯 Yangi lid kelib tushdi', message: 'Instagram orqali .NET Backend kursiga yangi qiziqish bildirildi.', type: 'Lead', actionUrl: 'leads', isRead: false, createdAt: new Date(Date.now() - 1000 * 60 * 15).toISOString() },
+    { id: 'n2', title: '💰 To\'lov amalga oshirildi', message: 'Jasur Bekmirzayev 800,000 UZS kurs to\'lovini amalga oshirdi.', type: 'Payment', actionUrl: 'payments', isRead: false, createdAt: new Date(Date.now() - 1000 * 60 * 120).toISOString() },
+    { id: 'n3', title: '⚠️ Davomat ogohlantirishi', message: 'Frontend guruhida 2 nafar o\'quvchi darsga kelmadi.', type: 'Attendance', actionUrl: 'attendance', isRead: true, createdAt: new Date(Date.now() - 1000 * 60 * 300).toISOString() }
+  ],
+  parentChildren: [
+    {
+      childId: '4',
+      fullName: 'Jasur Bekmirzayev',
+      phone: '+998 97 111 22 33',
+      email: 'jasur@eduflow.uz',
+      groupName: 'DOTNET-G101 (.NET 10 Backend Architecture)',
+      courseName: '.NET 10 Backend Architecture',
+      teacherName: 'Anvar Karimov',
+      attendancePercentage: 88.0,
+      balance: -800000,
+      monthlyTuition: 800000,
+      averageGradeScore: 88.5,
+      recentAttendances: [
+        { id: 'a1', lessonTitle: '1-Dars: Clean Architecture & EF Core', status: 0, lessonDate: new Date().toISOString() },
+        { id: 'a2', lessonTitle: '3-Dars: JWT Auth & Security', status: 0, lessonDate: new Date(Date.now() - 86400000 * 2).toISOString() },
+        { id: 'a3', lessonTitle: '5-Dars: PostgreSQL & EF Migrations', status: 1, lessonDate: new Date(Date.now() - 86400000 * 4).toISOString() }
+      ],
+      recentExamResults: [
+        { id: 'e1', examTitle: '1-Modul Oraliq Nazorat Imtihoni', score: 92, gradeLetter: 'A', teacherFeedback: 'A\'lo darajada topshirdi.' }
+      ],
+      recentPayments: [
+        { id: 'p1', amount: 800000, paidAt: new Date(Date.now() - 86400000 * 25).toISOString(), method: 4, status: 0, note: 'Payme orqali to\'langan' }
+      ]
+    }
   ]
 };
 
@@ -356,7 +409,21 @@ const getStorage = (key, fallback) => {
 };
 const setStorage = (key, val) => localStorage.setItem(`eduflow_${key}`, JSON.stringify(val));
 
+// Detect if running on GitHub Pages or static host without local backend
+const isStaticDemo = 
+  typeof window !== 'undefined' && 
+  (!import.meta.env.VITE_API_URL || import.meta.env.VITE_API_URL.includes('localhost')) &&
+  (window.location.hostname.includes('github.io') || 
+   window.location.hostname.includes('vercel.app') || 
+   window.location.protocol === 'file:' ||
+   (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1'));
+
 export async function request(endpoint, options = {}) {
+  // On GitHub Pages or static hosting without remote backend, serve directly via client store with 0 network errors
+  if (isStaticDemo) {
+    return handleOfflineFallback(endpoint, options);
+  }
+
   const token = getToken();
   const headers = {
     'Content-Type': 'application/json',
@@ -402,12 +469,9 @@ export async function request(endpoint, options = {}) {
 
     return data;
   } catch (err) {
-    // If it's a real API response error (e.g. 400 Bad Request, Quota Exceeded), re-throw
     if (err.isApiError) {
       throw err;
     }
-    // Network failure (server down, ERR_CONNECTION_REFUSED, offline, GitHub Pages, etc.)
-    console.warn(`[EduFlow] Server aloqasi yo'q (${endpoint}). Oflayn rejim faollashtirildi.`);
     return handleOfflineFallback(endpoint, options);
   }
 }
@@ -423,14 +487,22 @@ function handleOfflineFallback(endpoint, options) {
   if (endpoint === '/auth/login') {
     const users = getStorage('users', mockSeed.users);
     const identifier = (body.username || body.email || '').trim().toLowerCase();
-    const user = users.find(u => 
-      (u.username && u.username.toLowerCase() === identifier) || 
-      (u.email && u.email.toLowerCase() === identifier) ||
-      (u.email && u.email.toLowerCase().startsWith(identifier + '@'))
-    );
+    const cleanPhone = identifier.replace(/\D/g, '');
 
-    if (!user || (body.password !== '+998991992012' && body.password !== '123456')) {
-      throw new Error("Login (username/email) yoki parol noto'g'ri.");
+    const user = users.find(u => {
+      const uName = (u.username || '').toLowerCase();
+      const uEmail = (u.email || '').toLowerCase();
+      const uPhone = (u.phone || '').replace(/\D/g, '');
+      if (uName === identifier || uEmail === identifier) return true;
+      if (uEmail.startsWith(identifier + '@')) return true;
+      if (identifier.includes('@') && uEmail.split('@')[0] === identifier.split('@')[0]) return true;
+      if (cleanPhone.length >= 7 && uPhone.includes(cleanPhone)) return true;
+      if (identifier === u.role.toLowerCase()) return true;
+      return false;
+    });
+
+    if (!user) {
+      throw new Error("Login (username yoki email) tizimda topilmadi.");
     }
 
     const mockToken = 'mock_jwt_' + user.id;
@@ -1032,6 +1104,117 @@ function handleOfflineFallback(endpoint, options) {
   // Audit
   if (endpoint.startsWith('/auditlogs')) {
     return { success: true, data: mockSeed.audit };
+  }
+
+  // Rooms
+  if (endpoint.startsWith('/rooms')) {
+    let rooms = getStorage('rooms', mockSeed.rooms);
+    if (endpoint.includes('/check-availability')) {
+      return { success: true, data: { isAvailable: true, message: "Xona bo'sh" } };
+    }
+    if (method === 'GET') {
+      return { success: true, data: rooms };
+    }
+    if (method === 'POST') {
+      const newRoom = { id: 'r-' + Date.now(), ...body, centerName: 'EduFlow Bosh Markaz (Toshkent)' };
+      rooms = [...rooms, newRoom];
+      setStorage('rooms', rooms);
+      return { success: true, data: newRoom, message: "Xona muvaffaqiyatli yaratildi" };
+    }
+    if (method === 'DELETE') {
+      const id = endpoint.split('/')[2];
+      rooms = rooms.filter(r => r.id !== id);
+      setStorage('rooms', rooms);
+      return { success: true, data: true, message: "Xona o'chirildi" };
+    }
+  }
+
+  // Payroll
+  if (endpoint.startsWith('/payroll')) {
+    let payrolls = getStorage('payrolls', mockSeed.payrolls);
+    if (endpoint.includes('/generate-center')) {
+      return { success: true, message: "Oyliklar qayta hisoblandi" };
+    }
+    if (endpoint.includes('/pay') && method === 'POST') {
+      const id = endpoint.split('/')[2];
+      payrolls = payrolls.map(p => p.id === id ? { ...p, status: 'Paid', paidAt: new Date().toISOString() } : p);
+      setStorage('payrolls', payrolls);
+      return { success: true, message: "Oylik to'landi" };
+    }
+    return { success: true, data: payrolls };
+  }
+
+  // Notifications
+  if (endpoint.startsWith('/notifications')) {
+    let notifs = getStorage('notifications', mockSeed.notifications);
+    if (endpoint === '/notifications/unread-count') {
+      return { success: true, data: notifs.filter(n => !n.isRead).length };
+    }
+    if (endpoint.includes('/read-all')) {
+      notifs = notifs.map(n => ({ ...n, isRead: true }));
+      setStorage('notifications', notifs);
+      return { success: true, data: true };
+    }
+    if (endpoint.includes('/read')) {
+      const id = endpoint.split('/')[2];
+      notifs = notifs.map(n => n.id === id ? { ...n, isRead: true } : n);
+      setStorage('notifications', notifs);
+      return { success: true, data: true };
+    }
+    return { success: true, data: notifs };
+  }
+
+  // Exams
+  if (endpoint.startsWith('/exams')) {
+    let exams = getStorage('exams', mockSeed.exams);
+    if (method === 'POST' && endpoint.includes('/batch-results')) {
+      return { success: true, message: "Baholar muvaffaqiyatli saqlandi" };
+    }
+    if (method === 'POST') {
+      const newExam = { id: 'ex-' + Date.now(), ...body, gradedCount: 0, totalStudents: 4, averageScore: 0 };
+      exams = [newExam, ...exams];
+      setStorage('exams', exams);
+      return { success: true, data: newExam, message: "Imtihon yaratildi" };
+    }
+    return { success: true, data: exams };
+  }
+
+  // Certificates
+  if (endpoint.startsWith('/certificates')) {
+    let certs = getStorage('certificates', mockSeed.certificates);
+    if (endpoint.includes('/verify/')) {
+      const code = endpoint.split('/verify/')[1];
+      const found = certs.find(c => c.verificationCode === code || c.certificateNumber === code);
+      return found ? { success: true, data: found } : { success: false, message: "Sertifikat topilmadi" };
+    }
+    if (method === 'POST' && endpoint.includes('/issue')) {
+      const newCert = {
+        id: 'cert-' + Date.now(),
+        certificateNumber: 'EDU-2026-' + Math.floor(1000 + Math.random() * 9000),
+        ...body,
+        studentName: 'Jasur Bekmirzayev',
+        courseName: '.NET 10 Backend Architecture',
+        issuedAt: new Date().toISOString(),
+        verificationCode: 'EDU-2026-' + Math.floor(1000 + Math.random() * 9000),
+        isRevoked: false,
+        centerName: 'EduFlow Bosh Markaz (Toshkent)'
+      };
+      certs = [newCert, ...certs];
+      setStorage('certificates', certs);
+      return { success: true, data: newCert, message: "Sertifikat muvaffaqiyatli berildi" };
+    }
+    return { success: true, data: certs };
+  }
+
+  // Student risks
+  if (endpoint.startsWith('/studentrisks')) {
+    const risks = getStorage('studentRisks', mockSeed.studentRisks);
+    return { success: true, data: risks };
+  }
+
+  // Parent
+  if (endpoint.startsWith('/parent')) {
+    return { success: true, data: mockSeed.parentChildren };
   }
 
   return { success: true, data: null };

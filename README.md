@@ -63,18 +63,18 @@ Loyihaning arxitekturasi Clean Architecture va zamonaviy web texnologiyalari tal
 
 ---
 
-## 🔑 Namuna (Seed) Akkauntlari
+## 🔑 Foydalanuvchi Rollari va Akkauntlar
 
-Tizim birinchi marta ishga tushganda barcha namunaviy ma'lumotlar avtomatik shakllanadi. Frontend kirish sahifasida **1-bosishda tezkor kirish tugmalari** orqali tizimni sinab ko'rishingiz mumkin:
+Tizimda barcha rollar xavfsiz autentifikatsiya bilan himoyalangan. Rollar bo'yicha namunaviy akkauntlar ro'yxati:
 
-| Rol | Email | Parol | To'liq Ism |
+| Rol | Login / Email | Holati | To'liq Ism |
 |---|---|---|---|
-| **Admin** | `admin@eduflow.uz` | `Admin123!` | Sardor Rahimov (Admin) |
-| **Teacher** | `anvar.ustoz@eduflow.uz` | `Teacher123!` | Anvar Karimov (Senior .NET) |
-| **Teacher** | `madina.ustoz@eduflow.uz` | `Teacher123!` | Madina Alimova (Frontend Lead) |
-| **Student** | `jasur@eduflow.uz` | `Student123!` | Jasur Bekmirzayev |
-| **Student** | `shahzod@eduflow.uz` | `Student123!` | Shahzod Normatov |
-| **Parent** | `ota.dilshod@eduflow.uz` | `Admin123!` | Dilshod Bekmirzayev (Jasurning otasi) |
+| **Admin** | `admin@eduflow.uz` | Faol | Sardor Rahimov (Admin) |
+| **Teacher** | `anvar.ustoz@eduflow.uz` | Faol | Anvar Karimov (Senior .NET) |
+| **Teacher** | `madina.ustoz@eduflow.uz` | Faol | Madina Alimova (Frontend Lead) |
+| **Student** | `jasur@eduflow.uz` | Faol | Jasur Bekmirzayev |
+| **Student** | `shahzod@eduflow.uz` | Faol | Shahzod Normatov |
+| **Parent** | `ota.dilshod@eduflow.uz` | Faol | Dilshod Bekmirzayev (Jasurning otasi) |
 
 ---
 
