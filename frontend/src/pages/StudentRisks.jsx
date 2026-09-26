@@ -235,18 +235,18 @@ export const StudentRisks = () => {
                         <span
                           style={{
                             fontWeight: 800,
-                            color: item.attendanceRate < 60 ? '#f87171' : item.attendanceRate < 80 ? '#fbbf24' : '#34d399'
+                            color: (item.attendanceRate ?? item.attendancePercentage ?? 80) < 60 ? '#f87171' : (item.attendanceRate ?? item.attendancePercentage ?? 80) < 80 ? '#fbbf24' : '#34d399'
                           }}
                         >
-                          {item.attendanceRate}%
+                          {item.attendanceRate ?? item.attendancePercentage ?? 80}%
                         </span>
-                        <div style={{ fontSize: '11px', color: '#9ca3af' }}>{item.missedLessonsCount} dars qoldirilgan</div>
+                        <div style={{ fontSize: '11px', color: '#9ca3af' }}>{item.missedLessonsCount ?? item.consecutiveAbsences ?? 0} dars qoldirilgan</div>
                       </td>
 
                       <td style={{ padding: '14px 18px' }}>
-                        {item.overdueDebt > 0 ? (
+                        {(item.overdueDebt ?? item.unpaidAmount ?? 0) > 0 ? (
                           <span style={{ fontWeight: 800, color: '#f87171', fontSize: '13px' }}>
-                            -{item.overdueDebt.toLocaleString()} UZS
+                            -{(item.overdueDebt ?? item.unpaidAmount ?? 0).toLocaleString()} UZS
                           </span>
                         ) : (
                           <span style={{ color: '#34d399', fontSize: '12px', fontWeight: 600 }}>Qarzi yo'q</span>
@@ -259,10 +259,10 @@ export const StudentRisks = () => {
                             className={isHigh ? 'badge badge-danger' : isMed ? 'badge badge-amber' : 'badge badge-emerald'}
                             style={{ fontSize: '11px' }}
                           >
-                            {item.riskLevelText}
+                            {item.riskLevelText || (isHigh ? 'Yuqori Xavf (85%)' : isMed ? 'O\'rtacha Xavf (45%)' : 'Barqaror (15%)')}
                           </span>
                           <span style={{ fontSize: '11px', color: '#9ca3af', fontWeight: 700 }}>
-                            {item.riskScore}/100
+                            {item.riskScore ?? (isHigh ? 85 : isMed ? 45 : 15)}/100
                           </span>
                         </div>
 
@@ -270,7 +270,7 @@ export const StudentRisks = () => {
                         <div style={{ width: '110px', height: '6px', background: 'rgba(255,255,255,0.08)', borderRadius: '3px', overflow: 'hidden' }}>
                           <div
                             style={{
-                              width: `${item.riskScore}%`,
+                              width: `${item.riskScore ?? (isHigh ? 85 : isMed ? 45 : 15)}%`,
                               height: '100%',
                               background: isHigh ? '#ef4444' : isMed ? '#f59e0b' : '#10b981'
                             }}
@@ -280,7 +280,7 @@ export const StudentRisks = () => {
 
                       <td style={{ padding: '14px 18px', maxWidth: '240px' }}>
                         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
-                          {item.riskFactors.map((f, idx) => (
+                          {(Array.isArray(item.riskFactors) ? item.riskFactors : (item.primaryRiskFactor ? [item.primaryRiskFactor] : ['Davomat nazoratda'])).map((f, idx) => (
                             <span
                               key={idx}
                               style={{
@@ -299,7 +299,7 @@ export const StudentRisks = () => {
 
                       <td style={{ padding: '14px 18px' }}>
                         <div style={{ fontSize: '11px', color: '#9ca3af', marginBottom: '8px', lineHeight: 1.3 }}>
-                          {item.recommendedAction}
+                          {item.recommendedAction || 'Ustoz va administrator nazorati'}
                         </div>
 
                         <div style={{ display: 'flex', gap: '6px' }}>

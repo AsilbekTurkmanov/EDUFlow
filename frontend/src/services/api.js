@@ -412,8 +412,46 @@ const mockSeed = {
     { id: 'cert1', certificateNumber: 'EDU-2026-0091', certificateCode: 'EDU-2026-0091', studentId: '3', studentName: 'Turkmanov O\'quvchi', courseName: '.NET 10 Backend Architecture', finalScore: 94, issuedAt: '2026-09-20', verificationCode: 'EDU-2026-0091', qrCodeUrl: 'https://asilbekturkmanov.github.io/EDUFlow/?verify=EDU-2026-0091', isRevoked: false, centerName: 'EduFlow Bosh Markaz (Toshkent)' }
   ],
   studentRisks: [
-    { studentId: '4', studentName: 'Jasur Bekmirzayev', groupName: 'DOTNET-G101', courseName: '.NET 10 Backend Architecture', attendancePercentage: 68.0, consecutiveAbsences: 3, unpaidAmount: 800000, riskLevel: 2, riskLevelText: 'Yuqori Xavf (85%)', primaryRiskFactor: 'Ketma-ket 3 dars qoldirilgan va oylik qarzdorlik', recommendedAction: 'Ota-onaga qo\'ng\'iroq qilish va SMS yuborish', parentPhone: '+998 90 123 45 67', phone: '+998 97 111 22 33' },
-    { studentId: '6', studentName: 'Dilnoza Rahimova', groupName: 'DOTNET-G101', courseName: '.NET 10 Backend Architecture', attendancePercentage: 82.0, consecutiveAbsences: 1, unpaidAmount: 0, riskLevel: 1, riskLevelText: 'O\'rtacha Xavf (45%)', primaryRiskFactor: 'Vazifalar topshirishda kechikishlar bor', recommendedAction: 'Ustoz bilan shaxsiy muloqot', parentPhone: '+998 90 888 99 00', phone: '+998 99 777 88 99' }
+    { 
+      studentId: '4', 
+      studentName: 'Jasur Bekmirzayev', 
+      groupName: 'DOTNET-G101', 
+      courseName: '.NET 10 Backend Architecture', 
+      attendancePercentage: 68.0, 
+      attendanceRate: 68.0,
+      consecutiveAbsences: 3, 
+      missedLessonsCount: 3,
+      unpaidAmount: 800000, 
+      overdueDebt: 800000,
+      riskLevel: 2, 
+      riskScore: 85,
+      riskLevelText: 'Yuqori Xavf (85%)', 
+      riskFactors: ['Ketma-ket 3 dars qoldirilgan', 'Oylik to\'lov kechikmoqda (800 000 UZS)'],
+      primaryRiskFactor: 'Ketma-ket 3 dars qoldirilgan va oylik qarzdorlik', 
+      recommendedAction: 'Ota-onaga qo\'ng\'iroq qilish va SMS yuborish', 
+      parentPhone: '+998 90 123 45 67', 
+      phone: '+998 97 111 22 33' 
+    },
+    { 
+      studentId: '6', 
+      studentName: 'Dilnoza Rahimova', 
+      groupName: 'DOTNET-G101', 
+      courseName: '.NET 10 Backend Architecture', 
+      attendancePercentage: 82.0, 
+      attendanceRate: 82.0,
+      consecutiveAbsences: 1, 
+      missedLessonsCount: 1,
+      unpaidAmount: 0, 
+      overdueDebt: 0,
+      riskLevel: 1, 
+      riskScore: 45,
+      riskLevelText: 'O\'rtacha Xavf (45%)', 
+      riskFactors: ['Vazifalar topshirishda kechikishlar bor'],
+      primaryRiskFactor: 'Vazifalar topshirishda kechikishlar bor', 
+      recommendedAction: 'Ustoz bilan shaxsiy muloqot', 
+      parentPhone: '+998 90 888 99 00', 
+      phone: '+998 99 777 88 99' 
+    }
   ],
   notifications: [
     { id: 'n1', title: '🎯 Yangi lid kelib tushdi', message: 'Instagram orqali .NET Backend kursiga yangi qiziqish bildirildi.', type: 'Lead', actionUrl: 'leads', isRead: false, createdAt: new Date(Date.now() - 1000 * 60 * 15).toISOString() },
@@ -1307,7 +1345,29 @@ function handleOfflineFallback(endpoint, options) {
 
   // Student risks
   if (endpoint.startsWith('/studentrisks')) {
-    const risks = getStorage('studentRisks', mockSeed.studentRisks);
+    let risks = getStorage('studentRisks', mockSeed.studentRisks);
+    risks = (Array.isArray(risks) && risks.length > 0 ? risks : mockSeed.studentRisks).map(r => ({
+      ...r,
+      studentName: r.studentName || 'O\'quvchi',
+      groupName: r.groupName || 'Guruh',
+      courseName: r.courseName || 'Kurs',
+      phone: r.phone || '',
+      parentPhone: r.parentPhone || '',
+      attendanceRate: r.attendanceRate ?? r.attendancePercentage ?? 80,
+      attendancePercentage: r.attendancePercentage ?? r.attendanceRate ?? 80,
+      missedLessonsCount: r.missedLessonsCount ?? r.consecutiveAbsences ?? 0,
+      consecutiveAbsences: r.consecutiveAbsences ?? r.missedLessonsCount ?? 0,
+      overdueDebt: r.overdueDebt ?? r.unpaidAmount ?? 0,
+      unpaidAmount: r.unpaidAmount ?? r.overdueDebt ?? 0,
+      riskLevel: r.riskLevel ?? 1,
+      riskLevelText: r.riskLevelText || (r.riskLevel === 2 ? 'Yuqori Xavf (85%)' : r.riskLevel === 1 ? 'O\'rtacha Xavf (45%)' : 'Barqaror (15%)'),
+      riskScore: r.riskScore ?? (r.riskLevel === 2 ? 85 : r.riskLevel === 1 ? 45 : 15),
+      riskFactors: Array.isArray(r.riskFactors) && r.riskFactors.length > 0 
+        ? r.riskFactors 
+        : (r.primaryRiskFactor ? [r.primaryRiskFactor] : ['Davomat nazoratda']),
+      primaryRiskFactor: r.primaryRiskFactor || (r.riskFactors ? r.riskFactors[0] : 'Davomat pasayishi'),
+      recommendedAction: r.recommendedAction || 'Ustoz va administrator nazorati'
+    }));
     return { success: true, data: risks };
   }
 
