@@ -116,12 +116,13 @@ export const Certificates = () => {
     }
   };
 
-  const filteredCertificates = certificates.filter(
-    (c) =>
-      c.studentName.toLowerCase().includes(search.toLowerCase()) ||
-      c.courseName.toLowerCase().includes(search.toLowerCase()) ||
-      c.certificateCode.toLowerCase().includes(search.toLowerCase())
-  );
+  const filteredCertificates = (certificates || []).filter((c) => {
+    const q = (search || '').toLowerCase();
+    const sName = (c?.studentName || '').toLowerCase();
+    const cName = (c?.courseName || '').toLowerCase();
+    const cCode = (c?.certificateCode || c?.certificateNumber || c?.verificationCode || '').toLowerCase();
+    return sName.includes(q) || cName.includes(q) || cCode.includes(q);
+  });
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
@@ -275,23 +276,23 @@ export const Certificates = () => {
                       fontSize: '12px'
                     }}
                   >
-                    {cert.certificateCode}
+                    {cert?.certificateCode || cert?.certificateNumber || 'EDU-2026'}
                   </span>
 
                   <span className="badge badge-emerald" style={{ fontSize: '11px' }}>
-                    {cert.gradeLetter} ({cert.finalScore}%)
+                    {cert?.gradeLetter || 'A'} ({cert?.finalScore ?? 100}%)
                   </span>
                 </div>
 
                 <h3 style={{ fontSize: '18px', fontWeight: 900, color: '#fff', margin: '0 0 4px 0' }}>
-                  {cert.studentName}
+                  {cert?.studentName || 'Bitiruvchi'}
                 </h3>
                 <div style={{ fontSize: '13px', color: '#38bdf8', fontWeight: 600, marginBottom: '12px' }}>
-                  {cert.courseName}
+                  {cert?.courseName || 'Kurs'}
                 </div>
 
                 <div style={{ fontSize: '11px', color: '#9ca3af', display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '16px' }}>
-                  <Calendar size={13} /> Berilgan: {new Date(cert.issuedAt).toLocaleDateString()}
+                  <Calendar size={13} /> Berilgan: {cert?.issuedAt ? new Date(cert.issuedAt).toLocaleDateString() : 'Bugun'}
                 </div>
               </div>
 

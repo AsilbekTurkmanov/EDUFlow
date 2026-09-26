@@ -129,19 +129,25 @@ export const Centers = ({ onSelectCenterForUsers }) => {
   const warningCentersCount = centers.filter(c => !c.isBlocked && c.quotaUsagePercentage >= 90).length;
 
   // Filtered centers
-  const filteredCenters = centers.filter(c => {
-    const matchesSearch = !search || 
-      c.name.toLowerCase().includes(search.toLowerCase()) ||
-      (c.slug && c.slug.toLowerCase().includes(search.toLowerCase())) ||
-      (c.phone && c.phone.includes(search)) ||
-      (c.email && c.email.toLowerCase().includes(search.toLowerCase()));
+  const filteredCenters = (centers || []).filter(c => {
+    const q = (search || '').toLowerCase();
+    const cName = (c?.name || '').toLowerCase();
+    const cSlug = (c?.slug || '').toLowerCase();
+    const cPhone = (c?.phone || '').toLowerCase();
+    const cEmail = (c?.email || '').toLowerCase();
+
+    const matchesSearch = !q || 
+      cName.includes(q) ||
+      cSlug.includes(q) ||
+      cPhone.includes(q) ||
+      cEmail.includes(q);
 
     const matchesStatus = statusFilter === 'ALL' ||
-      (statusFilter === 'BLOCKED' && (c.isBlocked || c.isQuotaExceeded)) ||
-      (statusFilter === 'ACTIVE' && (!c.isBlocked && !c.isQuotaExceeded)) ||
-      (statusFilter === 'WARNING' && (c.quotaUsagePercentage >= 90 && !c.isBlocked));
+      (statusFilter === 'BLOCKED' && (c?.isBlocked || c?.isQuotaExceeded)) ||
+      (statusFilter === 'ACTIVE' && (!c?.isBlocked && !c?.isQuotaExceeded)) ||
+      (statusFilter === 'WARNING' && (c?.quotaUsagePercentage >= 90 && !c?.isBlocked));
 
-    const matchesPlan = planFilter === 'ALL' || String(c.tariffPlan) === planFilter;
+    const matchesPlan = planFilter === 'ALL' || String(c?.tariffPlan) === planFilter;
 
     return matchesSearch && matchesStatus && matchesPlan;
   });

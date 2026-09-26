@@ -351,15 +351,65 @@ const mockSeed = {
     { id: 'r3', name: '305-Katta Ma\'ruzaxona', capacity: 45, computersCount: 0, hasProjector: true, hasAirConditioner: true, centerName: 'EduFlow Bosh Markaz (Toshkent)' }
   ],
   payrolls: [
-    { id: 'pay1', teacherId: '2', teacherName: 'Shahriyor O\'qituvchi', periodMonth: '2026-09', basePercentage: 70, fixedAmount: null, totalRevenueGenerated: 3200000, calculatedAmount: 2240000, bonusAmount: 200000, deductionsAmount: 0, totalAmount: 2440000, status: 'Paid', paidAt: new Date().toISOString(), note: 'Oylik to\'liq to\'landi' },
-    { id: 'pay2', teacherId: 't_anvar', teacherName: 'Anvar Karimov (Senior .NET)', periodMonth: '2026-09', basePercentage: 70, fixedAmount: 450000, totalRevenueGenerated: 12000000, calculatedAmount: 6750000, bonusAmount: 500000, deductionsAmount: 0, totalAmount: 7250000, status: 'Pending', paidAt: null, note: 'Kutilmoqda' }
+    { 
+      id: 'pay1', 
+      teacherId: '2', 
+      teacherName: 'Shahriyor O\'qituvchi', 
+      teacherPhone: '+998 90 345 67 89',
+      teacherEmail: 'shahriyor@eduflow.uz',
+      periodMonth: '2026-09', 
+      compensationType: 'Percentage',
+      compensationTypeName: 'Ulush (70%)',
+      basePercentage: 70, 
+      fixedAmount: null, 
+      activeStudentsCount: 4,
+      totalRevenueGenerated: 3200000, 
+      baseAmount: 2240000,
+      calculatedAmount: 2240000, 
+      bonus: 200000,
+      bonusAmount: 200000, 
+      deductions: 0,
+      deductionsAmount: 0, 
+      finalAmount: 2440000, 
+      totalAmount: 2440000, 
+      status: 2, 
+      statusText: 'To\'langan', 
+      paidAt: new Date().toISOString(), 
+      paymentNote: 'Bank kartasiga o\'tkazildi' 
+    },
+    { 
+      id: 'pay2', 
+      teacherId: 't_anvar', 
+      teacherName: 'Anvar Karimov (Senior .NET)', 
+      teacherPhone: '+998 93 111 22 33',
+      teacherEmail: 'anvar.karimov@eduflow.uz',
+      periodMonth: '2026-09', 
+      compensationType: 'FixedPerStudent',
+      compensationTypeName: 'Har bir o\'quvchiga (450 000 so\'m)',
+      basePercentage: 70, 
+      fixedAmount: 450000, 
+      activeStudentsCount: 15,
+      totalRevenueGenerated: 12000000, 
+      baseAmount: 6750000,
+      calculatedAmount: 6750000, 
+      bonus: 500000,
+      bonusAmount: 500000, 
+      deductions: 0,
+      deductionsAmount: 0, 
+      finalAmount: 7250000, 
+      totalAmount: 7250000, 
+      status: 1, 
+      statusText: 'Kutilmoqda', 
+      paidAt: null, 
+      paymentNote: 'Kutilmoqda' 
+    }
   ],
   exams: [
-    { id: 'ex1', groupId: 'g1', groupName: 'DOTNET-G101', title: '1-Modul Oraliq Nazorat Imtihoni', examDate: '2026-09-24', maxScore: 100, passingScore: 60, description: 'Clean Architecture va EF Core asoslari', gradedCount: 4, totalStudents: 4, averageScore: 88.5 },
-    { id: 'ex2', groupId: 'g2', groupName: 'REACT-G201', title: 'React Hooks & State Test', examDate: '2026-09-25', maxScore: 100, passingScore: 60, description: 'Komponentlar va Lifecycle', gradedCount: 3, totalStudents: 3, averageScore: 91.0 }
+    { id: 'ex1', groupId: 'g1', groupName: 'DOTNET-G101', title: '1-Modul Oraliq Nazorat Imtihoni', examDate: '2026-09-24', maxScore: 100, passingScore: 60, description: 'Clean Architecture va EF Core asoslari', gradedCount: 4, submissionsCount: 4, totalStudents: 4, averageScore: 88.5 },
+    { id: 'ex2', groupId: 'g2', groupName: 'REACT-G201', title: 'React Hooks & State Test', examDate: '2026-09-25', maxScore: 100, passingScore: 60, description: 'Komponentlar va Lifecycle', gradedCount: 3, submissionsCount: 3, totalStudents: 3, averageScore: 91.0 }
   ],
   certificates: [
-    { id: 'cert1', certificateNumber: 'EDU-2026-0091', studentId: '3', studentName: 'Turkmanov O\'quvchi', courseName: '.NET 10 Backend Architecture', finalScore: 94, issuedAt: '2026-09-20', verificationCode: 'EDU-2026-0091', qrCodeUrl: 'https://asilbekturkmanov.github.io/EDUFlow/?verify=EDU-2026-0091', isRevoked: false, centerName: 'EduFlow Bosh Markaz (Toshkent)' }
+    { id: 'cert1', certificateNumber: 'EDU-2026-0091', certificateCode: 'EDU-2026-0091', studentId: '3', studentName: 'Turkmanov O\'quvchi', courseName: '.NET 10 Backend Architecture', finalScore: 94, issuedAt: '2026-09-20', verificationCode: 'EDU-2026-0091', qrCodeUrl: 'https://asilbekturkmanov.github.io/EDUFlow/?verify=EDU-2026-0091', isRevoked: false, centerName: 'EduFlow Bosh Markaz (Toshkent)' }
   ],
   studentRisks: [
     { studentId: '4', studentName: 'Jasur Bekmirzayev', groupName: 'DOTNET-G101', courseName: '.NET 10 Backend Architecture', attendancePercentage: 68.0, consecutiveAbsences: 3, unpaidAmount: 800000, riskLevel: 2, riskLevelText: 'Yuqori Xavf (85%)', primaryRiskFactor: 'Ketma-ket 3 dars qoldirilgan va oylik qarzdorlik', recommendedAction: 'Ota-onaga qo\'ng\'iroq qilish va SMS yuborish', parentPhone: '+998 90 123 45 67', phone: '+998 97 111 22 33' },
@@ -1148,12 +1198,34 @@ function handleOfflineFallback(endpoint, options) {
   // Payroll
   if (endpoint.startsWith('/payroll')) {
     let payrolls = getStorage('payrolls', mockSeed.payrolls);
+    // Ensure records are normalized
+    payrolls = (Array.isArray(payrolls) && payrolls.length > 0 ? payrolls : mockSeed.payrolls).map(p => ({
+      ...p,
+      teacherName: p.teacherName || 'O\'qituvchi',
+      compensationTypeName: p.compensationTypeName || (p.compensationType ? String(p.compensationType) : 'Ulush (70%)'),
+      activeStudentsCount: p.activeStudentsCount ?? 4,
+      totalRevenueGenerated: p.totalRevenueGenerated ?? (p.totalAmount || 0),
+      baseAmount: p.baseAmount ?? (p.calculatedAmount || 0),
+      bonus: p.bonus ?? (p.bonusAmount || 0),
+      deductions: p.deductions ?? (p.deductionsAmount || 0),
+      finalAmount: p.finalAmount ?? (p.totalAmount || p.calculatedAmount || 0),
+      statusText: p.statusText || (p.status === 'Paid' || p.status === 2 ? 'To\'langan' : 'Kutilmoqda'),
+      status: p.status === 'Paid' || p.statusText === 'To\'langan' ? 2 : 1
+    }));
     if (endpoint.includes('/generate-center')) {
       return { success: true, message: "Oyliklar qayta hisoblandi" };
     }
     if (endpoint.includes('/pay') && method === 'POST') {
       const id = endpoint.split('/')[2];
-      payrolls = payrolls.map(p => p.id === id ? { ...p, status: 'Paid', paidAt: new Date().toISOString() } : p);
+      payrolls = payrolls.map(p => p.id === id ? { 
+        ...p, 
+        bonus: Number(body.bonus) || 0,
+        deductions: Number(body.deductions) || 0,
+        finalAmount: (p.baseAmount || 0) + (Number(body.bonus) || 0) - (Number(body.deductions) || 0),
+        status: 2, 
+        statusText: 'To\'langan', 
+        paidAt: new Date().toISOString() 
+      } : p);
       setStorage('payrolls', payrolls);
       return { success: true, message: "Oylik to'landi" };
     }
@@ -1198,20 +1270,31 @@ function handleOfflineFallback(endpoint, options) {
   // Certificates
   if (endpoint.startsWith('/certificates')) {
     let certs = getStorage('certificates', mockSeed.certificates);
+    certs = (Array.isArray(certs) && certs.length > 0 ? certs : mockSeed.certificates).map(c => ({
+      ...c,
+      certificateCode: c.certificateCode || c.certificateNumber || c.verificationCode || 'EDU-2026-0091',
+      certificateNumber: c.certificateNumber || c.certificateCode || 'EDU-2026-0091',
+      verificationCode: c.verificationCode || c.certificateCode || 'EDU-2026-0091',
+      studentName: c.studentName || 'O\'quvchi',
+      courseName: c.courseName || 'Kurs'
+    }));
     if (endpoint.includes('/verify/')) {
       const code = endpoint.split('/verify/')[1];
-      const found = certs.find(c => c.verificationCode === code || c.certificateNumber === code);
+      const found = certs.find(c => c.verificationCode === code || c.certificateNumber === code || c.certificateCode === code);
       return found ? { success: true, data: found } : { success: false, message: "Sertifikat topilmadi" };
     }
     if (method === 'POST' && endpoint.includes('/issue')) {
+      const codeGen = 'EDU-2026-' + Math.floor(1000 + Math.random() * 9000);
       const newCert = {
         id: 'cert-' + Date.now(),
-        certificateNumber: 'EDU-2026-' + Math.floor(1000 + Math.random() * 9000),
+        certificateNumber: codeGen,
+        certificateCode: codeGen,
         ...body,
-        studentName: 'Jasur Bekmirzayev',
-        courseName: '.NET 10 Backend Architecture',
+        studentName: body.studentName || 'Jasur Bekmirzayev',
+        courseName: body.courseName || '.NET 10 Backend Architecture',
         issuedAt: new Date().toISOString(),
-        verificationCode: 'EDU-2026-' + Math.floor(1000 + Math.random() * 9000),
+        verificationCode: codeGen,
+        qrCodeUrl: `https://asilbekturkmanov.github.io/EDUFlow/?verify=${codeGen}`,
         isRevoked: false,
         centerName: 'EduFlow Bosh Markaz (Toshkent)'
       };

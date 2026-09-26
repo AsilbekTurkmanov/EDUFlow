@@ -91,18 +91,19 @@ export const Payroll = () => {
   };
 
   // KPI calculations
-  const totalRevenue = payrolls.reduce((acc, p) => acc + (p.totalRevenueGenerated || 0), 0);
-  const totalSalaries = payrolls.reduce((acc, p) => acc + (p.finalAmount || 0), 0);
-  const centerMargin = totalRevenue - totalSalaries;
-  const pendingPayouts = payrolls
-    .filter((p) => p.status !== 2 && p.statusText !== 'To\'langan')
-    .reduce((acc, p) => acc + (p.finalAmount || 0), 0);
+  const totalRevenue = (payrolls || []).reduce((acc, p) => acc + (p?.totalRevenueGenerated || p?.totalAmount || 0), 0);
+  const totalSalaries = (payrolls || []).reduce((acc, p) => acc + (p?.finalAmount || p?.calculatedAmount || p?.totalAmount || 0), 0);
+  const centerMargin = Math.max(0, totalRevenue - totalSalaries);
+  const pendingPayouts = (payrolls || [])
+    .filter((p) => p?.status !== 2 && p?.statusText !== 'To\'langan' && p?.status !== 'Paid')
+    .reduce((acc, p) => acc + (p?.finalAmount || p?.calculatedAmount || p?.totalAmount || 0), 0);
 
-  const filteredPayrolls = payrolls.filter(
-    (p) =>
-      p.teacherName.toLowerCase().includes(search.toLowerCase()) ||
-      p.compensationTypeName.toLowerCase().includes(search.toLowerCase())
-  );
+  const filteredPayrolls = (payrolls || []).filter((p) => {
+    const q = (search || '').toLowerCase();
+    const tName = (p?.teacherName || '').toLowerCase();
+    const cType = (p?.compensationTypeName || p?.compensationType || '').toLowerCase();
+    return tName.includes(q) || cType.includes(q);
+  });
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
@@ -242,8 +243,8 @@ export const Payroll = () => {
                       style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', transition: 'background 0.15s ease' }}
                     >
                       <td style={{ padding: '14px 18px' }}>
-                        <div style={{ fontWeight: 800, color: '#fff', fontSize: '14px' }}>{p.teacherName}</div>
-                        <div style={{ fontSize: '11px', color: '#9ca3af' }}>{p.teacherPhone || p.teacherEmail}</div>
+                        <div style={{ fontWeight: 800, color: '#fff', fontSize: '14px' }}>{p?.teacherName || 'Ustoz'}</div>
+                        <div style={{ fontSize: '11px', color: '#9ca3af' }}>{p?.teacherPhone || p?.teacherEmail || '—'}</div>
                       </td>
                       <td style={{ padding: '14px 18px' }}>
                         <span
@@ -260,31 +261,31 @@ export const Payroll = () => {
                             fontWeight: 700
                           }}
                         >
-                          <Percent size={11} /> {p.compensationTypeName}
+                          <Percent size={11} /> {p?.compensationTypeName || p?.compensationType || 'Ulush (70%)'}
                         </span>
                       </td>
                       <td style={{ padding: '14px 18px', color: '#e5e7eb', fontSize: '13px' }}>
-                        <span style={{ fontWeight: 700, color: '#fff' }}>{p.activeStudentsCount}</span> ta faol
+                        <span style={{ fontWeight: 700, color: '#fff' }}>{p?.activeStudentsCount ?? 0}</span> ta faol
                       </td>
                       <td style={{ padding: '14px 18px', color: '#9ca3af', fontSize: '13px' }}>
-                        {p.totalRevenueGenerated.toLocaleString()} UZS
+                        {(p?.totalRevenueGenerated || 0).toLocaleString()} UZS
                       </td>
                       <td style={{ padding: '14px 18px', color: '#e5e7eb', fontSize: '13px' }}>
-                        {p.baseAmount.toLocaleString()} UZS
+                        {(p?.baseAmount || p?.calculatedAmount || 0).toLocaleString()} UZS
                       </td>
                       <td style={{ padding: '14px 18px', fontSize: '12px' }}>
-                        {p.bonus > 0 && <span style={{ color: '#34d399', display: 'block' }}>+{p.bonus.toLocaleString()} UZS</span>}
-                        {p.deductions > 0 && <span style={{ color: '#f87171', display: 'block' }}>-{p.deductions.toLocaleString()} UZS</span>}
-                        {p.bonus === 0 && p.deductions === 0 && <span style={{ color: '#6b7280' }}>—</span>}
+                        {(p?.bonus || 0) > 0 && <span style={{ color: '#34d399', display: 'block' }}>+{(p.bonus).toLocaleString()} UZS</span>}
+                        {(p?.deductions || 0) > 0 && <span style={{ color: '#f87171', display: 'block' }}>-{(p.deductions).toLocaleString()} UZS</span>}
+                        {(!p?.bonus || p.bonus === 0) && (!p?.deductions || p.deductions === 0) && <span style={{ color: '#6b7280' }}>—</span>}
                       </td>
                       <td style={{ padding: '14px 18px' }}>
                         <span style={{ fontWeight: 900, color: '#34d399', fontSize: '15px' }}>
-                          {p.finalAmount.toLocaleString()} UZS
+                          {(p?.finalAmount || p?.totalAmount || p?.calculatedAmount || 0).toLocaleString()} UZS
                         </span>
                       </td>
                       <td style={{ padding: '14px 18px' }}>
                         <span className={isPaid ? 'badge badge-emerald' : 'badge badge-amber'} style={{ fontSize: '11px' }}>
-                          {p.statusText}
+                          {p?.statusText || (isPaid ? 'To\'langan' : 'Kutilmoqda')}
                         </span>
                       </td>
                       {role === 'Admin' && (

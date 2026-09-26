@@ -54,21 +54,22 @@ export const StudentRisks = () => {
     showToast(`${student.studentName} va uning ota-onasiga SMS ogohlantirish yuborildi!`, 'success');
   };
 
-  const highCount = risks.filter((r) => r.riskLevel === 2 || r.riskLevelText?.includes('Yuqori')).length;
-  const mediumCount = risks.filter((r) => r.riskLevel === 1 || r.riskLevelText?.includes('O\'rtacha')).length;
-  const lowCount = risks.filter((r) => r.riskLevel === 0 || r.riskLevelText?.includes('Barqaror')).length;
+  const highCount = (risks || []).filter((r) => r?.riskLevel === 2 || r?.riskLevelText?.includes('Yuqori')).length;
+  const mediumCount = (risks || []).filter((r) => r?.riskLevel === 1 || r?.riskLevelText?.includes('O\'rtacha')).length;
+  const lowCount = (risks || []).filter((r) => r?.riskLevel === 0 || r?.riskLevelText?.includes('Barqaror')).length;
 
-  const filteredRisks = risks.filter((r) => {
-    const matchesSearch =
-      r.studentName.toLowerCase().includes(search.toLowerCase()) ||
-      r.groupName.toLowerCase().includes(search.toLowerCase()) ||
-      (r.phone && r.phone.includes(search));
+  const filteredRisks = (risks || []).filter((r) => {
+    const q = (search || '').toLowerCase();
+    const sName = (r?.studentName || '').toLowerCase();
+    const gName = (r?.groupName || '').toLowerCase();
+    const phone = (r?.phone || '').toLowerCase();
+    const matchesSearch = sName.includes(q) || gName.includes(q) || phone.includes(q);
 
     if (!matchesSearch) return false;
 
-    if (filterLevel === 'HIGH') return r.riskLevel === 2 || r.riskLevelText?.includes('Yuqori');
-    if (filterLevel === 'MEDIUM') return r.riskLevel === 1 || r.riskLevelText?.includes('O\'rtacha');
-    if (filterLevel === 'LOW') return r.riskLevel === 0 || r.riskLevelText?.includes('Barqaror');
+    if (filterLevel === 'HIGH') return r?.riskLevel === 2 || r?.riskLevelText?.includes('Yuqori');
+    if (filterLevel === 'MEDIUM') return r?.riskLevel === 1 || r?.riskLevelText?.includes('O\'rtacha');
+    if (filterLevel === 'LOW') return r?.riskLevel === 0 || r?.riskLevelText?.includes('Barqaror');
     return true;
   });
 

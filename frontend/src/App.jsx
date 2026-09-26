@@ -20,6 +20,7 @@ import { Attendance } from './pages/Attendance';
 import { Assignments } from './pages/Assignments';
 import { Payments } from './pages/Payments';
 import { AuditLogs } from './pages/AuditLogs';
+import { ErrorBoundary } from './components/Common/ErrorBoundary';
 import './App.css';
 
 export function App() {
@@ -87,35 +88,37 @@ export function App() {
         <Navbar currentTabTitle={getTabTitle()} setTab={setCurrentTab} />
 
         <main className="page-body">
-          {currentTab === 'dashboard' && <Dashboard setTab={setCurrentTab} />}
-          {currentTab === 'centers' && (
-            <Centers 
-              onSelectCenterForUsers={(centerId) => {
-                setFilterCenterId(centerId);
-                setCurrentTab('users');
-              }} 
-            />
-          )}
-          {currentTab === 'leads' && <Leads />}
-          {currentTab === 'users' && (
-            <Users 
-              initialCenterId={filterCenterId} 
-              setTab={setCurrentTab} 
-            />
-          )}
-          {currentTab === 'courses' && <Courses />}
-          {currentTab === 'groups' && <Groups />}
-          {currentTab === 'schedule' && <Schedule />}
-          {currentTab === 'rooms' && <Rooms />}
-          {currentTab === 'payroll' && <Payroll />}
-          {currentTab === 'exams' && <Exams />}
-          {currentTab === 'risks' && <StudentRisks />}
-          {currentTab === 'certificates' && <Certificates />}
-          {currentTab === 'parent' && <ParentPortal />}
-          {currentTab === 'attendance' && <Attendance />}
-          {currentTab === 'assignments' && <Assignments />}
-          {currentTab === 'payments' && <Payments />}
-          {currentTab === 'audit' && <AuditLogs />}
+          <ErrorBoundary key={currentTab} onGoHome={() => setCurrentTab('dashboard')}>
+            {currentTab === 'dashboard' && <Dashboard setTab={setCurrentTab} />}
+            {currentTab === 'centers' && (
+              <Centers 
+                onSelectCenterForUsers={(centerId) => {
+                  setFilterCenterId(centerId);
+                  setCurrentTab('users');
+                }} 
+              />
+            )}
+            {currentTab === 'leads' && <Leads />}
+            {currentTab === 'users' && (
+              <Users 
+                initialCenterId={filterCenterId} 
+                setTab={setCurrentTab} 
+              />
+            )}
+            {currentTab === 'courses' && <Courses />}
+            {currentTab === 'groups' && <Groups />}
+            {currentTab === 'schedule' && <Schedule />}
+            {currentTab === 'rooms' && <Rooms />}
+            {currentTab === 'payroll' && <Payroll />}
+            {currentTab === 'exams' && <Exams />}
+            {currentTab === 'risks' && <StudentRisks />}
+            {currentTab === 'certificates' && <Certificates />}
+            {currentTab === 'parent' && <ParentPortal />}
+            {currentTab === 'attendance' && <Attendance />}
+            {currentTab === 'assignments' && <Assignments />}
+            {currentTab === 'payments' && <Payments />}
+            {currentTab === 'audit' && <AuditLogs />}
+          </ErrorBoundary>
         </main>
       </div>
     </div>

@@ -112,14 +112,13 @@ export const Payments = () => {
   const studentBalance = user?.balance ?? (studentTotalPaid - 800000);
 
   // Filtered debts for Admin search
-  const filteredDebts = debts.filter((d) => {
+  const filteredDebts = (debts || []).filter((d) => {
     if (!searchQuery) return true;
     const q = searchQuery.toLowerCase();
-    return (
-      d.studentName.toLowerCase().Contains(q) ||
-      (d.studentPhone && d.studentPhone.toLowerCase().includes(q)) ||
-      (d.parentPhone && d.parentPhone.toLowerCase().includes(q))
-    );
+    const sName = (d?.studentName || '').toLowerCase();
+    const sPhone = (d?.studentPhone || '').toLowerCase();
+    const pPhone = (d?.parentPhone || '').toLowerCase();
+    return sName.includes(q) || sPhone.includes(q) || pPhone.includes(q);
   });
 
   return (

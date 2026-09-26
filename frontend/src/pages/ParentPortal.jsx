@@ -220,7 +220,7 @@ export const ParentPortal = () => {
                 <div style={{ background: 'rgba(255,255,255,0.04)', padding: '14px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.06)' }}>
                   <div style={{ fontSize: '11px', color: '#9ca3af', marginBottom: '4px' }}>Oylik Kurs To'lovi</div>
                   <div style={{ fontSize: '22px', fontWeight: 900, color: '#fff' }}>
-                    {currentChild.monthlyTuition.toLocaleString()} UZS
+                    {(currentChild.monthlyTuition || 800000).toLocaleString()} UZS
                   </div>
                   <div style={{ fontSize: '11px', color: '#9ca3af', marginTop: '2px' }}>Har oy 10-sanasigacha</div>
                 </div>
@@ -241,7 +241,7 @@ export const ParentPortal = () => {
                 </div>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                  {currentChild.recentAttendances.map((att) => {
+                  {(currentChild.recentAttendances || []).map((att) => {
                     const isPresent = att.status === 0 || att.status === 'Present';
                     const isLate = att.status === 1 || att.status === 'Late';
                     return (
@@ -284,12 +284,12 @@ export const ParentPortal = () => {
                 </div>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                  {currentChild.recentExamResults.length === 0 ? (
+                  {(!currentChild.recentExamResults || currentChild.recentExamResults.length === 0) ? (
                     <div style={{ color: '#9ca3af', fontSize: '13px', textAlign: 'center', padding: '20px 0' }}>
                       Hali imtihon baholari kiritilmagan.
                     </div>
                   ) : (
-                    currentChild.recentExamResults.map((exam) => (
+                    (currentChild.recentExamResults || []).map((exam) => (
                       <div
                         key={exam.id}
                         style={{

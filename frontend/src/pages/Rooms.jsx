@@ -134,8 +134,8 @@ export const Rooms = () => {
     }
   };
 
-  const filteredRooms = rooms.filter((r) =>
-    r.name.toLowerCase().includes(search.toLowerCase())
+  const filteredRooms = (rooms || []).filter((r) =>
+    (r?.name || '').toLowerCase().includes((search || '').toLowerCase())
   );
 
   return (
